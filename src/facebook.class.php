@@ -8,13 +8,13 @@
 		// Options. These shouldn't be modified here, but using the OAuth::options() function.
 		public $options = Array(
 			"session_prefix"		=> "facebook_",
-			"dialog"				=> Array("base_url" => "https://www.facebook.com/dialog/oauth"),
+			"dialog"				=> Array("base_url" => "https://www.facebook.com/dialog/oauth", "scope_separator" => ","),
 			"api"					=> Array("base_url" => "https://graph.facebook.com/v2.2", "token_auth" => true),
 			"requests"				=> Array("/oauth/token" => "/oauth/access_token", "/oauth/token/debug" => "/debug_token"),
 			"errors"				=> Array("throw" => true)
 		);
 		
-		// function getAccessTokenFromCode(). Exchanges the code for an access token.
+		// function getAccessTokenFromCode(). Exchanges the code for an access token. Redefined because Facebook returns the access token in a query string.
 		public function getAccessTokenFromCode($redirect_url, $code = null, $state = true) {
 			// Check if redirect_url is a url. The redirect_url should be exactly the same as the redirect_url used in the login dialog. (So really, this should just be the same as the current url.)
 			if(!filter_var($redirect_url, FILTER_VALIDATE_URL)) throw new Exception(__CLASS__ . "::" . __METHOD__ . "(): \$redirect_url must be a valid url.");
@@ -54,14 +54,15 @@
 			$this->accessToken($response["access_token"]);
 		}
 		
-		// function validateAccessToken(). Verifies an access token.
+		// function validateAccessToken(). Verifies an access token. Redefined because Facebook returns access token data in a query string.
 		public function validateAccessToken($access_token = null) {
 			// Check if access_token is string.
 			if(!is_string($access_token)) $access_token = $this->token;
 			
 			// Example request: GET /oauth/token/debug?access_token={access_token}
 			$request = $this->api("GET", $this->options("requests")["/oauth/token/debug"], Array(
-				"access_token"			=> $access_token
+				"access_token"			=> $this->app["id"] . "|" . $this->app["secret"],
+				"input_token"			=> $access_token
 			));
 			
 			try { $request->execute(); parse_str($request->response(), $response); }
