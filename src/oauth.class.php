@@ -41,7 +41,8 @@
 			}
 			
 			// Try to restore the access token from the session.
-			if($this->session("token") != null) $this->token = $this->session("token");
+			if($this->options("access_token") != null) { $this->token = $this->options("access_token"); unset($this->options["access_token"]); }
+			elseif($this->session("token") != null) $this->token = $this->session("token");
 		}
 		
 		// function api(). Makes a new request to the server's API.
