@@ -189,7 +189,7 @@
 				if(isset($this->options[$name]) && is_array($this->options[$name]) && is_array($value)) $this->options[$name] = array_merge($this->options[$name], $value);
 				elseif(isset($this->options[$name]) && is_object($this->options[$name]) && is_object($value)) $this->options[$name] = (object)array_merge((array)$this->options[$name], (array)$value);
 				else $this->options[$name] = $value;
-			} else return $this->options[$name];
+			} else return isset($this->options[$name]) ? $this->options[$name] : null;
 		}
 		
 		// function app(). Returns the app id and secret.
