@@ -15,7 +15,7 @@
 		public $options = Array(
 			"session_prefix"		=> "oauth_",
 			// Login Dialog. Set a few important variables for using the Login Dialog.
-			"dialog"				=> Array("base_url" => "https://www.facebook.com/dialog/oauth"),
+			"dialog"				=> Array("base_url" => "https://www.facebook.com/dialog/oauth", "scope_separator" => ","),
 			// API. Set a few important variables for using the API. // token_auth: true|1 = access_token parameter |default, 2 = Authorization header, false = Do not automatically send an access token.
 			"api"					=> Array("base_url" => "https://graph.facebook.com/v2.1", "token_auth" => true),
 			// Default requests. Sets a few important variables for the requests this class makes.
