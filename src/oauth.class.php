@@ -131,7 +131,7 @@
 				"client_id"				=> $this->app["id"],
 				"redirect_uri"			=> $redirect_url,
 				"response_type"			=> "code",
-				"scope"					=> implode(",", $permissions),
+				"scope"					=> implode($this->options("dialog")["scope_separator"], $permissions),
 				"state"					=> $state
 			);
 			
