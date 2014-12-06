@@ -12,7 +12,7 @@
 	));
 	
 	// Output a Login Button.
-	echo $facebook->loginButton("Login with Facebook", "https://example.com/facebook-login/1.php", Array("email", "user_friends"));
+	echo $facebook->loginButton("Login with Facebook", "https://example.com/facebook-1/code.php", Array("email", "user_friends"));
 	
 	// Try fetching the user's data. If an error is thrown, show a link to the login dialog.
 	if($facebook->accessToken() != null) {
