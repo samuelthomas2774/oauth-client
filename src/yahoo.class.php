@@ -8,7 +8,7 @@
 		// Options. These shouldn't be modified here, but using the OAuth::options() function.
 		public $options = Array(
 			"session_prefix"		=> "yahoo_",
-			"dialog"				=> Array("base_url" => "https://api.login.yahoo.com/oauth2/request_auth"),
+			"dialog"				=> Array("base_url" => "https://api.login.yahoo.com/oauth2/request_auth", "scope_separator" => " "),
 			"api"					=> Array("base_url" => "https://social.yahooapis.com/v1", "token_auth" => true),
 			"requests"				=> Array("/oauth/token" => "https://api.login.yahoo.com/oauth2/get_token", "/oauth/token/debug" => "https://api.login.yahoo.com/oauth2/get_token"),
 			"errors"				=> Array("throw" => true)
