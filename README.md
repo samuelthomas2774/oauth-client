@@ -1,7 +1,7 @@
 OAuth Client
 ============
 
-An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsoft &amp; Yahoo.
+An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsoft, Yahoo, GitHub &amp; LinkedIn.
 
 Facebook
 ------------
@@ -123,8 +123,7 @@ $oauth = new OAuthYahoo($client_id, $client_secret);</pre>
 
 - To get a link to the Login Dialog:
 <pre>$redirect_url = "http://example.com/yahoo/code.php";
-$permissions = Array("wl.signin", "wl.basic"); // Optional scope array.
-$login_url = $oauth->loginURL($redirect_url, $permissions);</pre>
+$login_url = $oauth->loginURL($redirect_url);</pre>
 - To get an access token from the code that was returned:
 <pre>$redirect_url = "http://example.com/yahoo/code.php"; // Must match the $redirect_url given to OAuth::loginURL() exactly. The user will not be redirected anywhere.
 $oauth->getAccessTokenFromCode($redirect_url);</pre>
@@ -146,9 +145,77 @@ You do not need to do this at the start of the script to get the access token fr
 $oauth->accessToken($new_access_token); // Set
 $oauth->accessToken($new_access_token, false); // Set without updating the access token in the session.</pre>
 
+GitHub
+------------
+1. Include src/github.class.php in all pages that need to access GitHub.
+<pre>require_once \__DIR__ . '/oauth-client/src/github.class.php';</pre>
+2. Create a new OAuthGitHub object with the parameters $client_id, $client_secret.
+<pre>$client_id = "appid";
+$client_secret = "appsecret";
+$oauth = new OAuthGitHub($client_id, $client_secret);</pre>
+
+- To get a link to the Login Dialog:
+<pre>$redirect_url = "http://example.com/github/code.php";
+$permissions = Array("user"); // Optional scope array.
+$login_url = $oauth->loginURL($redirect_url, $permissions);</pre>
+- To get an access token from the code that was returned:
+<pre>$redirect_url = "http://example.com/github/code.php"; // Must match the $redirect_url given to OAuth::loginURL() exactly. The user will not be redirected anywhere.
+$oauth->getAccessTokenFromCode($redirect_url);</pre>
+- To make API Calls: (The access token will be included automatically).
+<pre>$method = "GET"; // Must be GET, POST, PUT or DELETE (uppercase).
+$url = "/me";
+//$params = Array("fields" => "id,name"); // You can also add an optional array of parameters.
+$request = $oauth->api($method, $url /* , $params */);
+try { $request->execute(); } catch(Exception $error) { exit("GitHub returned an error: " . print_r($error, true)); }
+$response_plaintext = $request->response();
+$response_array = $response->responseArray();
+$response_object = $response->responseObject();</pre>
+- To get the current user:
+<pre>try { $user = $oauth->userProfile(); }
+catch(Exception $error) { exit("GitHub returned an error: " . print_r($error, true)); }</pre>
+- To get / set the current access token:
+You do not need to do this at the start of the script to get the access token from the session, this is done automatically. Also, this function updates the access token in the session.
+<pre>$oauth->accessToken(); // Get
+$oauth->accessToken($new_access_token); // Set
+$oauth->accessToken($new_access_token, false); // Set without updating the access token in the session.</pre>
+
+LinkedIn
+------------
+1. Include src/linkedin.class.php in all pages that need to access LinkedIn.
+<pre>require_once \__DIR__ . '/oauth-client/src/linkedin.class.php';</pre>
+2. Create a new OAuthLinkedin object with the parameters $client_id, $client_secret.
+<pre>$client_id = "appid";
+$client_secret = "appsecret";
+$oauth = new OAuthLinkedin($client_id, $client_secret);</pre>
+
+- To get a link to the Login Dialog:
+<pre>$redirect_url = "http://example.com/linkedin/code.php";
+$permissions = Array("r_basicprofile"); // Optional scope array.
+$login_url = $oauth->loginURL($redirect_url, $permissions);</pre>
+- To get an access token from the code that was returned:
+<pre>$redirect_url = "http://example.com/linkedin/code.php"; // Must match the $redirect_url given to OAuth::loginURL() exactly. The user will not be redirected anywhere.
+$oauth->getAccessTokenFromCode($redirect_url);</pre>
+- To make API Calls: (The access token will be included automatically).
+<pre>$method = "GET"; // Must be GET, POST, PUT or DELETE (uppercase).
+$url = "/me";
+//$params = Array("fields" => "id,name"); // You can also add an optional array of parameters.
+$request = $oauth->api($method, $url /* , $params */);
+try { $request->execute(); } catch(Exception $error) { exit("LinkedIn returned an error: " . print_r($error, true)); }
+$response_plaintext = $request->response();
+$response_array = $response->responseArray();
+$response_object = $response->responseObject();</pre>
+- To get the current user:
+<pre>try { $user = $oauth->userProfile(); }
+catch(Exception $error) { exit("LinkedIn returned an error: " . print_r($error, true)); }</pre>
+- To get / set the current access token:
+You do not need to do this at the start of the script to get the access token from the session, this is done automatically. Also, this function updates the access token in the session.
+<pre>$oauth->accessToken(); // Get
+$oauth->accessToken($new_access_token); // Set
+$oauth->accessToken($new_access_token, false); // Set without updating the access token in the session.</pre>
+
 Extending the OAuth class.
 ------------
-You can extend the OAuth, OAuthFacebook, OAuthGoogle, OAuthMicrosoft and OAuthYahoo classes to add new functions and make existing functions work differently:
+You can extend the OAuth, OAuthFacebook, OAuthGoogle, OAuthMicrosoft, OAuthYahoo, OAuthGitHub & OAuthLinkedin classes to add new functions and make existing functions work differently:
 <pre>require_once __DIR__ . '/oauth-client/src/facebook.class.php';
 class My_Extended_Facebook_Class extends OAuthFacebook {
     // Options. Customize default options (optional).
