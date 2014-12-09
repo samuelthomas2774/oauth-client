@@ -17,12 +17,24 @@
 			// Login Dialog. Set a few important variables for using the Login Dialog.
 			"dialog"				=> Array("base_url" => "https://www.facebook.com/dialog/oauth", "scope_separator" => ","),
 			// API. Set a few important variables for using the API. // token_auth: true|1 = access_token parameter |default, 2 = Authorization header, false = Do not automatically send an access token.
-			"api"					=> Array("base_url" => "https://graph.facebook.com/v2.1", "token_auth" => true),
+			"api"					=> Array("base_url" => "https://graph.facebook.com/v2.1", "token_auth" => true, "headers" => Array(
+				"User-Agent"			=> "OAuth 2.0 Client https://github.com/samuelthomas2774/oauth-client"
+			), "callback" => null),
 			// Default requests. Sets a few important variables for the requests this class makes.
-			"requests"				=> Array("/oauth/token" => "/oauth/token", "/oauth/token/debug" => "/oauth/token/debug"),
+			"requests"				=> Array("/oauth/token" => "/oauth/token", "/oauth/token:response" => "json", "/oauth/token/debug" => "/oauth/token/debug"),
 			// Errors. Sets how and when this class triggers errors. Note that invalid parameter exceptions are thrown even if throw is set to false here.
 			"errors"				=> Array("throw" => true)
 		);
+		
+		// Constants.
+		const responseText = 10;
+		const responseJSONArray = 21;
+		const responseJSONObject = 22;
+		const responseQueryStringArray = 31;
+		const responseQueryStringObject = 32;
+		const responseXMLArray = 41;
+		const responseXMLObject = 42;
+		const responseSimpleXMLObject = 43;
 		
 		// function __construct(). Creates a new OAuth object.
 		public function __construct($app_id, $app_secret, $options = Array()) {
@@ -91,8 +103,10 @@
 			), null, true);
 			
 			$request->execute();
-			//exit(print_r($request, true));
-			$response = $request->responseObject();
+			
+			if($this->options("requests")["/oauth/token:response"] == "query") $response = $request->responseQueryString();
+			else $response = $request->responseObject();
+			
 			$this->accessToken($response->access_token);
 		}
 		
