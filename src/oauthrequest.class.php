@@ -49,12 +49,6 @@
 			$this->error = new stdClass();
 		}
 		
-		// function parameter(). Returns / sets a parameter.
-		public function parameter($name, $value = null) {
-			if($value != null) $this->request["params"][$name] = $value;
-			else return isset($this->request["params"][$name]) ? $this->request["params"][$name] : null;
-		}
-		
 		// function execute(). Executes the request.
 		public function execute() {
 			if($this->curl == null) $this->curl = curl_init();
@@ -73,11 +67,39 @@
 			curl_setopt($this->curl, CURLOPT_URL, (strpos($url, "http") !== 0 ? $this->oauth->options("api")["base_url"] : "") . $url);
 			curl_setopt($this->curl, CURLOPT_HEADER, false);
 			curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
-			$headers = Array();
-			//$headers[] = "Content-Type: application/x-www-form-urlencoded";
-			if($this->request["auth"] == true) $headers[] = "Authorization: Basic " . base64_encode($this->oauth->app()["id"] . ":" . $this->oauth->app()["secret"]);
-			elseif(($this->oauth->accessToken() != null) && ($this->oauth->options("api")["token_auth"] == 2) && !isset($this->request["params"]["access_token"])) $headers[] = "Authorization: Bearer {$this->oauth->accessToken()}";
-			curl_setopt($this->curl, CURLOPT_HTTPHEADER, array_merge($headers, $this->request["headers"]));
+			$headers = Array(); // Headers
+			if($this->request["auth"] == true) $headers["Authorization"] = "Basic " . base64_encode($this->oauth->app()["id"] . ":" . $this->oauth->app()["secret"]);
+			elseif(($this->oauth->accessToken() != null) && ($this->oauth->options("api")["token_auth"] == 2) && !isset($this->request["params"]["access_token"])) $headers["Authorization"] = "Bearer {$this->oauth->accessToken()}";
+			$headers = array_merge($headers,
+			$this->oauth->options("api")["headers"],
+			$this->request["headers"]);
+			curl_setopt($this->curl, CURLOPT_HTTPHEADER, call_user_func(function($headers) {
+				$return = Array();
+				foreach($headers as $key => $value) $return[] = "{$key}: {$value}";
+				return $return;
+			}, $headers));
+			
+			$i = 0; $headers = Array();
+			curl_setopt($this->curl, CURLOPT_HEADERFUNCTION, function($ch, $header) use(&$i, &$headers) {
+				if(strlen(trim($header)) == 0) return strlen($header);
+				
+				if(strpos($header, ": ") !== false) {
+					list($key, $value) = explode(": ", trim($header), 2);
+					$key = trim($key); $value = trim($value);
+					
+					$key = explode("-", $key);
+					foreach($key as $_1 => $_2) $key[$_1] = ucfirst($_2);
+					$key = implode("-", $key);
+					
+					$headers[$i] = trim($header);
+					$headers[$key] = $value;
+				} else {
+					$headers[$i] = trim($header);
+				}
+				
+				$i++;
+				return strlen($header);
+			});
 			
 			if($this->request["method"] == "GET") {
 				
@@ -92,19 +114,21 @@
 			}
 			
 			$curl_response = curl_exec($this->curl);
-			$this->response["headers"] = Array();
+			$this->response["headers"] = $headers;
 			$this->response["body"] = $curl_response;
 			$this->response["curl"] = curl_getinfo($this->curl);
 			
-			// Check for errors
-			$response = $this->responseObject();
-			if(isset($response->error)) {
-				$this->error = $response->error;
-				$this->oauth->error = $response->error;
-				//exit(var_dump($this, true));
-				if(is_object($response->error)) $this->oauth->triggerError($response->error->type . ": " . $response->error->status . " (" . $response->error->code . ")", $response->error);
-				else $this->oauth->triggerError($response->error . ": " . $response->error_description . " (" . curl_getinfo($this->curl, CURLINFO_HTTP_CODE) . ")", $response);
-			}
+			// Success function.
+			$callback = is_callable($this->oauth->options("api")["callback"]) ? $this->oauth->options("api")["callback"] : function($oauth, $request, $curl) {
+				// Check for errors.
+				$response = $request->responseObject();
+				if(isset($response->error)) {
+					$request->error = $response->error;
+					if(is_object($response->error)) $oauth->triggerError($response->error->type . ": " . $response->error->message . " (" . $response->error->code . ")", $response->error);
+					else $oauth->triggerError($response->error . ": " . $response->error_description . " (" . curl_getinfo($curl, CURLINFO_HTTP_CODE) . ")", $response);
+				}
+			};
+			call_user_func_array($callback, Array($this->oauth, $this, $this->curl));
 		}
 		
 		// function request(). Returns information about the request.
@@ -112,9 +136,24 @@
 			return $this->request;
 		}
 		
+		// function parameter(). Returns / sets a parameter.
+		public function parameter($name, $value = null) {
+			if($value != null) $this->request["params"][$name] = $value;
+			else return isset($this->request["params"][$name]) ? $this->request["params"][$name] : null;
+		}
+		
 		// function response(). Returns the response as a string.
-		public function response() {
-			return $this->response["body"];
+		public function response($response_type = OAuth::responseText) {
+			switch($response_type) {
+				default: case OAuth::responseText: return $this->response["body"]; break;
+				case OAuth::responseJSONArray: $json = json_decode($this->response["body"], true); return $json == false ? Array() : $json; break;
+				case OAuth::responseJSONObject: $json = json_decode($this->response["body"], false); return $json == false ? new stdClass() : $json; break;
+				case OAuth::responseQueryStringArray: parse_str($this->response["body"], $query); return $query == false ? Array() : $query; break;
+				case OAuth::responseQueryStringObject: parse_str($this->response["body"], $query); return $query == false ? new stdClass() : (object)$query; break;
+				case OAuth::responseXMLArray: $xml = simplexml_load_string($this->response["body"]); return (array)$xml; break;
+				case OAuth::responseXMLObject: $xml = simplexml_load_string($this->response["body"]); return (object)(array)$xml; break;
+				case OAuth::responseSimpleXMLObject: $xml = simplexml_load_string($this->response["body"]); return $xml; break;
+			}
 		}
 		
 		// function responseHeaders(). Returns the response headers as an array.
@@ -124,16 +163,22 @@
 		
 		// function responseObject(). Returns the response as an object.
 		public function responseObject() {
-			$json = json_decode($this->response["body"], false);
-			if($json == false) return new stdClass();
-			else return $json;
+			return $this->response(OAuth::responseJSONObject);
 		}
 		
 		// function responseArray(). Returns the response as an object.
 		public function responseArray() {
-			$json = json_decode($this->response["body"], true);
-			if($json == false) return Array();
-			else return $json;
+			return $this->response(OAuth::responseJSONArray);
+		}
+		
+		// function responseQueryString(). Returns the response as an object.
+		public function responseQueryString() {
+			return $this->response(OAuth::responseQueryStringObject);
+		}
+		
+		// function responseXMLObject(). Returns the response as an object.
+		public function responseXMLObject() {
+			return $this->response(OAuth::responseXMLObject);
 		}
 		
 		// function errorInfo(). Returns an object of information about the last error returned from the API.
