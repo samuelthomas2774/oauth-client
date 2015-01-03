@@ -188,10 +188,12 @@
 		}
 		
 		// function accessToken(). Returns / sets the current access token.
-		public function accessToken($token = null) {
+		public function accessToken($token = null, $session = true) {
 			if(is_string($token)) {
 				$this->token = $token;
-				$this->session("token", $token);
+				if($session == true) $this->session("token", $token);
+			} elseif($token == false) {
+				$this->token = null;
 			} else return $this->token;
 		}
 		
