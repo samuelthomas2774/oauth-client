@@ -4,8 +4,8 @@
 	 */
 	require_once 'oauth.class.php';
 	
-	class OAuthMicrosoft extends OAuth {
-		// Options. These shouldn't be modified here, but using the OAuth::options() function.
+	class OAuthMicrosoft extends OAuth2 {
+		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		public $options = Array(
 			"session_prefix"		=> "microsoft_",
 			"dialog"				=> Array("base_url" => "https://login.live.com/oauth20_authorize.srf", "scope_separator" => " "),
