@@ -216,7 +216,7 @@
 		
 		// function client(). Returns the client id and secret.
 		public function client() {
-			return $this->client;
+			return (object)$this->client;
 		}
 		
 		// -- FOR OAuth2 AND OAuthRequest USE ONLY -- //
