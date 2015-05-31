@@ -4,8 +4,8 @@
 	 */
 	require_once 'oauth.class.php';
 	
-	class OAuthYahoo extends OAuth {
-		// Options. These shouldn't be modified here, but using the OAuth::options() function.
+	class OAuthYahoo extends OAuth2 {
+		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		public $options = Array(
 			"session_prefix"		=> "yahoo_",
 			"dialog"				=> Array("base_url" => "https://api.login.yahoo.com/oauth2/request_auth", "scope_separator" => " "),
