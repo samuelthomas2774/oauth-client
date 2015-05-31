@@ -14,46 +14,6 @@
 			"errors"				=> Array("throw" => true)
 		);
 		
-		// function getAccessTokenFromCode(). Exchanges the code for an access token. Redefined because Facebook returns the access token in a query string.
-		public function getAccessTokenFromCode($redirect_url, $code = null, $state = true) {
-			// Check if redirect_url is a url. The redirect_url should be exactly the same as the redirect_url used in the login dialog. (So really, this should just be the same as the current url.)
-			if(!filter_var($redirect_url, FILTER_VALIDATE_URL)) throw new Exception(__CLASS__ . "::" . __METHOD__ . "(): \$redirect_url must be a valid url.");
-			
-			// Check if code is a string or null.
-			if(is_string($code)) $code = trim($code);
-			elseif(($code == null) && isset($_GET["code"])) $code = trim($_GET["code"]);
-			else throw new Exception(__CLASS__ . "::" . __METHOD__ . "(): \$code must be a string.");
-			
-			// Check state if required.
-			if( ($state != false) && ( // Check state?
-				($this->session("state") == null) || // State is not set: trigger error.
-				($this->session("state") !=
-					($state == true ? $_GET["state"] : $state)
-				) // State does not match $_GET["state"] or $state: trigger error.
-			)) {
-				// Invalid state parameter.
-				$this->sessionDelete("state");
-				$facebook->error = "Invalid state parameter.";
-				throw new Exception("Invalid state parameter.");
-			}
-			
-			// Unset the access token.
-			$this->token = null;
-			
-			// Example request: GET /oauth/token?client_id={client_id}&client_secret={client_secret}&redirect_uri={redirect_uri}&code={code}
-			$request = $this->api("POST", $this->options("requests")["/oauth/token"], Array(
-				"grant_type"			=> "authorization_code",
-				"client_id"				=> $this->client["id"],
-				"client_secret"			=> $this->client["secret"],
-				"redirect_uri"			=> $redirect_url,
-				"code"					=> $code
-			), null, true);
-			
-			$request->execute();
-			parse_str($request->response(), $response);
-			$this->accessToken($response["access_token"]);
-		}
-		
 		// function validateAccessToken(). Verifies an access token. Redefined because Facebook returns access token data in a query string.
 		public function validateAccessToken($access_token = null) {
 			// Check if access_token is string.
