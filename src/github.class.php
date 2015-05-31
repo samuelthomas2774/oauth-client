@@ -4,8 +4,8 @@
 	 */
 	require_once 'oauth.class.php';
 	
-	class OAuthGitHub extends OAuth {
-		// Options. These shouldn't be modified here, but using the OAuth::options() function.
+	class OAuthGitHub extends OAuth2 {
+		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		public $options = Array(
 			"session_prefix"		=> "github_",
 			"dialog"				=> Array("base_url" => "https://github.com/login/oauth/authorize", "scope_separator" => ","),
