@@ -4,8 +4,8 @@
 	 */
 	require_once 'oauth.class.php';
 	
-	class OAuthGoogle extends OAuth {
-		// Options. These shouldn't be modified here, but using the OAuth::options() function.
+	class OAuthGoogle extends OAuth2 {
+		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		public $options = Array(
 			"session_prefix"		=> "google_",
 			"dialog"				=> Array("base_url" => "https://accounts.google.com/o/oauth2/auth", "scope_separator" => " "),
