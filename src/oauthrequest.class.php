@@ -3,7 +3,7 @@
 	 * /src/oauthrequest.class.php
 	 */
 	class OAuthRequest {
-		// OAuth $oauth. The OAuth object used to make this request.
+		// OAuth $oauth. The OAuth2 object used to make this request.
 		private $oauth = null;
 		
 		// Array $request. An array of information about the request.
@@ -21,15 +21,15 @@
 		// function __construct(). Creates a new OAuthRequest object.
 		public function __construct($oauth, $method, $url, $params = Array(), $headers = Array(), $auth = false) {
 			// Store oauth object in OAuthRequest::oauth.
-			if(!$oauth instanceof OAuth) throw new Exception(__CLASS__ . "::" . __METHOD__ . "(): \$oauth must be a OAuth instance.");
+			if(!$oauth instanceof OAuth2) throw new Exception(__METHOD__ . "(): \$oauth must be a OAuth2 instance.");
 			else $this->oauth = $oauth;
 			
 			// Store method in OAuthRequest::request["method"].
-			if(($method != "GET") && ($method != "POST") && ($method != "DELETE") && ($method != "DELETE")) throw new Exception(__CLASS__ . "::" . __METHOD__ . "(): \$method must be either GET, POST or DELETE.");
+			if(($method != "GET") && ($method != "POST") && ($method != "PUT") && ($method != "DELETE")) throw new Exception(__METHOD__ . "(): \$method must be either GET, POST, PUT or DELETE.");
 			else $this->request["method"] = $method;
 			
 			// Store url in OAuthRequest::request["url"].
-			if(!is_string($url)) throw new Exception(__CLASS__ . "::" . __METHOD__ . "(): \$url must be a string.");
+			if(!is_string($url)) throw new Exception(__METHOD__ . "(): \$url must be a string.");
 			else $this->request["url"] = $url;
 			
 			// Store params in OAuthRequest::request["params"].
@@ -68,11 +68,9 @@
 			curl_setopt($this->curl, CURLOPT_HEADER, false);
 			curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
 			$headers = Array(); // Headers
-			if($this->request["auth"] == true) $headers["Authorization"] = "Basic " . base64_encode($this->oauth->app()["id"] . ":" . $this->oauth->app()["secret"]);
+			if($this->request["auth"] == true) $headers["Authorization"] = "Basic " . base64_encode($this->oauth->client()->id . ":" . $this->oauth->client()->secret);
 			elseif(($this->oauth->accessToken() != null) && ($this->oauth->options("api")["token_auth"] == 2) && !isset($this->request["params"]["access_token"])) $headers["Authorization"] = "Bearer {$this->oauth->accessToken()}";
-			$headers = array_merge($headers,
-			$this->oauth->options("api")["headers"],
-			$this->request["headers"]);
+			$headers = array_merge($headers, $this->oauth->options("api")["headers"], $this->request["headers"]);
 			curl_setopt($this->curl, CURLOPT_HTTPHEADER, call_user_func(function($headers) {
 				$return = Array();
 				foreach($headers as $key => $value) $return[] = "{$key}: {$value}";
@@ -106,11 +104,11 @@
 			} elseif($this->request["method"] == "POST") {
 				curl_setopt($this->curl, CURLOPT_POST, true);
 				curl_setopt($this->curl, CURLOPT_POSTFIELDS, http_build_query($this->request["params"]));
-			} elseif($this->request["method"] == "DELETE") {
-				curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "DELETE");
 			} elseif($this->request["method"] == "PUT") {
 				curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "PUT");
 				curl_setopt($this->curl, CURLOPT_POSTFIELDS, $this->request["params"]);
+			} elseif($this->request["method"] == "DELETE") {
+				curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "DELETE");
 			}
 			
 			$curl_response = curl_exec($this->curl);
@@ -143,16 +141,16 @@
 		}
 		
 		// function response(). Returns the response as a string.
-		public function response($response_type = OAuth::responseText) {
+		public function response($response_type = OAuth2::responseText) {
 			switch($response_type) {
-				default: case OAuth::responseText: return $this->response["body"]; break;
-				case OAuth::responseJSONArray: $json = json_decode($this->response["body"], true); return $json == false ? Array() : $json; break;
-				case OAuth::responseJSONObject: $json = json_decode($this->response["body"], false); return $json == false ? new stdClass() : $json; break;
-				case OAuth::responseQueryStringArray: parse_str($this->response["body"], $query); return $query == false ? Array() : $query; break;
-				case OAuth::responseQueryStringObject: parse_str($this->response["body"], $query); return $query == false ? new stdClass() : (object)$query; break;
-				case OAuth::responseXMLArray: $xml = simplexml_load_string($this->response["body"]); return (array)$xml; break;
-				case OAuth::responseXMLObject: $xml = simplexml_load_string($this->response["body"]); return (object)(array)$xml; break;
-				case OAuth::responseSimpleXMLObject: $xml = simplexml_load_string($this->response["body"]); return $xml; break;
+				default: case OAuth2::responseText: return $this->response["body"]; break;
+				case OAuth2::responseJSONArray: $json = json_decode($this->response["body"], true); return $json == false ? Array() : $json; break;
+				case OAuth2::responseJSONObject: $json = json_decode($this->response["body"], false); return $json == false ? new stdClass() : $json; break;
+				case OAuth2::responseQueryStringArray: parse_str($this->response["body"], $query); return $query == false ? Array() : $query; break;
+				case OAuth2::responseQueryStringObject: parse_str($this->response["body"], $query); return $query == false ? new stdClass() : (object)$query; break;
+				case OAuth2::responseXMLArray: $xml = simplexml_load_string($this->response["body"]); return (array)$xml; break;
+				case OAuth2::responseXMLObject: $xml = simplexml_load_string($this->response["body"]); return (object)(array)$xml; break;
+				case OAuth2::responseSimpleXMLObject: $xml = simplexml_load_string($this->response["body"]); return $xml; break;
 			}
 		}
 		
@@ -163,22 +161,22 @@
 		
 		// function responseObject(). Returns the response as an object.
 		public function responseObject() {
-			return $this->response(OAuth::responseJSONObject);
+			return $this->response(OAuth2::responseJSONObject);
 		}
 		
 		// function responseArray(). Returns the response as an object.
 		public function responseArray() {
-			return $this->response(OAuth::responseJSONArray);
+			return $this->response(OAuth2::responseJSONArray);
 		}
 		
 		// function responseQueryString(). Returns the response as an object.
 		public function responseQueryString() {
-			return $this->response(OAuth::responseQueryStringObject);
+			return $this->response(OAuth2::responseQueryStringObject);
 		}
 		
 		// function responseXMLObject(). Returns the response as an object.
 		public function responseXMLObject() {
-			return $this->response(OAuth::responseXMLObject);
+			return $this->response(OAuth2::responseXMLObject);
 		}
 		
 		// function errorInfo(). Returns an object of information about the last error returned from the API.
