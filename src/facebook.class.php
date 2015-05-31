@@ -4,8 +4,8 @@
 	 */
 	require_once 'oauth.class.php';
 	
-	class OAuthFacebook extends OAuth {
-		// Options. These shouldn't be modified here, but using the OAuth::options() function.
+	class OAuthFacebook extends OAuth2 {
+		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		public $options = Array(
 			"session_prefix"		=> "facebook_",
 			"dialog"				=> Array("base_url" => "https://www.facebook.com/dialog/oauth", "scope_separator" => ","),
@@ -40,13 +40,13 @@
 			// Unset the access token.
 			$this->token = null;
 			
-			// Example request: GET /oauth/token?client_id={app_id}&client_secret={app_secret}&redirect_uri={redirect_url}&code={code}
+			// Example request: GET /oauth/token?client_id={client_id}&client_secret={client_secret}&redirect_uri={redirect_uri}&code={code}
 			$request = $this->api("POST", $this->options("requests")["/oauth/token"], Array(
-				"client_id"				=> $this->app["id"],
-				"client_secret"			=> $this->app["secret"],
+				"grant_type"			=> "authorization_code",
+				"client_id"				=> $this->client["id"],
+				"client_secret"			=> $this->client["secret"],
 				"redirect_uri"			=> $redirect_url,
-				"code"					=> $code,
-				"grant_type"			=> "authorization_code"
+				"code"					=> $code
 			), null, true);
 			
 			$request->execute();
@@ -87,8 +87,8 @@
 		// function profilePicture(). Fetches the current user's profile.
 		public function profilePicture($width = 50, $height = 50) {
 			// Check if width and height are integers.
-			if(!is_integer($width) && !is_numeric($width)) $width = 50;
-			if(!is_integer($height) && !is_numeric($height)) $height = 50;
+			if(!is_int($width) && !is_numeric($width)) $width = 50;
+			if(!is_int($height) && !is_numeric($height)) $height = 50;
 			
 			$request = $this->api("GET", "/me", Array("fields" => "id,picture.width({$width}).height({$height})"));
 			
@@ -98,11 +98,11 @@
 			
 			// Build an <img> tag.
 			$picture->tag = "<img src=\"";
-			$picture->tag .= $picture->url;
+			$picture->tag .= htmlentities($picture->url);
 			$picture->tag .= "\" style=\"width:";
-			$picture->tag .= $picture->width;
+			$picture->tag .= htmlentities($picture->width);
 			$picture->tag .= "px;height:";
-			$picture->tag .= $picture->height;
+			$picture->tag .= htmlentities($picture->height);
 			$picture->tag .= "px;\" />";
 			
 			return $picture;
@@ -179,7 +179,7 @@
 		// function pages(). Fetches a list of all the pages the user manages. Requires the manage_pages permission.
 		public function pages($rearrange = true) {
 			$permissions = $this->permissions(); if(!isset($permissions->manage_pages) || ($permissions->manage_pages->status == "declined"))
-				throw new Exception("Facebook::pages(): User has declined the manage_pages permission.");
+				throw new Exception(__METHOD__ . "(): User has declined the manage_pages permission.");
 			
 			$request = $this->api("GET", "/me/accounts");
 			
@@ -207,7 +207,7 @@
 		// function post(). Posts something to the user's timeline. Requires the publish_actions permission.
 		public function post($post2 = Array(), $returnid = false) {
 			$permissions = $this->permissions(); if(!isset($permissions->publish_actions) || ($permissions->publish_actions->status == "declined"))
-				throw new Exception("Facebook::post(): User has declined the publish_actions permission.");
+				throw new Exception(__METHOD__ . "(): User has declined the publish_actions permission.");
 			
 			$post = Array();
 			if(isset($post2["message"])) $post["message"] = $post2["message"];
