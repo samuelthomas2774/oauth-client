@@ -4,7 +4,7 @@
 	 */
 	require_once 'oauth.class.php';
 	
-	class OAuthLinkedin extends OAuth {
+	class OAuthLinkedin extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth::options() function.
 		public $options = Array(
 			"session_prefix"		=> "linkedin_",
