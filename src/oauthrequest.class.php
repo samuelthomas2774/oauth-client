@@ -131,7 +131,7 @@
 		
 		// function request(). Returns information about the request.
 		public function request() {
-			return $this->request;
+			return (object)$this->request;
 		}
 		
 		// function parameter(). Returns / sets a parameter.
