@@ -73,7 +73,7 @@ Google+
 ------------
 1. Include src/google.class.php in all pages that need to access Google+.
     ```php
-    require_once \__DIR__ . '/oauth-client/src/google.class.php';
+    require_once __DIR__ . '/oauth-client/src/google.class.php';
     
     ```
 2. Create a new OAuthGoogle object with the parameters $client_id, $client_secret.
@@ -129,7 +129,7 @@ Microsoft Account
 ------------
 1. Include src/microsoft.class.php in all pages that need to access Microsoft.
     ```php
-    require_once \__DIR__ . '/oauth-client/src/microsoft.class.php';
+    require_once __DIR__ . '/oauth-client/src/microsoft.class.php';
     
     ```
 2. Create a new OAuthMicrosoft object with the parameters $client_id, $client_secret.
@@ -185,7 +185,7 @@ Yahoo!
 ------------
 1. Include src/yahoo.class.php in all pages that need to access Yahoo.
     ```php
-    require_once \__DIR__ . '/oauth-client/src/yahoo.class.php';
+    require_once __DIR__ . '/oauth-client/src/yahoo.class.php';
     
     ```
 2. Create a new OAuthYahoo object with the parameters $client_id, $client_secret.
@@ -240,7 +240,7 @@ GitHub
 ------------
 1. Include src/github.class.php in all pages that need to access GitHub.
     ```php
-    require_once \__DIR__ . '/oauth-client/src/github.class.php';
+    require_once __DIR__ . '/oauth-client/src/github.class.php';
     
     ```
 2. Create a new OAuthGitHub object with the parameters $client_id, $client_secret.
@@ -296,7 +296,7 @@ LinkedIn
 ------------
 1. Include src/linkedin.class.php in all pages that need to access LinkedIn.
     ```php
-    require_once \__DIR__ . '/oauth-client/src/linkedin.class.php';
+    require_once __DIR__ . '/oauth-client/src/linkedin.class.php';
     
     ```
 2. Create a new OAuthLinkedin object with the parameters $client_id, $client_secret.
@@ -374,7 +374,7 @@ You can then use the newly created class:
 
 ```php
 $oauth = new My_Extended_Facebook_Class("appid", "appsecret");
-try { echo "Your Facebook User ID is: " . $oauth->userid(); }
+try { echo "Your Facebook User ID (for this app) is: " . $oauth->userid(); }
 catch(Exception $error) { exit("Facebook returned an error: " . print_r($error, true)); }
 
 ```
