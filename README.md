@@ -1,7 +1,81 @@
 OAuth Client
 ============
 
-An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsoft, Yahoo, GitHub &amp; LinkedIn.
+An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsoft, Yahoo, GitHub, LinkedIn &amp; more.
+
+**Built-in providers**
+
+- Facebook https://facebook.com
+- Google https://google.co.uk
+- Microsoft https://microsoft.com/en-gb/
+- Yahoo https://yahoo.co.uk
+- GitHub https://github.com
+- LinkedIn https://linkedin.com
+- Spotify https://spotify.com
+- Amazon https://amazon.co.uk
+- Disqus https://disqus.com
+- Instagram https://instagram.com
+- samuelthomas.ml http://samuelthomas.ml (my website)
+- TeamViewer https://teamviewer.com
+- WordPress.com https://wordpress.com
+- Other, just create a new OAuth2 object and include the dialog->base_url, api->base_url and requests->{"/oauth/token"} options.
+
+Default (OAuth2)
+------------
+1. Include src/oauth.class.php in all page that need access to your other provider.
+    ```php
+    require_once __DIR__ . '/oauth-client/src/oauth.class.php';
+    
+    ```
+2. Create a new OAuth2 object with the parameters $client_id, $client_secret and $options.
+    The $options array must have at least dialog->base_url, api->base_url and requests->{"/oauth/token"}.
+    ```php
+    $client_id = "appid";
+    $client_secret = "appsecret";
+    $oauth = new OAuth2(
+        $client_id, $client_secret,
+        $options = Array(
+            "dialog" => Array("base_url" => "https://facebook.com/dialog/oauth"),
+            "api" => Array("base_url" => "https://graph.facebook.com/v2.2"),
+            "requests" => Array("/oauth/token" => "/oauth/access_token")
+        )
+    );
+    
+    ```
+
+- To get a link to the Login Dialog:
+    ```php
+    $redirect_url = "http://example.com/facebook/code.php";
+    $permissions = Array("email", "user_friends"); // Optional scope array.
+    $login_url = $oauth->loginURL($redirect_url, $permissions);
+    
+    ```
+- To get an access token from the code that was returned:
+    ```php
+    $redirect_url = "http://example.com/facebook/code.php"; // Must match the $redirect_url given to OAuth2::loginURL() exactly. The user will not be redirected anywhere.
+    $oauth->getAccessTokenFromCode($redirect_url);
+    
+    ```
+- To make API Requests: (The access token will be included automatically).
+    ```php
+    $method = "GET"; // Must be GET, POST, PUT or DELETE (uppercase).
+    $url = "/me";
+    //$params = Array("fields" => "id,name"); // You can also add an optional array of parameters.
+    $request = $oauth->api($method, $url /* , $params = Array() /* , $headers = Array() /* , $auth = false */ */ */ );
+    try { $request->execute(); } catch(Exception $error) { exit("Facebook returned an error: " . print_r($error, true)); }
+    $response_plaintext = $request->response();
+    $response_array = $response->responseArray();
+    $response_object = $response->responseObject();
+    
+    ```
+- To get / set the current access token:
+    You do not need to do this at the start of the script to get the access token from the session, this is done automatically. Also, this function updates the access token in the session.
+    ```php
+    $oauth->accessToken(); // Get
+    $oauth->accessToken($new_access_token); // Set
+    $oauth->accessToken($new_access_token, false); // Set without updating the access token in the session.
+    
+    ```
 
 Facebook
 ------------
@@ -19,19 +93,6 @@ Facebook
     
     ```
 
-- To get a link to the Login Dialog:
-    ```php
-    $redirect_url = "http://example.com/facebook/code.php";
-    $permissions = Array("email", "user_friends"); // Optional scope array.
-    $login_url = $oauth->loginURL($redirect_url, $permissions);
-    
-    ```
-- To get an access token from the code that was returned:
-    ```php
-    $redirect_url = "http://example.com/facebook/code.php"; // Must match the $redirect_url given to OAuth2::loginURL() exactly. The user will not be redirected anywhere.
-    $oauth->getAccessTokenFromCode($redirect_url);
-    
-    ```
 - To make API Requests: (The access token will be included automatically).
     ```php
     $method = "GET"; // Must be GET, POST, PUT or DELETE (uppercase).
@@ -60,14 +121,6 @@ Facebook
     $user_picture_htmltag = $user_picture->tag;
     
     ```
-- To get / set the current access token:
-    You do not need to do this at the start of the script to get the access token from the session, this is done automatically. Also, this function updates the access token in the session.
-    ```php
-    $oauth->accessToken(); // Get
-    $oauth->accessToken($new_access_token); // Set
-    $oauth->accessToken($new_access_token, false); // Set without updating the access token in the session.
-    
-    ```
 
 Google+
 ------------
@@ -85,19 +138,6 @@ Google+
     
     ```
 
-- To get a link to the Login Dialog:
-    ```php
-    $redirect_url = "http://example.com/google/code.php";
-    $permissions = Array("https://www.googleapis.com/auth/plus.login"); // Optional scope array.
-    $login_url = $oauth->loginURL($redirect_url, $permissions);
-    
-    ```
-- To get an access token from the code that was returned:
-    ```php
-    $redirect_url = "http://example.com/google/code.php"; // Must match the $redirect_url given to OAuth1::loginURL() exactly. The user will not be redirected anywhere.
-    $oauth->getAccessTokenFromCode($redirect_url);
-    
-    ```
 - To make API Requests: (The access token will be included automatically).
     ```php
     $method = "GET"; // Must be GET, POST, PUT or DELETE (uppercase).
@@ -114,14 +154,6 @@ Google+
     ```php
     try { $user = $oauth->userProfile(); }
     catch(Exception $error) { exit("Google returned an error: " . print_r($error, true)); }
-    
-    ```
-- To get / set the current access token:
-    You do not need to do this at the start of the script to get the access token from the session, this is done automatically. Also, this function updates the access token in the session.
-    ```php
-    $oauth->accessToken(); // Get
-    $oauth->accessToken($new_access_token); // Set
-    $oauth->accessToken($new_access_token, false); // Set without updating the access token in the session.
     
     ```
 
@@ -141,19 +173,6 @@ Microsoft Account
     
     ```
 
-- To get a link to the Login Dialog:
-    ```php
-    $redirect_url = "http://example.com/microsoft/code.php";
-    $permissions = Array("wl.signin", "wl.basic"); // Optional scope array.
-    $login_url = $oauth->loginURL($redirect_url, $permissions);
-    
-    ```
-- To get an access token from the code that was returned:
-    ```php
-    $redirect_url = "http://example.com/microsoft/code.php"; // Must match the $redirect_url given to OAuth2::loginURL() exactly. The user will not be redirected anywhere.
-    $oauth->getAccessTokenFromCode($redirect_url);
-    
-    ```
 - To make API Requests: (The access token will be included automatically).
     ```php
     $method = "GET"; // Must be GET, POST, PUT or DELETE (uppercase).
@@ -170,14 +189,6 @@ Microsoft Account
     ```php
     try { $user = $oauth->userProfile(); }
     catch(Exception $error) { exit("Microsoft returned an error: " . print_r($error, true)); }
-    
-    ```
-- To get / set the current access token:
-    You do not need to do this at the start of the script to get the access token from the session, this is done automatically. Also, this function updates the access token in the session.
-    ```php
-    $oauth->accessToken(); // Get
-    $oauth->accessToken($new_access_token); // Set
-    $oauth->accessToken($new_access_token, false); // Set without updating the access token in the session.
     
     ```
 
@@ -197,18 +208,6 @@ Yahoo!
     
     ```
 
-- To get a link to the Login Dialog:
-    ```php
-    $redirect_url = "http://example.com/yahoo/code.php";
-    $login_url = $oauth->loginURL($redirect_url);
-    
-    ```
-- To get an access token from the code that was returned:
-    ```php
-    $redirect_url = "http://example.com/yahoo/code.php"; // Must match the $redirect_url given to OAuth2::loginURL() exactly. The user will not be redirected anywhere.
-    $oauth->getAccessTokenFromCode($redirect_url);
-    
-    ```
 - To make API Requests: (The access token will be included automatically).
     ```php
     $method = "GET"; // Must be GET, POST, PUT or DELETE (uppercase).
@@ -225,14 +224,6 @@ Yahoo!
     ```php
     try { $user = $oauth->userProfile(); }
     catch(Exception $error) { exit("Yahoo returned an error: " . print_r($error, true)); }
-    
-    ```
-- To get / set the current access token:
-    You do not need to do this at the start of the script to get the access token from the session, this is done automatically. Also, this function updates the access token in the session.
-    ```php
-    $oauth->accessToken(); // Get
-    $oauth->accessToken($new_access_token); // Set
-    $oauth->accessToken($new_access_token, false); // Set without updating the access token in the session.
     
     ```
 
@@ -252,13 +243,6 @@ GitHub
     
     ```
 
-- To get a link to the Login Dialog:
-    ```php
-    $redirect_url = "http://example.com/github/code.php";
-    $permissions = Array("user"); // Optional scope array.
-    $login_url = $oauth->loginURL($redirect_url, $permissions);
-    
-    ```
 - To get an access token from the code that was returned:
     ```php
     $redirect_url = "http://example.com/github/code.php"; // Must match the $redirect_url given to OAuth2::loginURL() exactly. The user will not be redirected anywhere.
@@ -283,14 +267,6 @@ GitHub
     catch(Exception $error) { exit("GitHub returned an error: " . print_r($error, true)); }
     
     ```
-- To get / set the current access token:
-    You do not need to do this at the start of the script to get the access token from the session, this is done automatically. Also, this function updates the access token in the session.
-    ```php
-    $oauth->accessToken(); // Get
-    $oauth->accessToken($new_access_token); // Set
-    $oauth->accessToken($new_access_token, false); // Set without updating the access token in the session.
-    
-    ```
 
 LinkedIn
 ------------
@@ -308,19 +284,6 @@ LinkedIn
     
     ```
 
-- To get a link to the Login Dialog:
-    ```php
-    $redirect_url = "http://example.com/linkedin/code.php";
-    $permissions = Array("r_basicprofile"); // Optional scope array.
-    $login_url = $oauth->loginURL($redirect_url, $permissions);
-    
-    ```
-- To get an access token from the code that was returned:
-    ```php
-    $redirect_url = "http://example.com/linkedin/code.php"; // Must match the $redirect_url given to OAuth2::loginURL() exactly. The user will not be redirected anywhere.
-    $oauth->getAccessTokenFromCode($redirect_url);
-    
-    ```
 - To make API Requests: (The access token will be included automatically).
     ```php
     $method = "GET"; // Must be GET, POST, PUT or DELETE (uppercase).
@@ -339,18 +302,32 @@ LinkedIn
     catch(Exception $error) { exit("LinkedIn returned an error: " . print_r($error, true)); }
     
     ```
-- To get / set the current access token:
-    You do not need to do this at the start of the script to get the access token from the session, this is done automatically. Also, this function updates the access token in the session.
-    ```php
-    $oauth->accessToken(); // Get
-    $oauth->accessToken($new_access_token); // Set
-    $oauth->accessToken($new_access_token, false); // Set without updating the access token in the session.
-    
-    ```
+
+Other providers
+------------
+Empty sign-up urls will be added soon!
+
+Any other providers please contact me at http://samuelthomas.ml/about/contact and I'll add it as soon as possible.
+
+**Provider**        | **Class**             | **File in /src**          | **Sign-up url**
+--------------------|-----------------------|---------------------------|-------------------------
+Facebook            | OAuthFacebook         | facebook.class.php        | https://developers.facebook.com/apps/
+Google              | OAuthGoogle           | google.class.php          | https://console.developers.google.com/
+Microsoft           | OAuthMicrosoft        | microsoft.class.php       | https://account.live.com/developers/applications/create
+Yahoo               | OAuthYahoo            | yahoo.class.php           | https://developer.apps.yahoo.com/dashboard/createKey.html
+GitHub              | OAuthGitHub           | github.class.php          | https://github.com/settings/applications/new
+LinkedIn            | OAuthLinkedin         | linkedin.class.php        | https://www.linkedin.com/developer/apps/new
+Amazon              | OAuthAmazon           | amazon.class.php          |
+Disqus              | OAuthDisqus           | disqus.class.php          |
+Instagram           | OAuthInstagram        | instagram.class.php       |
+Spotify             | OAuthSpotify          | spotify.class.php         |
+samuelthomas.ml     | OAuthST               | st.class.php              | http://samuelthomas.ml/developer/clients
+TeamViewer          | OAuthTeamViewer       | teamviewer.class.php      |
+WordPress.com       | OAuthWordPress        | wordpress.class.php       |
 
 Extending the OAuth2 class.
 ------------
-You can extend the OAuth2, OAuthFacebook, OAuthGoogle, OAuthMicrosoft, OAuthYahoo, OAuthGitHub & OAuthLinkedin classes to add new functions and make existing functions work differently:
+You can extend the OAuth2 and other classes to add new functions and make existing functions work differently:
 
 ```php
 require_once __DIR__ . '/oauth-client/src/facebook.class.php';
