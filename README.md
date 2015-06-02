@@ -95,14 +95,9 @@ Facebook
 
 - To make API Requests: (The access token will be included automatically).
     ```php
-    $method = "GET"; // Must be GET, POST, PUT or DELETE (uppercase).
-    $url = "/me";
-    //$params = Array("fields" => "id,name"); // You can also add an optional array of parameters.
-    $request = $oauth->api($method, $url /* , $params */);
+    $request = $oauth->api("GET", "/me", Array("fields" => "id,name"));
     try { $request->execute(); } catch(Exception $error) { exit("Facebook returned an error: " . print_r($error, true)); }
-    $response_plaintext = $request->response();
-    $response_array = $response->responseArray();
-    $response_object = $response->responseObject();
+    $response = $response->responseObject();
     
     ```
 - To get the current user:
@@ -140,14 +135,9 @@ Google+
 
 - To make API Requests: (The access token will be included automatically).
     ```php
-    $method = "GET"; // Must be GET, POST, PUT or DELETE (uppercase).
-    $url = "/userinfo";
-    //$params = Array("fields" => "id,name"); // You can also add an optional array of parameters.
-    $request = $oauth->api($method, $url /* , $params */);
-    try { $request->execute(); } catch(Exception $error) { exit("Google returned an error: " . print_r($error, true)); }
-    $response_plaintext = $request->response();
-    $response_array = $response->responseArray();
-    $response_object = $response->responseObject();
+    $request = $oauth->api("GET", "/me", Array("fields" => "id,name"));
+    try { $request->execute(); } catch(Exception $error) { exit("Facebook returned an error: " . print_r($error, true)); }
+    $response = $response->responseObject();
     
     ```
 - To get the current user:
@@ -175,14 +165,9 @@ Microsoft Account
 
 - To make API Requests: (The access token will be included automatically).
     ```php
-    $method = "GET"; // Must be GET, POST, PUT or DELETE (uppercase).
-    $url = "/me";
-    //$params = Array("fields" => "id,name"); // You can also add an optional array of parameters.
-    $request = $oauth->api($method, $url /* , $params */);
-    try { $request->execute(); } catch(Exception $error) { exit("Microsoft returned an error: " . print_r($error, true)); }
-    $response_plaintext = $request->response();
-    $response_array = $response->responseArray();
-    $response_object = $response->responseObject();
+    $request = $oauth->api("GET", "/me", Array("fields" => "id,name"));
+    try { $request->execute(); } catch(Exception $error) { exit("Facebook returned an error: " . print_r($error, true)); }
+    $response = $response->responseObject();
     
     ```
 - To get the current user:
@@ -210,14 +195,9 @@ Yahoo!
 
 - To make API Requests: (The access token will be included automatically).
     ```php
-    $method = "GET"; // Must be GET, POST, PUT or DELETE (uppercase).
-    $url = "/me";
-    //$params = Array("fields" => "id,name"); // You can also add an optional array of parameters.
-    $request = $oauth->api($method, $url /* , $params */);
-    try { $request->execute(); } catch(Exception $error) { exit("Yahoo returned an error: " . print_r($error, true)); }
-    $response_plaintext = $request->response();
-    $response_array = $response->responseArray();
-    $response_object = $response->responseObject();
+    $request = $oauth->api("GET", "/me", Array("fields" => "id,name"));
+    try { $request->execute(); } catch(Exception $error) { exit("Facebook returned an error: " . print_r($error, true)); }
+    $response = $response->responseObject();
     
     ```
 - To get the current user:
@@ -243,22 +223,11 @@ GitHub
     
     ```
 
-- To get an access token from the code that was returned:
-    ```php
-    $redirect_url = "http://example.com/github/code.php"; // Must match the $redirect_url given to OAuth2::loginURL() exactly. The user will not be redirected anywhere.
-    $oauth->getAccessTokenFromCode($redirect_url);
-    
-    ```
 - To make API Requests: (The access token will be included automatically).
     ```php
-    $method = "GET"; // Must be GET, POST, PUT or DELETE (uppercase).
-    $url = "/me";
-    //$params = Array("fields" => "id,name"); // You can also add an optional array of parameters.
-    $request = $oauth->api($method, $url /* , $params */);
-    try { $request->execute(); } catch(Exception $error) { exit("GitHub returned an error: " . print_r($error, true)); }
-    $response_plaintext = $request->response();
-    $response_array = $response->responseArray();
-    $response_object = $response->responseObject();
+    $request = $oauth->api("GET", "/me", Array("fields" => "id,name"));
+    try { $request->execute(); } catch(Exception $error) { exit("Facebook returned an error: " . print_r($error, true)); }
+    $response = $response->responseObject();
     
     ```
 - To get the current user:
@@ -286,14 +255,9 @@ LinkedIn
 
 - To make API Requests: (The access token will be included automatically).
     ```php
-    $method = "GET"; // Must be GET, POST, PUT or DELETE (uppercase).
-    $url = "/me";
-    //$params = Array("fields" => "id,name"); // You can also add an optional array of parameters.
-    $request = $oauth->api($method, $url /* , $params */);
-    try { $request->execute(); } catch(Exception $error) { exit("LinkedIn returned an error: " . print_r($error, true)); }
-    $response_plaintext = $request->response();
-    $response_array = $response->responseArray();
-    $response_object = $response->responseObject();
+    $request = $oauth->api("GET", "/me", Array("fields" => "id,name"));
+    try { $request->execute(); } catch(Exception $error) { exit("Facebook returned an error: " . print_r($error, true)); }
+    $response = $response->responseObject();
     
     ```
 - To get the current user:
