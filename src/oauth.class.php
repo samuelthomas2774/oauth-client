@@ -40,7 +40,7 @@
 		// function __construct(). Creates a new OAuth2 object.
 		public function __construct($client_id, $client_secret, $options = Array()) {
 			// Store App ID in OAuth2::client["id"].
-			if(!is_int($client_id) && !is_string($app_id)) throw new Exception(__METHOD__ . "(): \$app_id must be a string or an integer.");
+			if(!is_int($client_id) && !is_string($client_id)) throw new Exception(__METHOD__ . "(): \$client_id must be a string or an integer.");
 			else $this->client["id"] = (string)$client_id;
 			
 			// Store App Secret in OAuth2::client["secret"].
