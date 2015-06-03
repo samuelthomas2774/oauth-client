@@ -152,7 +152,7 @@
 			
 			$url_params = Array(
 				"response_type"			=> "code",
-				"client_id"				=> $this->app["id"],
+				"client_id"				=> $this->client()->id,
 				"redirect_uri"			=> $redirect_url,
 				"scope"					=> implode($this->options("dialog")["scope_separator"], $permissions),
 				"state"					=> $state
