@@ -3,14 +3,14 @@ OAuth Client
 
 An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsoft, Yahoo, GitHub, LinkedIn &amp; more.
 
-**Built-in providers**
+**[Built-in providers](#other-providers)**
 
-- Facebook https://facebook.com
-- Google https://google.co.uk
-- Microsoft https://microsoft.com/en-gb/
-- Yahoo https://yahoo.co.uk
-- GitHub https://github.com
-- LinkedIn https://linkedin.com
+- [Facebook](#facebook) https://facebook.com
+- [Google](#google) https://google.co.uk
+- [Microsoft](#microsoft-account) https://microsoft.com/en-gb/
+- [Yahoo](#yahoo) https://yahoo.co.uk
+- [GitHub](#github) https://github.com
+- [LinkedIn](#linkedin) https://linkedin.com
 - Spotify https://spotify.com
 - Amazon https://amazon.co.uk
 - Disqus https://disqus.com
@@ -136,7 +136,7 @@ Google+
 - To make API Requests: (The access token will be included automatically).
     ```php
     $request = $oauth->api("GET", "/me", Array("fields" => "id,name"));
-    try { $request->execute(); } catch(Exception $error) { exit("Facebook returned an error: " . print_r($error, true)); }
+    try { $request->execute(); } catch(Exception $error) { exit("Google returned an error: " . print_r($error, true)); }
     $response = $response->responseObject();
     
     ```
@@ -166,7 +166,7 @@ Microsoft Account
 - To make API Requests: (The access token will be included automatically).
     ```php
     $request = $oauth->api("GET", "/me", Array("fields" => "id,name"));
-    try { $request->execute(); } catch(Exception $error) { exit("Facebook returned an error: " . print_r($error, true)); }
+    try { $request->execute(); } catch(Exception $error) { exit("Microsoft returned an error: " . print_r($error, true)); }
     $response = $response->responseObject();
     
     ```
@@ -196,7 +196,7 @@ Yahoo!
 - To make API Requests: (The access token will be included automatically).
     ```php
     $request = $oauth->api("GET", "/me", Array("fields" => "id,name"));
-    try { $request->execute(); } catch(Exception $error) { exit("Facebook returned an error: " . print_r($error, true)); }
+    try { $request->execute(); } catch(Exception $error) { exit("Yahoo returned an error: " . print_r($error, true)); }
     $response = $response->responseObject();
     
     ```
@@ -226,7 +226,7 @@ GitHub
 - To make API Requests: (The access token will be included automatically).
     ```php
     $request = $oauth->api("GET", "/me", Array("fields" => "id,name"));
-    try { $request->execute(); } catch(Exception $error) { exit("Facebook returned an error: " . print_r($error, true)); }
+    try { $request->execute(); } catch(Exception $error) { exit("GitHub returned an error: " . print_r($error, true)); }
     $response = $response->responseObject();
     
     ```
@@ -256,7 +256,7 @@ LinkedIn
 - To make API Requests: (The access token will be included automatically).
     ```php
     $request = $oauth->api("GET", "/me", Array("fields" => "id,name"));
-    try { $request->execute(); } catch(Exception $error) { exit("Facebook returned an error: " . print_r($error, true)); }
+    try { $request->execute(); } catch(Exception $error) { exit("LinkedIn returned an error: " . print_r($error, true)); }
     $response = $response->responseObject();
     
     ```
@@ -281,13 +281,13 @@ Microsoft           | OAuthMicrosoft        | microsoft.class.php       | https:
 Yahoo               | OAuthYahoo            | yahoo.class.php           | https://developer.apps.yahoo.com/dashboard/createKey.html
 GitHub              | OAuthGitHub           | github.class.php          | https://github.com/settings/applications/new
 LinkedIn            | OAuthLinkedin         | linkedin.class.php        | https://www.linkedin.com/developer/apps/new
-Amazon              | OAuthAmazon           | amazon.class.php          |
-Disqus              | OAuthDisqus           | disqus.class.php          |
-Instagram           | OAuthInstagram        | instagram.class.php       |
-Spotify             | OAuthSpotify          | spotify.class.php         |
+Amazon              | OAuthAmazon           | amazon.class.php          | https://developer.amazon.com/lwa/sp/overview.html
+Disqus              | OAuthDisqus           | disqus.class.php          | https://disqus.com/api/applications/register/
+Instagram           | OAuthInstagram        | instagram.class.php       | https://instagram.com/developer/clients/register/
+Spotify             | OAuthSpotify          | spotify.class.php         | https://developer.spotify.com/my-applications/#!/applications/create
 samuelthomas.ml     | OAuthST               | st.class.php              | http://samuelthomas.ml/developer/clients
-TeamViewer          | OAuthTeamViewer       | teamviewer.class.php      |
-WordPress.com       | OAuthWordPress        | wordpress.class.php       |
+TeamViewer          | OAuthTeamViewer       | teamviewer.class.php      | https://login.teamviewer.com/nav/api
+WordPress.com       | OAuthWordPress        | wordpress.class.php       | https://developer.wordpress.com/apps/new/
 
 Extending the OAuth2 class.
 ------------
