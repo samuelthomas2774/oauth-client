@@ -30,7 +30,7 @@
 		echo "<pre>" . print_r($permissions, true) . "</pre><br /><br />\n\n";
 		
 		// Friends
-		if($facebook->permission("user_friends")) $friends = $facebook->permissions();
+		if($facebook->permission("user_friends")) $friends = $facebook->api("GET", "/me/friends");
 		else $friends = "You have not granted access to Friends that also use this app.";
 		echo "<pre>" . print_r($permissions, true) . "</pre><br /><br />\n\n";
 	} else {
