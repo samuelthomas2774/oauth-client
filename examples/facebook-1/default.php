@@ -33,7 +33,7 @@
 		if($facebook->permission("user_friends")) {
 			$request = $facebook->api("GET", "/me/friends");
 			$request->execute();
-			$response = $request->responseObject();
+			$friends = $request->responseObject();
 		} else $friends = "You have not granted access to Friends that also use this app.";
 		echo "<pre>" . print_r($permissions, true) . "</pre><br /><br />\n\n";
 	} else {
