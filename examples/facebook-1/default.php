@@ -30,8 +30,11 @@
 		echo "<pre>" . print_r($permissions, true) . "</pre><br /><br />\n\n";
 		
 		// Friends
-		if($facebook->permission("user_friends")) $friends = $facebook->api("GET", "/me/friends");
-		else $friends = "You have not granted access to Friends that also use this app.";
+		if($facebook->permission("user_friends")) {
+			$request = $facebook->api("GET", "/me/friends");
+			$request->execute();
+			$response = $request->responseObject();
+		} else $friends = "You have not granted access to Friends that also use this app.";
 		echo "<pre>" . print_r($permissions, true) . "</pre><br /><br />\n\n";
 	} else {
 		echo "You have not granted access to Facebook. Click the link above.\n";
