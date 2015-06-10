@@ -1,0 +1,30 @@
+{
+	"facebook": {
+		"id": "0000000000000000",
+		"secret": "0000000000000000000000000000000000000000",
+		"scope": [
+			"email",
+			"user_friends"
+		],
+		"class": "OAuthFacebook",
+		"file": "facebook.class.php"
+	},
+	"google": {
+		"id": "0000000000000000",
+		"secret": "0000000000000000000000000000000000000000",
+		"class": "OAuthGoogle",
+		"file": "google.class.php"
+	},
+	"microsoft": {
+		"id": "0000000000000000",
+		"secret": "0000000000000000000000000000000000000000",
+		"class": "OAuthMicrosoft",
+		"file": "microsoft.class.php"
+	},
+	"yahoo": {
+		"id": "0000000000000000",
+		"secret": "0000000000000000000000000000000000000000",
+		"class": "OAuthYahoo",
+		"file": "yahoo.class.php"
+	}
+}
