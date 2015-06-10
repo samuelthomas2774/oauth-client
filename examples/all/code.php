@@ -5,12 +5,12 @@
 	// Get the current network from PATH_INFO.
 	$server_url = ltrim($_SERVER["PATH_INFO"], "/");
 	
-	$servers = new stdClass();
-	//$servers->{$url}		= Array("id" => $client_id, "secret" => $client_secret, "scope" => Array($a_permission), "class" => $oauth_class, "file" => $oauth_file);
-	$servers->facebook		= Array("id" => "0000000000000000", "secret" => "0000000000000000000000000000000000000000", "scope" => Array("email", "user_friends"), "class" => "OAuthFacebook", "file" => "facebook.class.php");
-	$servers->google		= Array("id" => "0000000000000000", "secret" => "0000000000000000000000000000000000000000", "class" => "OAuthGoogle", "file" => "google.class.php");
-	$servers->microsoft		= Array("id" => "0000000000000000", "secret" => "0000000000000000000000000000000000000000", "class" => "OAuthMicrosoft", "file" => "microsoft.class.php");
-	$servers->yahoo			= Array("id" => "0000000000000000", "secret" => "0000000000000000000000000000000000000000", "class" => "OAuthYahoo", "file" => "yahoo.class.php");
+	// Get all the servers from clients.json.
+	$servers = json_decode(file_get_contents(__DIR__ . "/clients.json"));
+	if(!is_object($servers)) {
+		echo "Invalid clients.json file.<br />\n\n";
+		goto session;
+	}
 	
 	if(!isset($servers->{$server_url})) {
 		echo "Server was not found.<br />\n\n";
@@ -43,4 +43,7 @@
 	
 	// Output a link to the homepage to fetch data using the access token.
 	echo "<a href=\"../default.php/{$server->url}\">Home</a>\n";
+	
+	session:
+	echo "<pre>Session: " . print_r($_SESSION, true) . "</pre>\n";
 	
