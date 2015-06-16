@@ -9,7 +9,7 @@
 		public $options = Array(
 			"session_prefix"		=> "google_",
 			"dialog"				=> Array("base_url" => "https://accounts.google.com/o/oauth2/auth", "scope_separator" => " "),
-			"api"					=> Array("base_url" => "https://www.googleapis.com/oauth2/v2", "token_auth" => true, "callback" => null),
+			"api"					=> Array("base_url" => "https://www.googleapis.com/oauth2/v2", "token_auth" => true, "headers" => Array("User-Agent" => "OAuth 2.0 Client https://github.com/samuelthomas2774/oauth-client"), "callback" => null),
 			"requests"				=> Array("/oauth/token" => "https://accounts.google.com/o/oauth2/token", "/oauth/token/debug" => "https://accounts.google.com/o/oauth2/token"),
 			"errors"				=> Array("throw" => true)
 		);
