@@ -16,6 +16,11 @@
 		protected $options = null;
 		
 		// Constants.
+		const GET = "GET";
+		const POST = "POST";
+		const PUT = "PUT";
+		const DELETE = "DELETE";
+		
 		const responseText = 10;
 		const responseJSONArray = 21;
 		const responseJSONObject = 22;
@@ -97,7 +102,7 @@
 			$this->accessToken(null);
 			
 			// Example request: POST /oauth/token?client_id={client_id}&client_secret={client_secret}&redirect_uri={redirect_uri}&code={code}
-			$request = $this->api("POST", $this->options([ "requests", "/oauth/token" ]), Array(
+			$request = $this->api(OAuth2::POST, $this->options([ "requests", "/oauth/token" ]), Array(
 				"grant_type" => "authorization_code",
 				"client_id" => $this->client()->id,
 				"client_secret" => $this->client()->secret,
@@ -126,7 +131,7 @@
 			$this->accessToken(null);
 			
 			// Example request: POST /oauth/token?client_id={client_id}&client_secret={client_secret}&redirect_uri={redirect_uri}&code={code}
-			$request = $this->api("POST", $this->options([ "requests", "/oauth/token" ]), Array(
+			$request = $this->api(OAuth2::POST, $this->options([ "requests", "/oauth/token" ]), Array(
 				"grant_type" => "refresh_token",
 				"client_id" => $this->client()->id,
 				"client_secret" => $this->client()->secret,

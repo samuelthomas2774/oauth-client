@@ -22,7 +22,7 @@
 		
 		// function userProfile(). Fetches the current user's profile.
 		public function userProfile() {
-			$request = $this->api("GET", "/users/details.json");
+			$request = $this->api(OAuth2::GET, "/users/details.json");
 			
 			$request->execute();
 			return $request->responseObject()->response;

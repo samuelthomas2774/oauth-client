@@ -26,8 +26,8 @@
 			if(!is_string($access_token)) $access_token = $this->accessToken();
 			
 			// Example request: GET /oauth/token/debug?access_token={access_token}
-			$request = $this->api("GET", $this->options([ "requests", "/oauth/token/debug" ]), Array(
-				"access_token"			=> $access_token
+			$request = $this->api(OAuth2::GET, $this->options([ "requests", "/oauth/token/debug" ]), Array(
+				"access_token" => $access_token
 			));
 			
 			try { $request->execute(); $response = $request->responseObject(); }
@@ -40,7 +40,7 @@
 		
 		// function userProfile(). Fetches the current user's profile.
 		public function userProfile() {
-			$request = $this->api("GET", "/account");
+			$request = $this->api(OAuth2::GET, "/account");
 			
 			$request->execute();
 			$response = $request->responseObject();

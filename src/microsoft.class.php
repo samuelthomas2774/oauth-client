@@ -15,7 +15,7 @@
 		
 		// function userProfile(). Fetches the current user's profile.
 		public function userProfile() {
-			$request = $this->api("GET", "/me");
+			$request = $this->api(OAuth2::GET, "/me");
 			
 			$request->execute();
 			$user = new stdClass();
@@ -29,7 +29,7 @@
 		
 		// function profilePicture(). Fetches the current user's profile.
 		public function profilePicture() {
-			$request = $this->api("GET", "/me/picture");
+			$request = $this->api(OAuth2::GET, "/me/picture");
 			
 			$request->execute();
 			$response = $request->responseObject();

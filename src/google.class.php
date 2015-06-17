@@ -15,7 +15,7 @@
 		
 		// function userProfile(). Fetches the current user's profile.
 		public function userProfile() {
-			$request = $this->api("GET", "/userinfo");
+			$request = $this->api(OAuth2::GET, "/userinfo");
 			
 			$request->execute();
 			$user = new stdClass();
@@ -32,7 +32,7 @@
 			// Check if width and height are integers.
 			if(!is_int($size) && !is_numeric($size)) $size = 50;
 			
-			$request = $this->api("GET", "/me", Array("sz" => $size));
+			$request = $this->api(OAuth2::GET, "/me", Array("sz" => $size));
 			
 			$request->execute();
 			$response = $request->responseObject();

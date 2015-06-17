@@ -15,7 +15,7 @@
 		
 		// function userProfile(). Fetches the current user's profile.
 		public function userProfile() {
-			$request = $this->api("GET", "/user/profile");
+			$request = $this->api(OAuth2::GET, "/user/profile");
 			
 			$request->execute();
 			$response = $request->responseObject();

@@ -99,7 +99,7 @@
 			if(!is_string($access_token)) $access_token = $this->token;
 			
 			// Example request: GET /oauth/token/debug?access_token={access_token}
-			$request = $this->api("GET", $this->options("requests")["/oauth/token/debug"], Array(
+			$request = $this->api(OAuth2::GET, $this->options("requests")["/oauth/token/debug"], Array(
 				"access_token" => $this->client()->id . "|" . $this->client()->secret,
 				"input_token" => $access_token
 			));
@@ -117,7 +117,7 @@
 			// Check if fields is an array.
 			if(!is_array($fields)) $fields = Array();
 			
-			$request = $this->api("GET", "/me", Array("fields" => implode(",", $fields)));
+			$request = $this->api(OAuth2::GET, "/me", Array("fields" => implode(",", $fields)));
 			
 			$request->execute();
 			$user = new stdClass();
@@ -135,7 +135,7 @@
 			if(!is_int($width) && !is_numeric($width)) $width = 50;
 			if(!is_int($height) && !is_numeric($height)) $height = 50;
 			
-			$request = $this->api("GET", "/me", Array("fields" => "id,picture.width({$width}).height({$height})"));
+			$request = $this->api(OAuth2::GET, "/me", Array("fields" => "id,picture.width({$width}).height({$height})"));
 			
 			$request->execute();
 			$response = $request->responseObject();
@@ -155,7 +155,7 @@
 		
 		// function permissions(). Fetches the permissions and returns them in an array.
 		public function permissions($rearrange = true) {
-			$request = $this->api("GET", "/me/permissions");
+			$request = $this->api(OAuth2::GET, "/me/permissions");
 			
 			$request->execute();
 			$response = $request->responseObject();
@@ -189,7 +189,7 @@
 		
 		// function ids(). Fetches the user ids for other apps the user has authorised and are linked to the same business.
 		public function ids($rearrange = true) {
-			$request = $this->api("GET", "/me/ids_for_business");
+			$request = $this->api(OAuth2::GET, "/me/ids_for_business");
 			
 			$request->execute();
 			$response = $request->responseObject();
@@ -212,7 +212,7 @@
 		
 		// function deauth(). De-authorises the application, or removes one permission. Once this is called, the user will have to authorise the application again using the Facebook Login Dialog.
 		public function deauth($permission = null) {
-			$request = $this->api("DELETE", "/me/permissions" . (is_string($permission) ? "/" . $permission : ""));
+			$request = $this->api(OAuth2::DELETE, "/me/permissions" . (is_string($permission) ? "/" . $permission : ""));
 			
 			$request->execute();
 			$response = $request->responseObject();
@@ -226,7 +226,7 @@
 			$permissions = $this->permissions(); if(!isset($permissions->manage_pages) || ($permissions->manage_pages->status == "declined"))
 				throw new Exception(__METHOD__ . "(): User has declined the manage_pages permission.");
 			
-			$request = $this->api("GET", "/me/accounts");
+			$request = $this->api(OAuth2::GET, "/me/accounts");
 			
 			$request->execute();
 			$response = $request->responseObject();
@@ -260,7 +260,7 @@
 			if(isset($post2["place"])) $post["place"] = $post2["place"];
 			if(isset($post2["place"]) && isset($post2["tags"])) $post["tags"] = $post2["tags"];
 			
-			$request = $this->api("POST", "/me/feed", $post);
+			$request = $this->api(OAuth2::POST, "/me/feed", $post);
 			
 			$request->execute();
 			$response = $request->responseObject();

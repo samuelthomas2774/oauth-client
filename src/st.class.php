@@ -33,7 +33,7 @@
 			// Check if size is an integer.
 			if(!is_int($size) && !is_numeric($size)) $size = 50;
 			
-			$request = $this->api("GET", "/user", Array("picture_size" => $size));
+			$request = $this->api(OAuth2::GET, "/user", Array("picture_size" => $size));
 			
 			$request->execute();
 			$response = $request->responseObject();

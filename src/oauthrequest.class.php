@@ -25,7 +25,7 @@
 			else $this->oauth = $oauth;
 			
 			// Store method in OAuthRequest::request["method"].
-			if(($method != "GET") && ($method != "POST") && ($method != "PUT") && ($method != "DELETE")) throw new Exception(__METHOD__ . "(): \$method must be either GET, POST, PUT or DELETE.");
+			if(!in_array($method, Array(OAuth2::GET, OAuth2::POST, OAuth2::PUT, OAuth2::DELETE))) throw new Exception(__METHOD__ . "(): \$method must be either GET, POST, PUT or DELETE.");
 			else $this->request["method"] = $method;
 			
 			// Store url in OAuthRequest::request["url"].
@@ -33,8 +33,8 @@
 			else $this->request["url"] = $url;
 			
 			// Store params in OAuthRequest::request["params"].
-			if(($method == "PUT") && !is_string($params)) $this->request["params"] = "";
-			elseif(($method != "PUT") && !is_array($params)) $this->request["params"] = Array();
+			if(($method == OAuth2::PUT) && !is_string($params)) $this->request["params"] = "";
+			elseif(($method != OAuth2::PUT) && !is_array($params)) $this->request["params"] = Array();
 			else $this->request["params"] = $params; // Do not throw an exception here. This variable is not required and has a default value, so just use that if the input cannot be used.
 			
 			// Store headers in OAuthRequest::request["headers"].
@@ -57,7 +57,7 @@
 				$this->request["params"]["access_token"] = $this->oauth->accessToken();
 			}
 			
-			if(($this->request["method"] == "GET") || ($this->request["method"] == "DELETE")) {
+			if(in_array($this->request["method"], Array(OAuth2::GET, OAuth2::DELETE))) {
 				if(strpos($this->request["url"], "?") !== false) $url = $this->request["url"] . "&" . http_build_query($this->request["params"]);
 				else $url = $this->request["url"] . "?" . http_build_query($this->request["params"]);
 			} else {
@@ -101,16 +101,21 @@
 				return strlen($header);
 			});
 			
-			if($this->request["method"] == "GET") {
-				// Requests are get method by default.
-			} elseif($this->request["method"] == "POST") {
-				curl_setopt($this->curl, CURLOPT_POST, true);
-				curl_setopt($this->curl, CURLOPT_POSTFIELDS, http_build_query($this->request["params"]));
-			} elseif($this->request["method"] == "PUT") {
-				curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "PUT");
-				curl_setopt($this->curl, CURLOPT_POSTFIELDS, $this->request["params"]);
-			} elseif($this->request["method"] == "DELETE") {
-				curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+			switch($this->request["method"]) {
+				case OAuth2::GET: // GET
+					// Requests are GET method by default.
+					break;
+				case OAuth2::POST: // POST
+					curl_setopt($this->curl, CURLOPT_POST, true);
+					curl_setopt($this->curl, CURLOPT_POSTFIELDS, http_build_query($this->request["params"]));
+					break;
+				case OAuth2::PUT: // PUT
+					curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "PUT");
+					curl_setopt($this->curl, CURLOPT_POSTFIELDS, $this->request["params"]);
+					break;
+				case OAuth2::DELETE: // DELETE
+					curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+					break;
 			}
 			
 			$curl_response = curl_exec($this->curl);
