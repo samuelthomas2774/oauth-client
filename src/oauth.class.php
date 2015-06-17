@@ -9,10 +9,10 @@
 		private $client = Array("id" => null, "secret" => null);
 		
 		// String $token. The current access token.
-		protected $token = null;
+		private $token = null;
 		
 		// Array / Object $options. Default options are returned by the OAuth2::defaultoptions() method.
-		// These will overwrite the default options, can be used to set default options for extended classes.
+		// These will overwrite the default options, can be used to set default options for extended classes (subclasses).
 		protected $options = null;
 		
 		// Constants.
@@ -80,7 +80,7 @@
 			
 			// Check state if required.
 			if($state == true) $state = isset($_GET["state"]) ? $_GET["state"] : null;
-			if(($state != false) && ( // Check state?
+			if(($this->options("session_prefix") != null) && ($state != false) && ( // Check state? Ignore if sessions are disabled (as state won't exist) or if $state is set to false.
 				($this->session("state") == null) || // State is not set: trigger error.
 				($this->session("state") != $state) // State does not match $state: trigger error.
 			)) {
@@ -329,23 +329,33 @@
 			if($this->options([ "errors", "throw" ]) == true) throw new Exception($message);
 		}
 		
-		// function session(). Returns / Sets session data. This should only be used by the OAuth2 and OAuthRequest classes. Fails silently if sessions are disabled.
+		// function session(). Returns / Sets session data. This should only be used by the OAuth2 and OAuthRequest classes.
+		// Fails silently if sessions are disabled.
 		public function session($name) {
 			$params = func_get_args();
 			if(isset($params[1])) $value = $params[1];
 			
-			if($this->options("session_prefix") == false) return null; // Sessions are diabled.
+			$session_prefix = $this->options("session_prefix");
+			if(!is_string($session_prefix) && ($session_prefix != false))
+				$this->options("session_prefix", $session_prefix = $this->defaultoptions()->session_prefix);
+			
+			if($session_prefix == false) return null; // Sessions are diabled.
 			elseif(isset($value)) // Set
-				$_SESSION[$this->options("session_prefix") . $name] = $value;
-			elseif(isset($_SESSION[$this->options("session_prefix") . $name])) // Get
-				return $_SESSION[$this->options("session_prefix") . $name];
+				$_SESSION[$session_prefix . $name] = $value;
+			elseif(isset($_SESSION[$session_prefix . $name])) // Get
+				return $_SESSION[$session_prefix . $name];
 			else return null;
 		}
 		
-		// function sessionDelete(). Deletes session data. This should only be used by the OAuth2 and OAuthRequest classes. Fails silently if sessions are disabled.
+		// function sessionDelete(). Deletes session data. This should only be used by the OAuth2 and OAuthRequest classes.
+		// Fails silently if sessions are disabled.
 		public function sessionDelete($name) {
-			if($this->options("session_prefix") == false) return null; // Sessions are diabled.
-			elseif(isset($_SESSION[$this->options("session_prefix") . $name])) unset($_SESSION[$this->options("session_prefix") . $name]); // Delete
+			$session_prefix = $this->options("session_prefix");
+			if(!is_string($session_prefix) && ($session_prefix != false))
+				$this->options("session_prefix", $session_prefix = $this->defaultoptions()->session_prefix);
+			
+			if($session_prefix == false) return null; // Sessions are diabled.
+			elseif(isset($_SESSION[$session_prefix . $name])) unset($_SESSION[$session_prefix . $name]); // Delete
 		}
 	}
 	
