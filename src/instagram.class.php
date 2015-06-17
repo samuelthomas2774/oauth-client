@@ -8,10 +8,9 @@
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		public $options = Array(
 			"session_prefix"		=> "instagram_",
-			"dialog"				=> Array("base_url" => "https://api.instagram.com/oauth/authorize/", "scope_separator" => " "),
-			"api"					=> Array("base_url" => "https://api.instagram.com/v1", "token_auth" => true, "headers" => Array("User-Agent" => "OAuth 2.0 Client https://github.com/samuelthomas2774/oauth-client"), "callback" => null),
-			"requests"				=> Array("/oauth/token" => "https://api.instagram.com/oauth/access_token", "/oauth/token:response" => "json", "/oauth/token/debug" => "https://api.instagram.com/oauth/access_tokens"),
-			"errors"				=> Array("throw" => true)
+			"dialog"				=> Array("base_url" => "https://api.instagram.com/oauth/authorize/"),
+			"api"					=> Array("base_url" => "https://api.instagram.com/v1"),
+			"requests"				=> Array("/oauth/token" => "https://api.instagram.com/oauth/access_token", "/oauth/token/debug" => "https://api.instagram.com/oauth/access_tokens")
 		);
 		
 		// function api(). Makes a new request to the server's API.

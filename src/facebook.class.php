@@ -9,20 +9,19 @@
 		public $options = Array(
 			"session_prefix"		=> "facebook_",
 			"dialog"				=> Array("base_url" => "https://www.facebook.com/dialog/oauth", "scope_separator" => ","),
-			"api"					=> Array("base_url" => "https://graph.facebook.com/v2.2", "token_auth" => true),
-			"requests"				=> Array("/oauth/token" => "/oauth/access_token", "/oauth/token/debug" => "/debug_token"),
-			"errors"				=> Array("throw" => true)
+			"api"					=> Array("base_url" => "https://graph.facebook.com/v2.2"),
+			"requests"				=> Array("/oauth/token" => "/oauth/access_token", "/oauth/token/debug" => "/debug_token")
 		);
 		
-		// function validateAccessToken(). Verifies an access token. Redefined because Facebook returns access token data in a query string.
+		// function validateAccessToken(). Checks an access token is valid.
 		public function validateAccessToken($access_token = null) {
 			// Check if access_token is string.
 			if(!is_string($access_token)) $access_token = $this->token;
 			
 			// Example request: GET /oauth/token/debug?access_token={access_token}
 			$request = $this->api("GET", $this->options("requests")["/oauth/token/debug"], Array(
-				"access_token"			=> $this->app["id"] . "|" . $this->app["secret"],
-				"input_token"			=> $access_token
+				"access_token" => $this->client()->id . "|" . $this->client()->secret,
+				"input_token" => $access_token
 			));
 			
 			try { $request->execute(); parse_str($request->response(), $response); }
@@ -41,7 +40,13 @@
 			$request = $this->api("GET", "/me", Array("fields" => implode(",", $fields)));
 			
 			$request->execute();
-			return $request->responseObject();
+			$user = new stdClass();
+			$user->response = $request->responseObject();
+			$user->id = isset($user->response->id) ? $user->response->id : null;
+			$user->username = isset($user->response->username) ? $user->response->username : $user->response->id;
+			$user->name = isset($user->response->name) ? $user->response->name : null;
+			$user->email = isset($user->response->email) ? $user->response->email : null;
+			return $user;
 		}
 		
 		// function profilePicture(). Fetches the current user's profile.

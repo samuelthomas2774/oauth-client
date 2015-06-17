@@ -6,26 +6,13 @@
 	
 	class OAuth2 {
 		// Array $client. An array of information about the client.
-		private $client = Array("id" => null, "secret" => null);
+		protected $client = Array("id" => null, "secret" => null);
 		
 		// String $token. The current access token.
-		private $token = null;
+		protected $token = null;
 		
-		// Options. These shouldn't be modified here, but using the OAuth::options() function.
-		public $options = Array(
-			"session_prefix"		=> "oauth_",
-			// Login Dialog. Set a few important variables for using the Login Dialog.
-			"dialog"				=> Array("base_url" => "https://www.facebook.com/dialog/oauth", "scope_separator" => ","),
-			// API. Set a few important variables for using the API.
-			// token_auth: 1 = access_token parameter (default), 2 = Authorization header, false = Do not automatically send an access token.
-			"api"					=> Array("base_url" => "https://graph.facebook.com/v2.1", "token_auth" => true, "headers" => Array(
-				"User-Agent"			=> "OAuth 2.0 Client https://github.com/samuelthomas2774/oauth-client"
-			), "callback" => null),
-			// Default requests. Sets a few important variables for the requests this class makes.
-			"requests"				=> Array("/oauth/token" => "/oauth/token", "/oauth/token:response" => "json", "/oauth/token/debug" => "/oauth/token/debug"),
-			// Errors. Sets how and when this class triggers errors. Note that invalid parameter exceptions are thrown even if throw is set to false here.
-			"errors"				=> Array("throw" => true)
-		);
+		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
+		public $options = Array();
 		
 		// Constants.
 		const responseText = 10;
@@ -45,16 +32,22 @@
 			
 			// Store App Secret in OAuth2::client["secret"].
 			if(!is_string($client_secret)) throw new Exception(__METHOD__ . "(): \$client_secret must be a string.");
-			else $this->client["secret"] = $app_secret;
+			else $this->client["secret"] = $client_secret;
 			
 			// Save options.
-			if(!is_array($options)) throw new Exception(__METHOD__ . "(): \$options must be an array.");
-			else foreach($options as $key => $value) {
-				$this->options($key, $value);
+			if(!is_array($options) && !is_object($options)) throw new Exception(__METHOD__ . "(): \$options must be an array or an object.");
+			else {
+				$default_options = $this->defaultoptions();
+				$extended_options = $this->options;
+				$user_options = $options;
+				
+				$this->options = $default_options;
+				foreach($extended_options as $key => $value) $this->options($key, $value);
+				foreach($options as $key => $value) $this->options($key, $value);
 			}
 			
 			// Try to restore the access token from the session.
-			if($this->options("access_token") != null) { $this->token = $this->options("access_token"); unset($this->options["access_token"]); }
+			if($this->options("access_token") != null) { $this->token = $this->options("access_token"); unset($this->options->access_token); }
 			elseif($this->session("token") != null) $this->token = $this->session("token");
 		}
 		
@@ -97,39 +90,74 @@
 			$this->sessionDelete("state");
 			
 			// Unset the access token.
-			$this->token = null;
+			$this->accessToken(false);
 			
 			// Example request: POST /oauth/token?client_id={client_id}&client_secret={client_secret}&redirect_uri={redirect_uri}&code={code}
-			$request = $this->api("POST", $this->options("requests")["/oauth/token"], Array(
-				"grant_type"			=> "authorization_code",
-				"client_id"				=> $this->client["id"],
-				"client_secret"			=> $this->client["secret"],
-				"redirect_uri"			=> $redirect_url,
-				"code"					=> $code,
-				"state"					=> $state
+			$request = $this->api("POST", $this->options([ "requests", "/oauth/token" ]), Array(
+				"grant_type" => "authorization_code",
+				"client_id" => $this->client()->id,
+				"client_secret" => $this->client()->secret,
+				"redirect_uri" => $redirect_url,
+				"code" => $code,
+				"state" => $state
 			), null, true);
 			
 			$request->execute();
 			
-			// OAuth 2 spec states that this url should responsed with valid JSON, query string is for Facebook API >= v2.2.
-			if($this->options("requests")["/oauth/token:response"] == "query") $response = $request->responseQueryString();
+			// Get the response.
+			if($this->options([ "requests", "/oauth/token:response" ]) == "query") $response = $request->responseQueryString();
+			elseif($this->options([ "requests", "/oauth/token:response" ]) == "xml") $response = $request->responseXMLObject();
 			else $response = $request->responseObject();
 			
 			$this->accessToken($response->access_token);
+			return $response;
 		}
 		
-		// function validateAccessToken(). Checks if an access token is valid. Most OAuth 2 provider do not have this endpoint.
+		// function getAccessTokenFromRefreshToken(). Exchanges a refresh token for an access token.
+		public function getAccessTokenFromRefreshToken($refresh_token) {
+			// Check if refresh token is a string.
+			if(!is_string($refresh_token)) throw new Exception(__METHOD__ . "(): \$refresh_token must be a string.");
+			
+			// Unset the access token.
+			$this->accessToken(null);
+			
+			// Example request: POST /oauth/token?client_id={client_id}&client_secret={client_secret}&redirect_uri={redirect_uri}&code={code}
+			$request = $this->api("POST", $this->options([ "requests", "/oauth/token" ]), Array(
+				"grant_type" => "refresh_token",
+				"client_id" => $this->client()->id,
+				"client_secret" => $this->client()->secret,
+				"refresh_token" => $refresh_token
+			), null, true);
+			
+			$request->execute();
+			
+			// Get the response.
+			if($this->options([ "requests", "/oauth/token:response" ]) == "query") $response = $request->responseQueryString();
+			elseif($this->options([ "requests", "/oauth/token:response" ]) == "xml") $response = $request->responseXMLObject();
+			else $response = $request->responseObject();
+			
+			$this->accessToken($response->access_token);
+			return $response;
+		}
+		
+		// function validateAccessToken(). Checks if an access token is valid. Most OAuth 2 providers do not have this endpoint.
 		public function validateAccessToken($access_token = null) {
 			// Check if access_token is string.
-			if(!is_string($access_token)) $access_token = $this->token;
+			if(!is_string($access_token)) $access_token = $this->accessToken();
 			
 			// Example request: GET /oauth/token/debug?access_token={access_token}
-			$request = $this->api("GET", $this->options("requests")["/oauth/token/debug"], Array(
-				"access_token"			=> $access_token
+			$request = $this->api("GET", $this->options([ "requests", "/oauth/token/debug" ]), Array(
+				"access_token" => $access_token
 			));
 			
-			try { $request->execute(); $response = $request->responseObject(); }
-			catch(Exception $e) { return false; }
+			try {
+				$request->execute();
+				
+				// Get the response.
+				if($this->options([ "requests", "/oauth/token:response" ]) == "query") $response = $request->responseQueryString();
+				elseif($this->options([ "requests", "/oauth/token:response" ]) == "xml") $response = $request->responseXMLObject();
+				else $response = $request->responseObject();
+			} catch(Exception $e) { return false; }
 			if(isset($response->error)) return false;
 			
 			if($response->expires_in <= 0) return false;
@@ -139,12 +167,13 @@
 		// function loginURL(). Returns the URL for the login dialog.
 		public function loginURL($redirect_url, $permissions = Array(), $params = Array()) {
 			// Check if redirect_url is a url. The redirect_url should go to a PHP script on the same domain that runs OAuth::getAccessTokenFromCode().
-			if(!filter_var($redirect_url, FILTER_VALIDATE_URL)) throw new Exception(__CLASS__ . "::" . __METHOD__ . "(): \$redirect_url must be a valid url.");
+			if(!filter_var($redirect_url, FILTER_VALIDATE_URL)) throw new Exception(__METHOD__ . "(): \$redirect_url must be a valid url.");
 			
 			// Check if permissions is an array.
 			if(!is_array($permissions)) $permissions = Array();
 			
-			// Example Login Dialog URL to request a user's email address and friends who also use the application: https://oauth.mydatastore.com/dialog/oauth?client_id={app_id}&redirect_uri={redirect_url}&response_type=code&scope=email,user_friends
+			// Example Login Dialog URL to request a user's email address:
+			// https://mydatastore.com/oauth/authorize?client_id={client_id}&redirect_uri={redirect_url}&response_type=code&scope=email
 			
 			// Generate a unique state parameter and store it in the session.
 			$state = hash("sha1", time() . uniqid(mt_rand(), true));
@@ -154,11 +183,11 @@
 				"response_type"			=> "code",
 				"client_id"				=> $this->client()->id,
 				"redirect_uri"			=> $redirect_url,
-				"scope"					=> implode($this->options("dialog")["scope_separator"], $permissions),
+				"scope"					=> implode($this->options([ "dialog", "scope_separator" ]), $permissions),
 				"state"					=> $state
 			);
 			
-			$url = $this->options("dialog")["base_url"] . "?" . http_build_query(array_merge($params, $url_params));
+			$url = $this->options([ "dialog", "base_url" ]) . "?" . http_build_query(array_merge($params, $url_params));
 			return $url;
 		}
 		
@@ -194,24 +223,94 @@
 		}
 		
 		// function accessToken(). Returns / sets the current access token.
-		public function accessToken($token = null, $session = true) {
-			if(is_string($token)) {
+		public function accessToken($token = false, $session = true) {
+			if($token === null) {
+				$this->token = null;
+				if($session == true) $this->sessionDelete("token");
+			} elseif(is_string($token)) {
 				$this->token = $token;
 				if($session == true) $this->session("token", $token);
-			} elseif($token == false) {
-				$this->token = null;
-			} else return $this->token;
+			} else {
+				return $this->token;
+			}
 		}
 		
 		// function options(). Returns / sets an option.
+		// Get: $oauth->options("session_prefix");
+		// Get: $oauth->options(Array("dialog", "base_url"));
+		// Get: $oauth->options([ "dialog", "base_url" ]);
+		// Set: $oauth->options("session_prefix", "oauth_");
+		// Set: $oauth->options(Array("dialog", "base_url"), "https://www.facebook.com/dialog/oauth");
+		// Set: $oauth->options([ "dialog", "base_url" ], "https://www.facebook.com/dialog/oauth");
+		// Set: $oauth->options(Array("api", "headers"), Array("X-Header" => "X-Value")); // Array will be merged.
 		public function options($name) {
 			$params = func_get_args();
-			if(isset($params[1])) {
-				$value = $params[1];
-				if(isset($this->options[$name]) && is_array($this->options[$name]) && is_array($value)) $this->options[$name] = array_merge($this->options[$name], $value);
-				elseif(isset($this->options[$name]) && is_object($this->options[$name]) && is_object($value)) $this->options[$name] = (object)array_merge((array)$this->options[$name], (array)$value);
-				else $this->options[$name] = $value;
-			} else return isset($this->options[$name]) ? $this->options[$name] : null;
+			if(is_string($name) || is_int($name)) $name = Array($name);
+			if(!is_array($name)) return null;
+			if(isset($params[1])) $value = $params[1];
+			
+			$option = $this->options;
+			$nk = array_keys($name);
+			$lo = end($nk);
+			foreach($name as $i => $key) {
+				if(is_object($option) && isset($option->{$key}) && ($lo == $i)) $option = &$option->{$key};
+				elseif(is_array($option) && isset($option[$key]) && ($lo == $i)) $option = &$option[$key];
+				elseif(is_object($option) && isset($option->{$key})) $option = $option->{$key};
+				elseif(is_array($option) && isset($option[$key])) $option = $option[$key];
+				else return null;
+			}
+			
+			if(isset($value)) {
+				if(is_object($option) && (is_object($value) || is_array($value))) {
+					foreach($value as $k => $v) {
+						if(is_object($v)) $option->{$k} = (object)array_merge((array)$option->{$k}, (array)$v);
+						if(is_array($v)) $option->{$k} = (array)array_merge((array)$option->{$k}, (array)$v);
+						else $option->{$k} = $v;
+					}
+				} elseif(is_array($option) && (is_object($value) || is_array($value))) {
+					foreach($value as $k => $v) {
+						if(is_object($v)) $option->{$k} = (object)array_merge((array)$option->{$k}, (array)$v);
+						if(is_array($v)) $option->{$k} = (array)array_merge((array)$option->{$k}, (array)$v);
+						else $option->{$k} = $v;
+					}
+				} else $option = $value;
+			} else {
+				return $option;
+			}
+		}
+		
+		// function defaultoptions(). Returns the default options.
+		public function defaultoptions() {
+			$options = new stdClass();
+			$options->session_prefix = "oauth_";
+			
+			// Login Dialog. Set a few important variables for using the Login Dialog.
+			$options->dialog = new stdClass();
+			$options->dialog->base_url = "https://mydatastore.com/oauth/authorize";
+			$options->dialog->scope_separator = " ";
+			
+			// API. Set a few important variables for using the API.
+			// token_auth: 1 = access_token parameter (default), 2 = Authorization header, false = Do not automatically send an access token.
+			$options->api = new stdClass();
+			$options->api->base_url = "https://api.mydatastore.com";
+			$options->api->token_auth = true;
+			$options->api->headers = Array(
+				"User-Agent" => "OAuth 2.0 Client https://github.com/samuelthomas2774/oauth-client"
+			);
+			$options->api->callback = null;
+			
+			// Default requests. Sets a few important variables for the requests this class makes.
+			$options->requests = new stdClass();
+			$options->requests->{"/oauth/token"} = "/oauth/token";
+			$options->requests->{"/oauth/token:response"} = "json";
+			$options->requests->{"/oauth/token/debug"} = "/oauth/token/debug";
+			
+			// Errors. Sets how and when this class triggers errors.
+			// Invalid parameter exceptions are thrown even if throw is set to false here.
+			$options->errors = new stdClass();
+			$options->errors->throw = true;
+			
+			return $options;
 		}
 		
 		// function client(). Returns the client id and secret.
@@ -223,18 +322,20 @@
 		// function triggerError(). Triggers an error. This should only be used by the OAuth2 and OAuthRequest classes.
 		public function triggerError($message, $error = null) {
 			$this->error = $error != null ? $error : $message;
-			if($this->options("errors")["throw"] == true) throw new Exception($message);
+			if($this->options([ "errors", "throw" ]) == true) throw new Exception($message);
 		}
 		
 		// function session(). Returns / Sets session data. This should only be used by the OAuth2 and OAuthRequest classes. Fails silently if sessions are disabled.
 		public function session($name) {
 			$params = func_get_args();
+			if(isset($params[1])) $value = $params[1];
+			
 			if($this->options("session_prefix") == false) return null; // Sessions are diabled.
-			elseif(isset($params[1])) {
-				$value = $params[1];
-				$_SESSION[$this->options("session_prefix") . $name] = $value; // Set
-			} elseif(isset($_SESSION[$this->options("session_prefix") . $name])) return $_SESSION[$this->options("session_prefix") . $name];
-			else return null; // Get
+			elseif(isset($value)) // Set
+				$_SESSION[$this->options("session_prefix") . $name] = $value;
+			elseif(isset($_SESSION[$this->options("session_prefix") . $name])) // Get
+				return $_SESSION[$this->options("session_prefix") . $name];
+			else return null;
 		}
 		
 		// function sessionDelete(). Deletes session data. This should only be used by the OAuth2 and OAuthRequest classes. Fails silently if sessions are disabled.

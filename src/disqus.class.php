@@ -9,9 +9,8 @@
 		public $options = Array(
 			"session_prefix"		=> "disqus_",
 			"dialog"				=> Array("base_url" => "https://disqus.com/api/oauth/2.0/authorize/", "scope_separator" => ","),
-			"api"					=> Array("base_url" => "https://disqus.com/api/3.0", "token_auth" => 2, "headers" => Array("User-Agent" => "OAuth 2.0 Client https://github.com/samuelthomas2774/oauth-client"), "callback" => null),
-			"requests"				=> Array("/oauth/token" => "https://disqus.com/api/oauth/2.0/access_token/", "/oauth/token:response" => "json", "/oauth/token/debug" => "https://disqus.com/api/oauth/2.0/access_token/"),
-			"errors"				=> Array("throw" => true)
+			"api"					=> Array("base_url" => "https://disqus.com/api/3.0", "token_auth" => 2),
+			"requests"				=> Array("/oauth/token" => "https://disqus.com/api/oauth/2.0/access_token/", "/oauth/token/debug" => "https://disqus.com/api/oauth/2.0/access_token/")
 		);
 		
 		// function api(). Makes a new request to the server's API.

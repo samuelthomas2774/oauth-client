@@ -8,10 +8,9 @@
 		// Options. These shouldn't be modified here, but using the OAuth::options() function.
 		public $options = Array(
 			"session_prefix"		=> "foursquare_",
-			"dialog"				=> Array("base_url" => "https://foursquare.com/oauth2/authorize", "scope_separator" => " "),
-			"api"					=> Array("base_url" => "https://api.foursquare.com/v2", "token_auth" => false, "headers" => Array("User-Agent" => "OAuth 2.0 Client https://github.com/samuelthomas2774/oauth-client"), "callback" => null),
-			"requests"				=> Array("/oauth/token" => "https://foursquare.com/oauth2/access_token", "/oauth/token:response" => "json", "/oauth/token/debug" => "https://foursquare.com/oauth2/access_token"),
-			"errors"				=> Array("throw" => true)
+			"dialog"				=> Array("base_url" => "https://foursquare.com/oauth2/authorize"),
+			"api"					=> Array("base_url" => "https://api.foursquare.com/v2", "token_auth" => false),
+			"requests"				=> Array("/oauth/token" => "https://foursquare.com/oauth2/access_token", "/oauth/token/debug" => "https://foursquare.com/oauth2/access_token")
 		);
 		
 		// function api(). Makes a new request to the server's API.

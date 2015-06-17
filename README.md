@@ -269,9 +269,7 @@ LinkedIn
 
 Other providers
 ------------
-Empty sign-up urls will be added soon!
-
-Any other providers please contact me at http://samuelthomas.ml/about/contact and I'll add it as soon as possible.
+Any other providers please contact me at https://samuelthomas.ml/about/contact and I'll add it as soon as possible.
 
 **Provider**        | **Class**             | **File in /src**          | **Sign-up url**
 --------------------|-----------------------|---------------------------|-------------------------
@@ -285,7 +283,7 @@ Amazon              | OAuthAmazon           | amazon.class.php          | https:
 Disqus              | OAuthDisqus           | disqus.class.php          | https://disqus.com/api/applications/register/
 Instagram           | OAuthInstagram        | instagram.class.php       | https://instagram.com/developer/clients/register/
 Spotify             | OAuthSpotify          | spotify.class.php         | https://developer.spotify.com/my-applications/#!/applications/create
-samuelthomas.ml     | OAuthST               | st.class.php              | http://samuelthomas.ml/developer/clients
+samuelthomas.ml     | OAuthST               | st.class.php              | https://samuelthomas.ml/developer/clients
 TeamViewer          | OAuthTeamViewer       | teamviewer.class.php      | https://login.teamviewer.com/nav/api
 WordPress.com       | OAuthWordPress        | wordpress.class.php       | https://developer.wordpress.com/apps/new/
 

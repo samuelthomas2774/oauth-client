@@ -8,21 +8,24 @@
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		public $options = Array(
 			"session_prefix"		=> "st_",
-			"dialog"				=> Array("base_url" => "http://apis.samuelthomas.ml/auth", "scope_separator" => " "),
-			"api"					=> Array("base_url" => "http://apis.samuelthomas.ml", "token_auth" => true),
-			"requests"				=> Array("/oauth/token" => "/auth", "/oauth/token/debug" => "/auth/token"),
-			"errors"				=> Array("throw" => true)
+			"dialog"				=> Array("base_url" => "http://apis.samuelthomas.ml/auth"),
+			"api"					=> Array("base_url" => "http://apis.samuelthomas.ml"),
+			"requests"				=> Array("/oauth/token" => "/auth", "/oauth/token/debug" => "/auth/token")
 		);
 		
 		// function userProfile(). Fetches the current user's profile.
 		public function userProfile() {
-			// Check if fields is an array.
-			if(!is_array($fields)) $fields = Array();
-			
 			$request = $this->api("GET", "/user");
-			
 			$request->execute();
-			return $request->responseObject();
+			
+			$user = new stdClass();
+			$user->response = $request->responseObject();
+			$user->id = $user->response->id;
+			$user->username = $user->response->username;
+			$user->name = $user->response->displayname;
+			$user->email = isset($user->response->email) ? $user->response->email : null;
+			var_dump($user);
+			return $user;
 		}
 		
 		// function profilePicture(). Fetches the current user's profile picture.

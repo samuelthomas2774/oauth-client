@@ -53,7 +53,7 @@
 		public function execute() {
 			if($this->curl == null) $this->curl = curl_init();
 			
-			if(!isset($this->request["params"]["access_token"]) && ($this->oauth->accessToken() != null) && (($this->oauth->options("api")["token_auth"] != false) && ($this->oauth->options("api")["token_auth"] != 2))) {
+			if(!isset($this->request["params"]["access_token"]) && ($this->oauth->accessToken() != null) && (($this->oauth->options([ "api", "token_auth" ]) != false) && ($this->oauth->options([ "api", "token_auth" ]) != 2))) {
 				$this->request["params"]["access_token"] = $this->oauth->accessToken();
 			}
 			
@@ -64,13 +64,15 @@
 				$url = $this->request["url"];
 			}
 			
-			curl_setopt($this->curl, CURLOPT_URL, (strpos($url, "http") !== 0 ? $this->oauth->options("api")["base_url"] : "") . $url);
+			if(filter_var($url, FILTER_VALIDATE_URL)) curl_setopt($this->curl, CURLOPT_URL, $url);
+			else curl_setopt($this->curl, CURLOPT_URL, rtrim($this->oauth->options([ "api", "base_url" ]), "/") . "/" . ltrim($url, "/"));
 			curl_setopt($this->curl, CURLOPT_HEADER, false);
 			curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
 			$headers = Array(); // Headers
 			if($this->request["auth"] == true) $headers["Authorization"] = "Basic " . base64_encode($this->oauth->client()->id . ":" . $this->oauth->client()->secret);
-			elseif(($this->oauth->accessToken() != null) && ($this->oauth->options("api")["token_auth"] == 2) && !isset($this->request["params"]["access_token"])) $headers["Authorization"] = "Bearer {$this->oauth->accessToken()}";
-			$headers = array_merge($headers, $this->oauth->options("api")["headers"], $this->request["headers"]);
+			elseif(($this->oauth->accessToken() != null) && ($this->oauth->options([ "api", "token_auth" ]) == 2) && !isset($this->request["params"]["access_token"])) $headers["Authorization"] = "Bearer {$this->oauth->accessToken()}";
+			$dheaders = $this->oauth->options([ "api", "headers" ]);
+			$headers = array_merge($headers, is_array($dheaders) ? $dheaders : Array(), $this->request["headers"]);
 			curl_setopt($this->curl, CURLOPT_HTTPHEADER, call_user_func(function($headers) {
 				$return = Array();
 				foreach($headers as $key => $value) $return[] = "{$key}: {$value}";
@@ -100,7 +102,7 @@
 			});
 			
 			if($this->request["method"] == "GET") {
-				
+				// Requests are get method by default.
 			} elseif($this->request["method"] == "POST") {
 				curl_setopt($this->curl, CURLOPT_POST, true);
 				curl_setopt($this->curl, CURLOPT_POSTFIELDS, http_build_query($this->request["params"]));
@@ -117,13 +119,12 @@
 			$this->response["curl"] = curl_getinfo($this->curl);
 			
 			// Success function.
-			$callback = is_callable($this->oauth->options("api")["callback"]) ? $this->oauth->options("api")["callback"] : function($oauth, $request, $curl) {
+			$callback = is_callable($this->oauth->options([ "api", "callback" ])) ? $this->oauth->options([ "api", "callback" ]) : function($oauth, $request, $curl) {
 				// Check for errors.
 				$response = $request->responseObject();
-				if(isset($response->error)) {
+				if(is_object($response) && isset($response->error)) {
 					$request->error = $response->error;
-					if(is_object($response->error)) $oauth->triggerError($response->error->type . ": " . $response->error->message . " (" . $response->error->code . ")", $response->error);
-					else $oauth->triggerError($response->error . ": " . $response->error_description . " (" . curl_getinfo($curl, CURLINFO_HTTP_CODE) . ")", $response);
+					$oauth->triggerError($response->error . (isset($response->error_description) ? ": " . $response->error_description : "") . " (" . curl_getinfo($curl, CURLINFO_HTTP_CODE) . ")", $response);
 				}
 			};
 			call_user_func_array($callback, Array($this->oauth, $this, $this->curl));

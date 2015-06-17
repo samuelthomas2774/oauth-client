@@ -9,9 +9,8 @@
 		public $options = Array(
 			"session_prefix"		=> "teamviewer_",
 			"dialog"				=> Array("base_url" => "https://webapi.teamviewer.com/api/v1/oauth2/authorize", "scope_separator" => ","),
-			"api"					=> Array("base_url" => "https://webapi.teamviewer.com/api/v1", "token_auth" => 2, "headers" => Array("User-Agent" => "OAuth 2.0 Client https://github.com/samuelthomas2774/oauth-client"), "callback" => null),
-			"requests"				=> Array("/oauth/token" => "/oauth2/token", "/oauth/token:response" => "json", "/oauth/token/debug" => "/ping"),
-			"errors"				=> Array("throw" => true)
+			"api"					=> Array("base_url" => "https://webapi.teamviewer.com/api/v1", "token_auth" => 2),
+			"requests"				=> Array("/oauth/token" => "/oauth2/token", "/oauth/token/debug" => "/ping")
 		);
 		
 		// function api(). Makes a new request to the server's API.
@@ -27,7 +26,7 @@
 			if(!is_string($access_token)) $access_token = $this->accessToken();
 			
 			// Example request: GET /oauth/token/debug?access_token={access_token}
-			$request = $this->api("GET", $this->options("requests")["/oauth/token/debug"], Array(
+			$request = $this->api("GET", $this->options([ "requests", "/oauth/token/debug" ]), Array(
 				"access_token"			=> $access_token
 			));
 			

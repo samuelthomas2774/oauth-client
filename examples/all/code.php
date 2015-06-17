@@ -1,9 +1,12 @@
 <?php
-	// Start a session and load the Facebook library.
+	// Start a session (files are loaded later).
 	session_start();
 	
-	// Get the current network from PATH_INFO.
-	$server_url = ltrim($_SERVER["PATH_INFO"], "/");
+	// Get the current server from PATH_INFO.
+	if(!isset($_SERVER["PATH_INFO"])) {
+		echo "Server was not found.<br />\n\n";
+		goto session;
+	} $server_url = ltrim($_SERVER["PATH_INFO"], "/");
 	
 	// Get all the servers from clients.json.
 	$servers = json_decode(file_get_contents(__DIR__ . "/clients.json"));
@@ -21,7 +24,7 @@
 	$server->url = $server_url;
 	if(!isset($server->name)) $server->name = ucfirst(strtolower($server->url));
 	if(!isset($server->scope)) $server->scope = Array();
-	require_once __DIR__ . '/testclient/client/' . ltrim($server->file, "/");
+	require_once __DIR__ . '/oauth-client/src/' . ltrim($server->file, "/");
 	$oauth = new $server->class($server->id, $server->secret, Array("errors" => Array("throw" => false)));
 	
 	// Delete the access token if needed.
