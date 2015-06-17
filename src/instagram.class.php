@@ -2,7 +2,7 @@
 	/* class OAuthInstagram
 	 * /src/instagram.class.php
 	 */
-	require_once 'oauth.class.php';
+	if(!class_exists("OAuth2")) require_once __DIR__ . '/oauth.class.php';
 	
 	class OAuthInstagram extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.

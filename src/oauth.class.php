@@ -2,17 +2,18 @@
 	/* class OAuth2
 	 * /src/oauth.class.php
 	 */
-	require_once 'oauthrequest.class.php';
+	if(!class_exists("OAuthRequest")) require_once __DIR__ . '/oauthrequest.class.php';
 	
 	class OAuth2 {
 		// Array $client. An array of information about the client.
-		protected $client = Array("id" => null, "secret" => null);
+		private $client = Array("id" => null, "secret" => null);
 		
 		// String $token. The current access token.
 		protected $token = null;
 		
-		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
-		public $options = Array();
+		// Array / Object $options. Default options are returned by the OAuth2::defaultoptions() method.
+		// These will overwrite the default options, can be used to set default options for extended classes.
+		protected $options = null;
 		
 		// Constants.
 		const responseText = 10;
@@ -25,6 +26,9 @@
 		const responseSimpleXMLObject = 43;
 		
 		// function __construct(). Creates a new OAuth2 object.
+		// $client_id: String or int, the client_id.
+		// $client_secret: String, the client_secret.
+		// $options: Array or object of options to set. This can also have an access_token property that will replace the access token. Using this to set the access token will not change the access token in the session (if set).
 		public function __construct($client_id, $client_secret, $options = Array()) {
 			// Store App ID in OAuth2::client["id"].
 			if(!is_int($client_id) && !is_string($client_id)) throw new Exception(__METHOD__ . "(): \$client_id must be a string or an integer.");
@@ -38,27 +42,29 @@
 			if(!is_array($options) && !is_object($options)) throw new Exception(__METHOD__ . "(): \$options must be an array or an object.");
 			else {
 				$default_options = $this->defaultoptions();
-				$extended_options = $this->options;
-				$user_options = $options;
+				if(is_object($this->options) || is_array($this->options)) $extended_options = (array)$this->options;
+				else $extended_options = Array();
+				$user_options = (array)$options;
 				
 				$this->options = $default_options;
 				foreach($extended_options as $key => $value) $this->options($key, $value);
 				foreach($options as $key => $value) $this->options($key, $value);
 			}
 			
-			// Try to restore the access token from the session.
-			if($this->options("access_token") != null) { $this->token = $this->options("access_token"); unset($this->options->access_token); }
-			elseif($this->session("token") != null) $this->token = $this->session("token");
+			// Try to restore the access token from options or the session.
+			if($this->options("access_token") != null) {
+				$this->token = $this->options("access_token"); unset($this->options->access_token);
+			} elseif($this->session("token") != null) $this->token = $this->session("token");
 		}
 		
 		// function api(). Makes a new request to the server's API.
+		// $method: GET, POST, PUT or DELETE, the http method to use in this request.
+		// $url: The url to send this request to. If this is not a full valid url, it will be appended to the option api->base_url.
+		// $params: If this is a GET request, this will be url-encoded and added to the url, if this is a POST/PUT request this will become the request body.
+		// $headers: Additional headers to send. Will overwrite headers set in the api->headers option.
+		// $auth: If true will send the client id and secret in the Authorization header.
 		public function api($method, $url, $params = Array(), $headers = Array(), $auth = false) {
 			// Everything here is done by the OAuthRequest class.
-			// $method: GET, POST, PUT or DELETE, the http method to use in this request.
-			// $url: The url to send this request to. If this is not a full valid url (http://api.example.com/v1.0/user), it will be appended to the option api->base_url ($base_url = "http://api.example.com/v1.0/"; $url = "/user"; $request_url = "http://api.example.com/v1.0/user";)
-			// $params: If this is a GET request, this will be url-encoded and added to the url, if this is a POST/PUT request this will become the request body.
-			// $headers: Additional headers to send. Will overwrite headers set in the api->headers option.
-			// $auth: If true will send the client id and secret in the Authorization header.
 			return new OAuthRequest($this, $method, $url, $params, $headers, $auth);
 		}
 		
@@ -74,12 +80,10 @@
 			
 			// Check state if required.
 			if($state == true) $state = isset($_GET["state"]) ? $_GET["state"] : null;
-			if( ($state != false) && // Check state?
-				(
-					($this->session("state") == null) || // State is not set: trigger error.
-					($this->session("state") != $state) // State does not match $state: trigger error.
-				)
-			) {
+			if(($state != false) && ( // Check state?
+				($this->session("state") == null) || // State is not set: trigger error.
+				($this->session("state") != $state) // State does not match $state: trigger error.
+			)) {
 				// Invalid state parameter.
 				$this->sessionDelete("state");
 				$this->triggerError("Invalid state parameter.");
@@ -90,7 +94,7 @@
 			$this->sessionDelete("state");
 			
 			// Unset the access token.
-			$this->accessToken(false);
+			$this->accessToken(null);
 			
 			// Example request: POST /oauth/token?client_id={client_id}&client_secret={client_secret}&redirect_uri={redirect_uri}&code={code}
 			$request = $this->api("POST", $this->options([ "requests", "/oauth/token" ]), Array(
@@ -180,11 +184,11 @@
 			$this->session("state", $state);
 			
 			$url_params = Array(
-				"response_type"			=> "code",
-				"client_id"				=> $this->client()->id,
-				"redirect_uri"			=> $redirect_url,
-				"scope"					=> implode($this->options([ "dialog", "scope_separator" ]), $permissions),
-				"state"					=> $state
+				"response_type" => "code",
+				"client_id" => $this->client()->id,
+				"redirect_uri" => $redirect_url,
+				"scope" => implode($this->options([ "dialog", "scope_separator" ]), $permissions),
+				"state" => $state
 			);
 			
 			$url = $this->options([ "dialog", "base_url" ]) . "?" . http_build_query(array_merge($params, $url_params));

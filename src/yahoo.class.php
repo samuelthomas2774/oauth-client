@@ -2,7 +2,7 @@
 	/* class OAuthYahoo
 	 * /src/yahoo.class.php
 	 */
-	require_once 'oauth.class.php';
+	if(!class_exists("OAuth2")) require_once __DIR__ . '/oauth.class.php';
 	
 	class OAuthYahoo extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
@@ -21,6 +21,7 @@
 			$user = new stdClass();
 			$user->response = $request->responseObject();
 			$user->id = $user->response->profile->guid;
+			$user->username = (string)$user->response->guid;
 			$user->name = $user->response->displayname;
 			$user->email = isset($user->response->emails->account) ? $user->response->emails->account : null;
 			return $user;

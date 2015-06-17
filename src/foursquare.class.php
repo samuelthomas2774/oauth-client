@@ -2,10 +2,10 @@
 	/* class OAuthFoursquare
 	 * /src/foursquare.class.php
 	 */
-	require_once 'oauth.class.php';
+	if(!class_exists("OAuth2")) require_once __DIR__ . '/oauth.class.php';
 	
 	class OAuthFoursquare extends OAuth2 {
-		// Options. These shouldn't be modified here, but using the OAuth::options() function.
+		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		public $options = Array(
 			"session_prefix"		=> "foursquare_",
 			"dialog"				=> Array("base_url" => "https://foursquare.com/oauth2/authorize"),

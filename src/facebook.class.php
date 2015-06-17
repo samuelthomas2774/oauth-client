@@ -2,16 +2,37 @@
 	/* class OAuthFacebook
 	 * /src/facebook.class.php
 	 */
-	require_once 'oauth.class.php';
+	if(!class_exists("OAuth2")) require_once __DIR__ . '/oauth.class.php';
 	
 	class OAuthFacebook extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		public $options = Array(
 			"session_prefix"		=> "facebook_",
-			"dialog"				=> Array("base_url" => "https://www.facebook.com/dialog/oauth", "scope_separator" => ","),
-			"api"					=> Array("base_url" => "https://graph.facebook.com/v2.2"),
+			"dialog"				=> Array("base_url" => "https://www.facebook.com/v2.3/dialog/oauth", "scope_separator" => ","),
+			"api"					=> Array("base_url" => "https://graph.facebook.com/v2.3"),
 			"requests"				=> Array("/oauth/token" => "/oauth/access_token", "/oauth/token/debug" => "/debug_token")
 		);
+		
+		// function parseSignedRequest(). Parses a signed request.
+		public function parseSignedRequest($signed_request = null) {
+			// Check if code is a string or null.
+			if(is_string($signed_request)) $signed_request = trim($signed_request);
+			elseif(($signed_request == null) && isset($_POST["signed_request"])) $signed_request = trim($_POST["signed_request"]);
+			else throw new Exception(__METHOD__ . "(): \$signed_request must be a string.");
+			
+			list($encoded_sig, $payload) = explode(".", $signed_request, 2);
+			
+			// decode the data
+			$sig = base64_decode(strtr($encoded_sig, "-_", "+/"));
+			$data = json_decode(base64_decode(strtr($payload, "-_", "+/")), false);
+			
+			// confirm the signature
+			$expected_sig = hash_hmac("sha256", $payload, $this->app["secret"], $raw = true);
+			if($sig !== $expected_sig)
+				throw new Exception("Facebook::parseSignedRequest(): Invalid signature. Make sure you have entered the App Secret correctly.");
+			
+			return $data;
+		}
 		
 		// function validateAccessToken(). Checks an access token is valid.
 		public function validateAccessToken($access_token = null) {

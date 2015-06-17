@@ -150,7 +150,7 @@
 				case OAuth2::responseQueryStringArray: parse_str($this->response["body"], $query); return $query == false ? Array() : $query; break;
 				case OAuth2::responseQueryStringObject: parse_str($this->response["body"], $query); return $query == false ? new stdClass() : (object)$query; break;
 				case OAuth2::responseXMLArray: $xml = simplexml_load_string($this->response["body"]); return (array)$xml; break;
-				case OAuth2::responseXMLObject: $xml = simplexml_load_string($this->response["body"]); return (object)(array)$xml; break;
+				case OAuth2::responseXMLObject: $xml = (array)simplexml_load_string($this->response["body"]); return (object)$xml; break;
 				case OAuth2::responseSimpleXMLObject: $xml = simplexml_load_string($this->response["body"]); return $xml; break;
 			}
 		}
