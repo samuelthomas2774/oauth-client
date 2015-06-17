@@ -1,7 +1,7 @@
 <?php
 	// Start a session and load the OAuth library.
 	session_start();
-	require_once 'src/microsoft.class.php';
+	require_once __DIR__ . '/oauth-client/src/microsoft.class.php';
 	
 	// Delete the access token if needed.
 	if(isset($_GET["del_token"]) && isset($_SESSION["m_token"])) unset($_SESSION["m_token"]);
@@ -14,7 +14,7 @@
 	// Output a Login Button.
 	echo $microsoft->loginButton("Login with Microsoft Account", "https://example.com/microsoft-1/code.php", Array("wl.signin", "wl.basic"));
 	
-	// If an access token exists (OAuth::accessToken() does not return null), fetch the current user's data.
+	// If an access token exists (OAuth2::accessToken() does not return null), fetch the current user's data.
 	if($microsoft->accessToken() != null) {
 		// The user is logged in, you can do whatever you like here.
 		// In this example we just print the profile data, along with the profile picture and permissions.

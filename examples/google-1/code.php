@@ -1,7 +1,7 @@
 <?php
 	// Start a session and load the OAuth library.
 	session_start();
-	require_once 'src/google.class.php';
+	require_once __DIR__ . '/oauth-client/src/google.class.php';
 	
 	// Create a new Facebook object.
 	$google = new OAuthGoogle("0000000000000000", "0000000000000000000000000000000000000000", Array(

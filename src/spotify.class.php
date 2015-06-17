@@ -2,18 +2,15 @@
 	/* class OAuthSpotify
 	 * /src/spotify.class.php
 	 */
-	require_once 'oauth.class.php';
+	if(!class_exists("OAuth2")) require_once __DIR__ . '/oauth.class.php';
 	
 	class OAuthSpotify extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
-		public $options = Array(
+		protected $options = Array(
 			"session_prefix"		=> "spotify_",
-			"dialog"				=> Array("base_url" => "https://accounts.spotify.com/authorize", "scope_separator" => " "),
-			"api"					=> Array("base_url" => "https://api.spotify.com/v1", "token_auth" => 2, "headers" => Array(
-				"User-Agent"			=> "OAuth 2.0 Client https://github.com/samuelthomas2774/oauth-client"
-			), "callback" => "OAuthSpotify::apiCallback"),
-			"requests"				=> Array("/oauth/token" => "https://accounts.spotify.com/api/token", "/oauth/token:response" => "json", "/oauth/token/debug" => "https://accounts.spotify.com/api/token"),
-			"errors"				=> Array("throw" => true)
+			"dialog"				=> Array("base_url" => "https://accounts.spotify.com/authorize"),
+			"api"					=> Array("base_url" => "https://api.spotify.com/v1", "token_auth" => 2, "callback" => "OAuthSpotify::apiCallback"),
+			"requests"				=> Array("/oauth/token" => "https://accounts.spotify.com/api/token", "/oauth/token/debug" => "https://accounts.spotify.com/api/token")
 		);
 		
 		// function apiCallback(). Callback for api requests.
@@ -25,7 +22,7 @@
 		
 		// function userProfile(). Fetches the current user's profile.
 		public function userProfile() {
-			$request = $this->api("GET", "/me");
+			$request = $this->api(OAuth2::GET, "/me");
 			
 			$request->execute();
 			return $request->responseObject();

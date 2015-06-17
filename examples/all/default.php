@@ -3,7 +3,10 @@
 	session_start();
 	
 	// Get the current server from PATH_INFO.
-	$server_url = ltrim($_SERVER["PATH_INFO"], "/");
+	if(!isset($_SERVER["PATH_INFO"])) {
+		echo "Server was not found.<br />\n\n";
+		goto session;
+	} $server_url = ltrim($_SERVER["PATH_INFO"], "/");
 	
 	// Get all the servers from clients.json.
 	$servers = json_decode(file_get_contents(__DIR__ . "/clients.json"));

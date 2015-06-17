@@ -2,16 +2,15 @@
 	/* class OAuthTeamViewer
 	 * /src/teamviewer.class.php
 	 */
-	require_once 'oauth.class.php';
+	if(!class_exists("OAuth2")) require_once __DIR__ . '/oauth.class.php';
 	
 	class OAuthTeamViewer extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
-		public $options = Array(
+		protected $options = Array(
 			"session_prefix"		=> "teamviewer_",
 			"dialog"				=> Array("base_url" => "https://webapi.teamviewer.com/api/v1/oauth2/authorize", "scope_separator" => ","),
-			"api"					=> Array("base_url" => "https://webapi.teamviewer.com/api/v1", "token_auth" => 2, "headers" => Array("User-Agent" => "OAuth 2.0 Client https://github.com/samuelthomas2774/oauth-client"), "callback" => null),
-			"requests"				=> Array("/oauth/token" => "/oauth2/token", "/oauth/token:response" => "json", "/oauth/token/debug" => "/ping"),
-			"errors"				=> Array("throw" => true)
+			"api"					=> Array("base_url" => "https://webapi.teamviewer.com/api/v1", "token_auth" => 2),
+			"requests"				=> Array("/oauth/token" => "/oauth2/token", "/oauth/token/debug" => "/ping")
 		);
 		
 		// function api(). Makes a new request to the server's API.
@@ -27,8 +26,8 @@
 			if(!is_string($access_token)) $access_token = $this->accessToken();
 			
 			// Example request: GET /oauth/token/debug?access_token={access_token}
-			$request = $this->api("GET", $this->options("requests")["/oauth/token/debug"], Array(
-				"access_token"			=> $access_token
+			$request = $this->api(OAuth2::GET, $this->options([ "requests", "/oauth/token/debug" ]), Array(
+				"access_token" => $access_token
 			));
 			
 			try { $request->execute(); $response = $request->responseObject(); }
@@ -41,7 +40,7 @@
 		
 		// function userProfile(). Fetches the current user's profile.
 		public function userProfile() {
-			$request = $this->api("GET", "/account");
+			$request = $this->api(OAuth2::GET, "/account");
 			
 			$request->execute();
 			$response = $request->responseObject();

@@ -1,7 +1,7 @@
 <?php
-	// Start a session and load the Facebook library.
+	// Start a session and load the OAuth library.
 	session_start();
-	require_once 'src/facebook.class.php';
+	require_once __DIR__ . '/oauth-client/src/facebook.class.php';
 	
 	// Delete the access token if needed.
 	if(isset($_GET["del_token"]) && isset($_SESSION["fb_token"])) unset($_SESSION["fb_token"]);
@@ -31,7 +31,7 @@
 		
 		// Friends
 		if($facebook->permission("user_friends")) {
-			$request = $facebook->api("GET", "/me/friends");
+			$request = $facebook->api(OAuth2::GET, "/me/friends");
 			$request->execute();
 			$friends = $request->responseObject();
 		} else $friends = "You have not granted access to Friends that also use this app.";
