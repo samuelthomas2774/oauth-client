@@ -6,7 +6,7 @@
 	
 	class OAuthInstagram extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
-		public $options = Array(
+		protected $options = Array(
 			"session_prefix"		=> "instagram_",
 			"dialog"				=> Array("base_url" => "https://api.instagram.com/oauth/authorize/"),
 			"api"					=> Array("base_url" => "https://api.instagram.com/v1"),

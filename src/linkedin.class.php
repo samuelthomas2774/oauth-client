@@ -6,7 +6,7 @@
 	
 	class OAuthLinkedin extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
-		public $options = Array(
+		protected $options = Array(
 			"session_prefix"		=> "linkedin_",
 			"dialog"				=> Array("base_url" => "https://www.linkedin.com/uas/oauth2/authorization"),
 			"api"					=> Array("base_url" => "https://api.linkedin.com/v1", "token_auth" => 2, "headers" => Array("X-Li-Format" => "json")),

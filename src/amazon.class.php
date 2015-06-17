@@ -6,7 +6,7 @@
 	
 	class OAuthAmazon extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
-		public $options = Array(
+		protected $options = Array(
 			"session_prefix"		=> "amazon_",
 			"dialog"				=> Array("base_url" => "https://www.amazon.com/ap/oa"),
 			"api"					=> Array("base_url" => "https://api.amazon.com", "token_auth" => 2),

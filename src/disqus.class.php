@@ -6,7 +6,7 @@
 	
 	class OAuthDisqus extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
-		public $options = Array(
+		protected $options = Array(
 			"session_prefix"		=> "disqus_",
 			"dialog"				=> Array("base_url" => "https://disqus.com/api/oauth/2.0/authorize/", "scope_separator" => ","),
 			"api"					=> Array("base_url" => "https://disqus.com/api/3.0", "token_auth" => 2),

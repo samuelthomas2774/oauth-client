@@ -6,7 +6,7 @@
 	
 	class OAuthMicrosoft extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
-		public $options = Array(
+		protected $options = Array(
 			"session_prefix"		=> "microsoft_",
 			"dialog"				=> Array("base_url" => "https://login.live.com/oauth20_authorize.srf"),
 			"api"					=> Array("base_url" => "https://apis.live.net/v5.0"),

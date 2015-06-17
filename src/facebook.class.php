@@ -6,12 +6,71 @@
 	
 	class OAuthFacebook extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
-		public $options = Array(
+		protected $options = Array(
 			"session_prefix"		=> "facebook_",
 			"dialog"				=> Array("base_url" => "https://www.facebook.com/v2.3/dialog/oauth", "scope_separator" => ","),
 			"api"					=> Array("base_url" => "https://graph.facebook.com/v2.3"),
 			"requests"				=> Array("/oauth/token" => "/oauth/access_token", "/oauth/token/debug" => "/debug_token")
 		);
+		
+		// function __construct(). Creates a new OAuth2 object.
+		public function __construct($client_id, $client_secret, $options = Array()) {
+			parent::__construct($client_id, $client_secret, $options);
+			if($this->options([ "api", "version" ]) != null) {
+				$this->setVersion($this->options([ "api", "version" ]));
+				unset($this->options->api->version);
+			}
+		}
+		
+		// function setVersion(). Sets the Graph API Version.
+		public function setVersion($version = 2.3) {
+			// Check if version is a numeric.
+			if(!is_numeric($version)) throw new Exception(__METHOD__ . "(): \$signed_request must be a string.");
+			else $version = (float)$version;
+			
+			switch($version) {
+				default: case 2.3:
+					$this->options([ "dialog", "base_url" ], "https://www.facebook.com/v2.3/dialog/oauth");
+					$this->options([ "dialog", "scope_separator" ], ",");
+					$this->options([ "api", "base_url" ], "https://graph.facebook.com/v2.3");
+					$this->options([ "requests", "/oauth/token" ], "/oauth/access_token");
+					$this->options([ "requests", "/oauth/token:response" ], "json");
+					$this->options([ "requests", "/oauth/token/debug" ], "/debug_token");
+					break;
+				default: case 2.2:
+					$this->options([ "dialog", "base_url" ], "https://www.facebook.com/v2.2/dialog/oauth");
+					$this->options([ "dialog", "scope_separator" ], ",");
+					$this->options([ "api", "base_url" ], "https://graph.facebook.com/v2.2");
+					$this->options([ "requests", "/oauth/token" ], "/oauth/access_token");
+					$this->options([ "requests", "/oauth/token:response" ], "query");
+					$this->options([ "requests", "/oauth/token/debug" ], "/debug_token");
+					break;
+				default: case 2.1:
+					$this->options([ "dialog", "base_url" ], "https://www.facebook.com/v2.1/dialog/oauth");
+					$this->options([ "dialog", "scope_separator" ], ",");
+					$this->options([ "api", "base_url" ], "https://graph.facebook.com/v2.1");
+					$this->options([ "requests", "/oauth/token" ], "/oauth/access_token");
+					$this->options([ "requests", "/oauth/token:response" ], "query");
+					$this->options([ "requests", "/oauth/token/debug" ], "/debug_token");
+					break;
+				default: case 2:
+					$this->options([ "dialog", "base_url" ], "https://www.facebook.com/v2.0/dialog/oauth");
+					$this->options([ "dialog", "scope_separator" ], ",");
+					$this->options([ "api", "base_url" ], "https://graph.facebook.com/v2.0");
+					$this->options([ "requests", "/oauth/token" ], "/oauth/access_token");
+					$this->options([ "requests", "/oauth/token:response" ], "query");
+					$this->options([ "requests", "/oauth/token/debug" ], "/debug_token");
+					break;
+				default: case 1:
+					$this->options([ "dialog", "base_url" ], "https://www.facebook.com/v1.0/dialog/oauth");
+					$this->options([ "dialog", "scope_separator" ], ",");
+					$this->options([ "api", "base_url" ], "https://graph.facebook.com/v1.0");
+					$this->options([ "requests", "/oauth/token" ], "/oauth/access_token");
+					$this->options([ "requests", "/oauth/token:response" ], "query");
+					$this->options([ "requests", "/oauth/token/debug" ], "/debug_token");
+					break;
+			}
+		}
 		
 		// function parseSignedRequest(). Parses a signed request.
 		public function parseSignedRequest($signed_request = null) {
@@ -22,14 +81,14 @@
 			
 			list($encoded_sig, $payload) = explode(".", $signed_request, 2);
 			
-			// decode the data
+			// Decode the data.
 			$sig = base64_decode(strtr($encoded_sig, "-_", "+/"));
 			$data = json_decode(base64_decode(strtr($payload, "-_", "+/")), false);
 			
-			// confirm the signature
-			$expected_sig = hash_hmac("sha256", $payload, $this->app["secret"], $raw = true);
+			// Confirm the signature.
+			$expected_sig = hash_hmac("sha256", $payload, $this->client()->secret, $raw = true);
 			if($sig !== $expected_sig)
-				throw new Exception("Facebook::parseSignedRequest(): Invalid signature. Make sure you have entered the App Secret correctly.");
+				throw new Exception(__METHOD__ . "(): Invalid signature. Make sure you have entered the client_secret correctly.");
 			
 			return $data;
 		}

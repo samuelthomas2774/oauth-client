@@ -6,7 +6,7 @@
 	
 	class OAuthEventbrite extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
-		public $options = Array(
+		protected $options = Array(
 			"session_prefix"		=> "eventbrite_",
 			"dialog"				=> Array("base_url" => "https://www.eventbrite.com/oauth/authorize"),
 			"api"					=> Array("base_url" => "https://www.eventbriteapi.com/v3", "token_auth" => 2),

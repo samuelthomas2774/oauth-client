@@ -6,7 +6,7 @@
 	
 	class OAuthGoogle extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
-		public $options = Array(
+		protected $options = Array(
 			"session_prefix"		=> "google_",
 			"dialog"				=> Array("base_url" => "https://accounts.google.com/o/oauth2/auth"),
 			"api"					=> Array("base_url" => "https://www.googleapis.com/oauth2/v2"),

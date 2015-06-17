@@ -6,7 +6,7 @@
 	
 	class OAuthST extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
-		public $options = Array(
+		protected $options = Array(
 			"session_prefix"		=> "st_",
 			"dialog"				=> Array("base_url" => "http://apis.samuelthomas.ml/auth"),
 			"api"					=> Array("base_url" => "http://apis.samuelthomas.ml"),

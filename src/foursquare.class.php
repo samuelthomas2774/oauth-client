@@ -6,7 +6,7 @@
 	
 	class OAuthFoursquare extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
-		public $options = Array(
+		protected $options = Array(
 			"session_prefix"		=> "foursquare_",
 			"dialog"				=> Array("base_url" => "https://foursquare.com/oauth2/authorize"),
 			"api"					=> Array("base_url" => "https://api.foursquare.com/v2", "token_auth" => false),

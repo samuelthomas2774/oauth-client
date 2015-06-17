@@ -6,7 +6,7 @@
 	
 	class OAuthSpotify extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
-		public $options = Array(
+		protected $options = Array(
 			"session_prefix"		=> "spotify_",
 			"dialog"				=> Array("base_url" => "https://accounts.spotify.com/authorize"),
 			"api"					=> Array("base_url" => "https://api.spotify.com/v1", "token_auth" => 2, "callback" => "OAuthSpotify::apiCallback"),

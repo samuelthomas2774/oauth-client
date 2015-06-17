@@ -6,7 +6,7 @@
 	
 	class OAuthGitHub extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
-		public $options = Array(
+		protected $options = Array(
 			"session_prefix"		=> "github_",
 			"dialog"				=> Array("base_url" => "https://github.com/login/oauth/authorize", "scope_separator" => ","),
 			"api"					=> Array("base_url" => "https://api.github.com", "token_auth" => false),
