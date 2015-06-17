@@ -1,7 +1,7 @@
 <?php
 	// Start a session and load the OAuth library.
 	session_start();
-	require_once 'src/linkedin.class.php';
+	require_once __DIR__ . '/oauth-client/src/linkedin.class.php';
 	
 	// Create a new LinkedIn object.
 	$linkedin = new OAuthLinkedIn("0000000000000000", "0000000000000000000000000000000000000000", Array(

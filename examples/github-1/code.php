@@ -1,7 +1,7 @@
 <?php
 	// Start a session and load the OAuth library.
 	session_start();
-	require_once 'src/github.class.php';
+	require_once __DIR__ . '/oauth-client/src/github.class.php';
 	
 	// Create a new GitHub object.
 	$github = new OAuthGitHub("0000000000000000", "0000000000000000000000000000000000000000", Array(

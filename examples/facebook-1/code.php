@@ -1,7 +1,7 @@
 <?php
-	// Start a session and load the Facebook library.
+	// Start a session and load the OAuth library.
 	session_start();
-	require_once 'src/facebook.class.php';
+	require_once __DIR__ . '/oauth-client/src/facebook.class.php';
 	
 	// Create a new Facebook object.
 	$facebook = new OAuthFacebook("0000000000000000", "0000000000000000000000000000000000000000", Array(

@@ -1,11 +1,11 @@
 <?php
 	// Start a session and load the OAuth library.
 	session_start();
-	require_once 'src/yahoo.class.php';
+	require_once __DIR__ . '/oauth-client/src/yahoo.class.php';
 	
 	// Create a new Yahoo object.
 	$yahoo = new OAuthYahoo("0000000000000000", "0000000000000000000000000000000000000000", Array(
-		"session_prefix" => "y_" // Prefix for session data. Defaults to y_
+		"session_prefix" => "y_" // Prefix for session data. Defaults to yahoo_
 	));
 	
 	// Try to fetch an access token with the code in $_GET["code"]. Also check the state in $_GET["state"].
