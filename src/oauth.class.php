@@ -35,11 +35,11 @@
 		// $client_secret: String, the client_secret.
 		// $options: Array or object of options to set. This can also have an access_token property that will replace the access token. Using this to set the access token will not change the access token in the session (if set).
 		public function __construct($client_id, $client_secret, $options = Array()) {
-			// Store App ID in OAuth2::client["id"].
+			// Store Client ID in OAuth2::client["id"].
 			if(!is_int($client_id) && !is_string($client_id)) throw new Exception(__METHOD__ . "(): \$client_id must be a string or an integer.");
 			else $this->client["id"] = (string)$client_id;
 			
-			// Store App Secret in OAuth2::client["secret"].
+			// Store Client Secret in OAuth2::client["secret"].
 			if(!is_string($client_secret)) throw new Exception(__METHOD__ . "(): \$client_secret must be a string.");
 			else $this->client["secret"] = $client_secret;
 			

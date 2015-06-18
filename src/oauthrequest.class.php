@@ -142,8 +142,21 @@
 		
 		// function parameter(). Returns / sets a parameter.
 		public function parameter($name, $value = null) {
-			if($value != null) $this->request["params"][$name] = $value;
+			if($value !== null) $this->request["params"][$name] = $value;
 			else return isset($this->request["params"][$name]) ? $this->request["params"][$name] : null;
+		}
+		
+		// function header(). Returns / sets a header.
+		public function header($name, $value = null) {
+			if($value !== null) $this->request["headers"][$name] = $value;
+			else return isset($this->request["headers"][$name]) ? $this->request["headers"][$name] : null;
+		}
+		
+		// function auth(). Returns / sets client autentication.
+		public function auth($auth = null) {
+			if($auth === true) $this->request["auth"] = true;
+			elseif($auth === false) $this->request["auth"] = false;
+			else return $this->request["auth"] == true ? true : false;
 		}
 		
 		// function response(). Returns the response as a string.
