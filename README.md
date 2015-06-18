@@ -80,9 +80,14 @@ Default (OAuth2)
 - To get / set the current access token:
     You do not need to do this at the start of the script to get the access token from the session, this is done automatically. Also, this function updates the access token in the session.
     ```php
-    $oauth->accessToken(); // Get
-    $oauth->accessToken($new_access_token); // Set
-    $oauth->accessToken($new_access_token, false); // Set without updating the access token in the session.
+    // Get
+    $oauth->accessToken();
+    
+    // Set
+    $oauth->accessToken($new_access_token);
+    
+    // Set without updating the access token in the session.
+    $oauth->accessToken($new_access_token, false);
     
     ```
 
@@ -127,11 +132,88 @@ catch(Exception $error) { exit("OAuth Provider returned an error: " . print_r($e
 ```
 
 #### Facebook
-The OAuthFacebook class can also parse signed requests sent from Facebook when the page is loaded in a page tab or Facebook Canvas:
-```php
-$signed_request = $oauth->parseSignedRequest(/* $_POST["signed_request"] */);
+The OAuthFacebook class has some additional methods:
 
-```
+- To parse a signed request sent from Facebook when the page is loaded in a page tab or Facebook Canvas:
+    ```php
+    $signed_request = $oauth->parseSignedRequest(/* $_POST["signed_request"] */);
+    
+    ```
+- To get an object of permissions the user granted:
+    ```php
+	try { $permissions = $oauth->permissions(); }
+    catch(Exception $error) { exit("Facebook returned an error: {$error->getMessage()}\n"); }
+    
+    if(!isset($permissions->email) || ($permissions->email->granted != true))
+        echo "You have &lt;b&gt;not&lt;/b&gt; allowed access to your email address.\n";
+    if(!isset($permissions->publish_actions) || ($permissions->publish_actions->granted != true))
+        echo "You have &lt;b&gt;not&lt;/b&gt; allowed posting to your timeline.\n";
+    
+    // To get the response as it was sent:
+    $permissions_response = $oauth->permissions(false);
+    
+    ```
+- To check if a permission has been granted:
+    ```php
+    try {
+        if($oauth->permission("email")) echo "You allowed access to your email address.\n";
+		else echo "You have &lt;b&gt;not&lt;/b&gt; allowed access to your email address.\n";
+    } catch(Exception $error) { exit("Facebook returned an error: {$error->getMessage()}\n"); }
+    
+    ```
+- To get an object of user ids for other apps that are linked to the same business and that the user has ever authorized.
+    ```php
+    try { $ids = $oauth->ids(); }
+    catch(Exception $error) { exit("Facebook returned an error: {$error->getMessage()}\n"); }
+    
+    if(isset($ids->{$other_app_id})) echo "Your user id for the app {$ids->{$other_app_id}->app_name} is: {$ids->{$other_app_id}->user_id}\n";
+    else echo "You have never authorized the app {$other_app_id}.\n";
+    
+    ```
+- To deauthorize the application or removes one permission:
+    ```php
+    // Deauthorize one permission:
+    if(isset($_GET["deauth"]) && ($_GET["deauth"] == "email")) {
+        try {
+            if($oauth->deauth("email")) echo "This app no longer has access to your email.\n";
+            else echo "Something went wrong... this app still has access to your email.\n";
+        } catch(Exception $error) { exit("Facebook returned an error: {$error->getMessage()}\n"); }
+    }
+    
+    // Deauthorize all permissions:
+    else $oauth->deauth();
+    ```
+- To get an object of all the pages the user manages:
+    ```php
+    try { $pages = $oauth->pages(); }
+    catch(Exception $error) { exit("Facebook returned an error: {$error->getMessage()}\n"); }
+    echo "You have " . count($pages) . " Facebook Pages.\n\n";
+    foreach($pages as $page_id => $page) {
+        echo "Page ID: {$page->id}\n";
+        echo "Page Name: {$page->id}\n";
+        echo "Page Access Token: {$page->access_token}\n";
+        echo "Page Access Token Permissions: {$page->permissions}\n";
+        echo "Page Category: {$page->id}\n";
+        
+        $oauth_page = new OAuthFacebook($oauth->client()->id, $oauth->client()->secret, Array("access_token" => $page->access_token));
+        // You can use the above object to make Graph API requests as the page. When you use a page access token, only the OAuth::api() and OAuth::options() functions will work.
+        try { $request = $oauth_page->api("GET", "/{$page->id}"); $request->execute(); }
+        catch(Exception $error) { exit("Facebook returned an error: {$error->getMessage()}\n"); }
+        echo "API response: {$request->response()}\n\n";
+    }
+    ```
+- To post to the user's timeline:
+    ```php
+    // Note that the text is from $_POST: Facebook requires that the text here is entered by the user, not prefilled.
+    // Apps are not even allowed to suggest text and let the user edit it.
+    $post = new stdClass();
+    $post->message = $_POST["facebook_post_text"];
+    
+    try {
+        if(($post_id = $oauth->post((array)$post)) !== false) echo "The text you entered was posted to the user's timeline. The post id was {$post_id}.\n";
+        else echo "Something went wrong... the text you entered was not posted to the user's timeline.\n";
+    } catch(Exception $error) { exit("Facebook returned an error: {$error->getMessage()}\n"); }
+    ```
 
 Extending the OAuth2 class.
 ------------
