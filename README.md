@@ -3,7 +3,7 @@ OAuth Client
 
 An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsoft, Yahoo, GitHub, LinkedIn & more.
 
-**[Built-in providers](#other-providers)**
+**[Built-in providers](#built-in-providers)**
 
 - Facebook https://facebook.com
 - Google https://google.co.uk
@@ -71,7 +71,7 @@ Default (OAuth2)
     $url = "/me";
     //$params = Array("fields" => "id,name"); // You can also add an optional array of parameters.
     $request = $oauth->api($method, $url /* , $params = Array() /* , $headers = Array() /* , $auth = false */ );
-    try { $request->execute(); } catch(Exception $error) { exit("Facebook returned an error: " . print_r($error, true)); }
+    try { $request->execute(); } catch(Exception $error) { exit("OAuth Provider returned an error: " . print_r($error, true)); }
     $response_plaintext = $request->response();
     $response_array = $response->responseArray();
     $response_object = $response->responseObject();
@@ -88,7 +88,7 @@ Default (OAuth2)
 
 You can also use these methods in extended classes (subclasses).
 
-Other providers
+Built-in providers
 ------------
 Any other providers please contact me at https://samuelthomas.ml/about/contact and I'll add it as soon as possible.
 
@@ -127,7 +127,7 @@ catch(Exception $error) { exit("OAuth Provider returned an error: " . print_r($e
 ```
 
 #### Facebook
-The OAuthFacebook class can also parse signed requests sent from Facebook when a page is loaded in a page tab or Facebook Canvas:
+The OAuthFacebook class can also parse signed requests sent from Facebook when the page is loaded in a page tab or Facebook Canvas:
 ```php
 $signed_request = $oauth->parseSignedRequest(/* $_POST["signed_request"] */);
 
