@@ -90,15 +90,15 @@
 				($this->session("state") != $state) // State does not match $state: trigger error.
 			)) {
 				// Invalid state parameter.
-				$this->sessionDelete("state");
+				$this->session("state", null);
 				$this->triggerError("Invalid state parameter.");
 				return;
 			}
 			
-			// Unset the state session parameter.
-			$this->sessionDelete("state");
+			// Delete the state session parameter.
+			$this->session("state", null);
 			
-			// Unset the access token.
+			// Delete the access token.
 			$this->accessToken(null);
 			
 			// Example request: POST /oauth/token?client_id={client_id}&client_secret={client_secret}&redirect_uri={redirect_uri}&code={code}
@@ -235,7 +235,7 @@
 		public function accessToken($token = false, $session = true) {
 			if($token === null) {
 				$this->token = null;
-				if($session == true) $this->sessionDelete("token");
+				if($session == true) $this->session("token", null);
 			} elseif(is_string($token)) {
 				$this->token = $token;
 				if($session == true) $this->session("token", $token);
@@ -256,9 +256,9 @@
 			$params = func_get_args();
 			if(is_string($name) || is_int($name)) $name = Array($name);
 			if(!is_array($name)) return null;
-			if(isset($params[1])) $value = $params[1];
+			$aset = array_key_exists(1, $params) ? true : false;
 			
-			$option = $this->options;
+			/* $option = $this->options;
 			$nk = array_keys($name);
 			$lo = end($nk);
 			foreach($name as $i => $key) {
@@ -267,9 +267,35 @@
 				elseif(is_object($option) && isset($option->{$key})) $option = $option->{$key};
 				elseif(is_array($option) && isset($option[$key])) $option = $option[$key];
 				else return null;
-			}
+			} */
 			
-			if(isset($value)) {
+			$options = Array(&$this->options);
+			$ek = 0;
+			$nk = array_keys($name);
+			$lo = end($nk);
+			foreach($name as $i => $key) {
+				if(is_object($options[$ek])) {
+					if(!isset($options[$ek]->{$key}) && $aset) {
+						$options[$ek]->{$key} = new stdClass();
+						$options[$ek + 1] = &$options[$ek]->{$key};
+					} elseif(!isset($options[$ek]->{$key}) && !$aset) $options[$ek + 1] = null;
+					else $options[$ek + 1] = &$options[$ek]->{$key};
+				} elseif(is_array($options[$ek])) {
+					if(!isset($options[$ek][$key]) && $aset) {
+						$options[$ek][$key] = Array();
+						$options[$ek + 1] = &$options[$ek][$key];
+					} elseif(!isset($options[$ek][$key]) && !$aset) $options[$ek + 1] = null;
+					else $options[$ek + 1] = &$options[$ek][$key];
+				} else {
+					$options[$ek + 1] = &$options[$ek];
+				}
+				$ek++;
+			}
+			$option = &$options[$ek];
+			
+			if($aset && !array_key_exists(2, $params)) {
+				$value = $params[1];
+				
 				if(is_object($option) && (is_object($value) || is_array($value))) {
 					foreach($value as $k => $v) {
 						if(is_object($v)) $option->{$k} = (object)array_merge((array)$option->{$k}, (array)$v);
@@ -278,9 +304,9 @@
 					}
 				} elseif(is_array($option) && (is_object($value) || is_array($value))) {
 					foreach($value as $k => $v) {
-						if(is_object($v)) $option->{$k} = (object)array_merge((array)$option->{$k}, (array)$v);
-						if(is_array($v)) $option->{$k} = (array)array_merge((array)$option->{$k}, (array)$v);
-						else $option->{$k} = $v;
+						if(is_object($v)) $option[$k] = (object)array_merge((array)$option[$k], (array)$v);
+						if(is_array($v)) $option[$k] = (array)array_merge((array)$option[$k], (array)$v);
+						else $option[$k] = $v;
 					}
 				} else $option = $value;
 			} else {
@@ -338,29 +364,43 @@
 		// Fails silently if sessions are disabled.
 		public function session($name) {
 			$params = func_get_args();
-			if(isset($params[1])) $value = $params[1];
 			
-			$session_prefix = $this->options("session_prefix");
-			if(!is_string($session_prefix) && ($session_prefix != false))
+			// Get session_prefix. If not a string or false reset to default.
+			if(!is_string($session_prefix = $this->options("session_prefix")) && ($session_prefix != false))
 				$this->options("session_prefix", $session_prefix = $this->defaultoptions()->session_prefix);
 			
-			if($session_prefix == false) return null; // Sessions are diabled.
-			elseif(isset($value)) // Set
-				$_SESSION[$session_prefix . $name] = $value;
-			elseif(isset($_SESSION[$session_prefix . $name])) // Get
+			if($session_prefix == false)
+				// Sessions are diabled.
+				return null;
+			elseif(array_key_exists(1, $params) && ($params[1] === null)) {
+				// Delete
+				$_SESSION[$session_prefix . $name] = null;
+				unset($_SESSION[$session_prefix . $name]);
+			} elseif(array_key_exists(1, $params))
+				// Set
+				$_SESSION[$session_prefix . $name] = $params[1];
+			elseif(isset($_SESSION[$session_prefix . $name]))
+				// Get / is set
 				return $_SESSION[$session_prefix . $name];
-			else return null;
+			else
+				// Get / is not set
+				return null;
 		}
 		
 		// function sessionDelete(). Deletes session data. This should only be used by the OAuth2 and OAuthRequest classes.
 		// Fails silently if sessions are disabled.
+		// This can now be done with OAuth2::session(), by setting $value to null.
 		public function sessionDelete($name) {
 			$session_prefix = $this->options("session_prefix");
 			if(!is_string($session_prefix) && ($session_prefix != false))
 				$this->options("session_prefix", $session_prefix = $this->defaultoptions()->session_prefix);
 			
-			if($session_prefix == false) return null; // Sessions are diabled.
-			elseif(isset($_SESSION[$session_prefix . $name])) unset($_SESSION[$session_prefix . $name]); // Delete
+			if($session_prefix == false)
+				// Sessions are diabled.
+				return null;
+			elseif(isset($_SESSION[$session_prefix . $name]))
+				// Delete
+				unset($_SESSION[$session_prefix . $name]);
 		}
 	}
 	
