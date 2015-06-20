@@ -84,7 +84,7 @@
 				if(strlen(trim($header)) == 0) return strlen($header);
 				
 				if(strpos($header, ": ") !== false) {
-					list($key, $value) = explode(": ", trim($header), 2);
+					list($key, $value) = explode(": ", $header, 2);
 					$key = trim($key); $value = trim($value);
 					
 					$key = explode("-", $key);
