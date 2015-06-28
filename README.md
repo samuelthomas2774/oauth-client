@@ -260,9 +260,10 @@ The OAuthFacebook class has some additional methods:
     ```
 - To set a storage object:
     ```php
-    try { $object = $oauth->object("name", "value"); }
-    catch(Exception $error) { exit("samuelthomas.ml returned an error: {$error->getMessage()}\n"); }
-    print_r($object);
+    try {
+        if($oauth->object("name", "value")) echo "Updated storage object.\n";
+        else echo "Error updating storage object.\n";
+    } catch(Exception $error) { exit("samuelthomas.ml returned an error: {$error->getMessage()}\n"); }
     
     ```
 - To delete a storage object:
