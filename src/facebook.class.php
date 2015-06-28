@@ -8,8 +8,9 @@
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		protected $options = Array(
 			"session_prefix"		=> "facebook_",
+			"button_colour"			=> "rgb(47,71,122)",
 			"dialog"				=> Array("base_url" => "https://www.facebook.com/v2.3/dialog/oauth", "scope_separator" => ","),
-			"api"					=> Array("base_url" => "https://graph.facebook.com/v2.3"),
+			"api"					=> Array("base_url" => "https://graph.facebook.com/v2.3", "callback" => "OAuthFacebook::apiCallback"),
 			"requests"				=> Array("/oauth/token" => "/oauth/access_token", "/oauth/token/debug" => "/debug_token")
 		);
 		
@@ -19,6 +20,15 @@
 			if($this->options([ "api", "version" ]) != null) {
 				$this->setVersion($this->options([ "api", "version" ]));
 				unset($this->options->api->version);
+			}
+		}
+		
+		// function apiCallback(). Callback for api requests.
+		static function apiCallback($oauth, $request, $curl) {
+			// Check for errors.
+			$response = $request->responseObject();
+			if(is_object($response) && isset($response->error->message)) {
+				$oauth->triggerError($response->error->message, $response);
 			}
 		}
 		
@@ -116,39 +126,39 @@
 		public function userProfile($fields = Array()) {
 			// Check if fields is an array.
 			if(!is_array($fields)) $fields = Array();
+			$fields = array_merge($fields, Array("id", "name", "email"));
 			
 			$request = $this->api(OAuth2::GET, "/me", Array("fields" => implode(",", $fields)));
-			
 			$request->execute();
+			$response = $request->responseObject();
+			if(isset($request->error)) return false;
+			
 			$user = new stdClass();
-			$user->response = $request->responseObject();
-			$user->id = isset($user->response->id) ? $user->response->id : null;
-			$user->username = isset($user->response->username) ? $user->response->username : $user->response->id;
-			$user->name = isset($user->response->name) ? $user->response->name : null;
-			$user->email = isset($user->response->email) ? $user->response->email : null;
+			$user->id = isset($response->id) ? $response->id : null;
+			$user->username = isset($response->username) ? $response->username : $user->id;
+			$user->name = isset($response->name) ? $response->name : null;
+			$user->email = isset($response->email) ? $response->email : null;
+			$user->response = $response;
 			return $user;
 		}
 		
 		// function profilePicture(). Fetches the current user's profile.
-		public function profilePicture($width = 50, $height = 50) {
+		public function profilePicture($size = 50) {
 			// Check if width and height are integers.
-			if(!is_int($width) && !is_numeric($width)) $width = 50;
-			if(!is_int($height) && !is_numeric($height)) $height = 50;
+			if(!is_numeric($size)) $size = 50;
 			
-			$request = $this->api(OAuth2::GET, "/me", Array("fields" => "id,picture.width({$width}).height({$height})"));
-			
+			$request = $this->api(OAuth2::GET, "/me", Array("fields" => "id,picture.width({$size}).height({$size})"));
 			$request->execute();
 			$response = $request->responseObject();
+			if(isset($request->error)) return false;
+			
+			if(!isset($response->picture->data) || !isset($response->picture->data->url)) return false;
 			$picture = $response->picture->data;
 			
-			// Build an <img> tag.
+			// Build an <img /> tag.
 			$picture->tag = "<img src=\"";
 			$picture->tag .= htmlentities($picture->url);
-			$picture->tag .= "\" style=\"width:";
-			$picture->tag .= htmlentities($picture->width);
-			$picture->tag .= "px;height:";
-			$picture->tag .= htmlentities($picture->height);
-			$picture->tag .= "px;\" />";
+			$picture->tag .= "\" style=\"width:{$size}px;height:{$size}px;\" />";
 			
 			return $picture;
 		}

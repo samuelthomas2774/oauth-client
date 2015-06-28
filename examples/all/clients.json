@@ -12,12 +12,18 @@
 	"google": {
 		"id": "0000000000000000",
 		"secret": "0000000000000000000000000000000000000000",
+		"scope": [
+			"https://www.googleapis.com/auth/plus.login"
+		],
 		"class": "OAuthGoogle",
 		"file": "google.class.php"
 	},
 	"microsoft": {
 		"id": "0000000000000000",
 		"secret": "0000000000000000000000000000000000000000",
+		"scope": [
+			"wl.basic"
+		],
 		"class": "OAuthMicrosoft",
 		"file": "microsoft.class.php"
 	},

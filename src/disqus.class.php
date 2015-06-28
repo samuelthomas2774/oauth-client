@@ -8,6 +8,7 @@
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		protected $options = Array(
 			"session_prefix"		=> "disqus_",
+			"button_colour"			=> "#2e9fff",
 			"dialog"				=> Array("base_url" => "https://disqus.com/api/oauth/2.0/authorize/", "scope_separator" => ","),
 			"api"					=> Array("base_url" => "https://disqus.com/api/3.0", "token_auth" => 2),
 			"requests"				=> Array("/oauth/token" => "https://disqus.com/api/oauth/2.0/access_token/", "/oauth/token/debug" => "https://disqus.com/api/oauth/2.0/access_token/")

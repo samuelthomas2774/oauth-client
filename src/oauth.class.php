@@ -15,6 +15,9 @@
 		// These will overwrite the default options, can be used to set default options for extended classes (subclasses).
 		protected $options = null;
 		
+		// Error. Will be set / read / unset when an error is returned from the api.
+		public $error = null;
+		
 		// Constants.
 		const GET = "GET";
 		const POST = "POST";
@@ -62,6 +65,52 @@
 			} elseif($this->session("token") != null) $this->token = $this->session("token");
 		}
 		
+		// function autorun(). Completes most OAuth-related tasks itself.
+		// $allowedactions: An integer/array containing the actions this function should do.
+		// Returns when the access token was replaced with the access token in $_GET["access_token"] or $_POST["access_token"].
+		const AutoSetToken = 10;
+		// Returns when the code in $_GET["code"] was used to get an access token.
+		const AutoGetFromCode = 20;
+		// Returns when the username and password in $_POST["username"] and $_POST["password"] was used to get an access token.
+		const AutoGetFromPassword = 30;
+		// Returns when the refresh token in was used to get an access token.
+		const AutoGetFromRefreshToken = 40;
+		// Returns when nothing happened, $_GET/_POST["access_token"], $_GET["code"] and $_POST["username"&"password"] was not set.
+		const AutoFail = 50;
+		public function autorun($allowedactions = Array(OAuth2::AutoSetToken, OAuth2::AutoGetFromCode, OAuth2::AutoGetFromPassword, OAuth2::AutoGetFromRefreshToken)) {
+			// Check if redirect_url is a url. The redirect_url should be exactly the same as the redirect_url used in the login dialog. (So really, this should just be the same as the current url.)
+			if(is_array($allowedactions)) {}
+			if(is_int($allowedactions)) $allowedactions = Array($allowedactions);
+			if(is_array($allowedactions)) throw new Exception(__METHOD__ . "(): \$allowedactions must be an array.");
+			
+			if(in_array(OAuth2::AutoSetToken, $allowedactions) && isset($_GET["access_token"]) && is_string($_GET["access_token"])) {
+				$this->accessToken($_GET["access_token"]);
+				return OAuth2::AutoSetToken;
+			} elseif(in_array(OAuth2::AutoSetToken, $allowedactions) && isset($_POST["access_token"]) && is_string($_POST["access_token"])) {
+				$this->accessToken($_GET["access_token"]);
+				return OAuth2::AutoSetToken;
+			} elseif(in_array(OAuth2::AutoGetFromCode, $allowedactions) && isset($_GET["code"]) && is_string($_GET["code"])) {
+				$url = new stdClass();
+				$url->protocol = "http" . (isset($_SERVER["HTTPS"]) && (strtolower($_SERVER["HTTPS"]) == "on") ? "s" : "");
+				$url->host = $_SERVER["HTTP_HOST"];
+				$p = strpos($_SERVER["REQUEST_URI"], "?");
+				$url->path = ltrim(substr($_SERVER["REQUEST_URI"], 0, $p !== false ? $p : strlen($_SERVER["REQUEST_URI"])), "/");
+				$this->getAccessTokenFromCode("{$url->protocol}://{$url->host}/{$url->path}");
+				return OAuth2::AutoGetFromCode;
+			} elseif(in_array(OAuth2::AutoGetFromPassword, $allowedactions) && isset($_POST["username"]) && is_string($_POST["username"]) && isset($_POST["password"]) && is_string($_POST["password"])) {
+				$this->getAccessTokenFromUserCredentials($_POST["username"], $_POST["password"]);
+				return OAuth2::AutoGetFromPassword;
+			} elseif(in_array(OAuth2::AutoGetFromRefreshToken, $allowedactions) && isset($_GET["refresh_token"]) && is_string($_GET["refresh_token"])) {
+				$this->getAccessTokenFromRefreshToken($_GET["refresh_token"]);
+				return OAuth2::AutoGetFromRefreshToken;
+			} elseif(in_array(OAuth2::AutoGetFromRefreshToken, $allowedactions) && isset($_POST["refresh_token"]) && is_string($_POST["refresh_token"])) {
+				$this->getAccessTokenFromRefreshToken($_POST["refresh_token"]);
+				return OAuth2::AutoGetFromRefreshToken;
+			} else {
+				return OAuth2::AutoFail;
+			}
+		}
+		
 		// function api(). Makes a new request to the server's API.
 		// $method: GET, POST, PUT or DELETE, the http method to use in this request.
 		// $url: The url to send this request to. If this is not a full valid url, it will be appended to the option api->base_url.
@@ -73,6 +122,7 @@
 			return new OAuthRequest($this, $method, $url, $params, $headers, $auth);
 		}
 		
+		// --- Authorization Code Grant --- //
 		// function getAccessTokenFromCode(). Exchanges the code for an access token.
 		public function getAccessTokenFromCode($redirect_url, $code = null, $state = true) {
 			// Check if redirect_url is a url. The redirect_url should be exactly the same as the redirect_url used in the login dialog. (So really, this should just be the same as the current url.)
@@ -107,8 +157,7 @@
 				"client_id" => $this->client()->id,
 				"client_secret" => $this->client()->secret,
 				"redirect_uri" => $redirect_url,
-				"code" => $code,
-				"state" => $state
+				"code" => $code
 			), null, true);
 			
 			$request->execute();
@@ -117,6 +166,7 @@
 			if($this->options([ "requests", "/oauth/token:response" ]) == "query") $response = $request->responseQueryString();
 			elseif($this->options([ "requests", "/oauth/token:response" ]) == "xml") $response = $request->responseXMLObject();
 			else $response = $request->responseObject();
+			if(isset($response->error)) return false;
 			
 			$this->accessToken($response->access_token);
 			return $response;
@@ -144,12 +194,89 @@
 			if($this->options([ "requests", "/oauth/token:response" ]) == "query") $response = $request->responseQueryString();
 			elseif($this->options([ "requests", "/oauth/token:response" ]) == "xml") $response = $request->responseXMLObject();
 			else $response = $request->responseObject();
+			if(isset($response->error)) return false;
 			
 			$this->accessToken($response->access_token);
 			return $response;
 		}
 		
-		// function validateAccessToken(). Checks if an access token is valid. Most OAuth 2 providers do not have this endpoint.
+		// --- Implicit Grant --- //
+		// function iloginURL(). Returns the URL for the login dialog.
+		public function iloginURL($redirect_url, $permissions = Array(), $params = Array()) {
+			if(is_array($params) && !isset($params["response_type"])) $params["response_type"] = "token";
+			return $this->loginURL($redirect_uri, $permissions, $params);
+		}
+		
+		// function iloginButton(). Returns the URL for the login dialog.
+		public function iloginButton($button_text, $redirect_url, $permissions = Array(), $params = Array(), $colour = null) {
+			if(is_array($params) && !isset($params["response_type"])) $params["response_type"] = "token";
+			return $this->loginButton($button_text, $redirect_uri, $permissions, $params, $colour);
+		}
+		
+		// function iloginRedirect(). Redirects to the login dialog.
+		public function iloginRedirect($redirect_url, $permissions = Array(), $params = Array()) {
+			if(is_array($params) && !isset($params["response_type"])) $params["response_type"] = "token";
+			return $this->loginRedirect($redirect_uri, $permissions, $params);
+		}
+		
+		// --- Resource Owner Credentials Grant --- //
+		// function getAccessTokenFromUserCredentials(). Uses a username and password to get an access token.
+		public function getAccessTokenFromUserCredentials($username, $password) {
+			// Check if username and password is a string.
+			if(!is_string($username)) throw new Exception(__METHOD__ . "(): \$username must be a string.");
+			if(!is_string($password)) throw new Exception(__METHOD__ . "(): \$password must be a string.");
+			
+			// Unset the access token.
+			$this->accessToken(null);
+			
+			// Example request: POST /oauth/token?client_id={client_id}&client_secret={client_secret}&username={username}&password={password}
+			$request = $this->api(OAuth2::POST, $this->options([ "requests", "/oauth/token" ]), Array(
+				"grant_type" => "password",
+				"client_id" => $this->client()->id,
+				"client_secret" => $this->client()->secret,
+				"username" => $username,
+				"password" => $password
+			), null, true);
+			
+			$request->execute();
+			
+			// Get the response.
+			if($this->options([ "requests", "/oauth/token:response" ]) == "query") $response = $request->responseQueryString();
+			elseif($this->options([ "requests", "/oauth/token:response" ]) == "xml") $response = $request->responseXMLObject();
+			else $response = $request->responseObject();
+			if(isset($response->error)) return false;
+			
+			$this->accessToken($response->access_token);
+			return $response;
+		}
+		
+		// --- Client Credentials Grant --- //
+		// function getAccessTokenFromClientCredentials(). Uses the client id and secret to get an access token.
+		public function getAccessTokenFromClientCredentials() {
+			// Unset the access token.
+			$this->accessToken(null);
+			
+			// Example request: POST /oauth/token?client_id={client_id}&client_secret={client_secret}
+			$request = $this->api(OAuth2::POST, $this->options([ "requests", "/oauth/token" ]), Array(
+				"grant_type" => "client_credentials",
+				"client_id" => $this->client()->id,
+				"client_secret" => $this->client()->secret
+			), null, true);
+			
+			$request->execute();
+			
+			// Get the response.
+			if($this->options([ "requests", "/oauth/token:response" ]) == "query") $response = $request->responseQueryString();
+			elseif($this->options([ "requests", "/oauth/token:response" ]) == "xml") $response = $request->responseXMLObject();
+			else $response = $request->responseObject();
+			if(isset($response->error)) return false;
+			
+			$this->accessToken($response->access_token);
+			return $response;
+		}
+		
+		// function validateAccessToken(). Checks if an access token is valid.
+		// Most OAuth 2 providers do not have any endpoint like this.
 		public function validateAccessToken($access_token = null) {
 			// Check if access_token is string.
 			if(!is_string($access_token)) $access_token = $this->accessToken();
@@ -167,7 +294,7 @@
 				elseif($this->options([ "requests", "/oauth/token:response" ]) == "xml") $response = $request->responseXMLObject();
 				else $response = $request->responseObject();
 			} catch(Exception $e) { return false; }
-			if(isset($response->error)) return false;
+			if(isset($response->error)) { $oauth->error = null; return false; }
 			
 			if($response->expires_in <= 0) return false;
 			return true;
@@ -185,7 +312,7 @@
 			// https://mydatastore.com/oauth/authorize?client_id={client_id}&redirect_uri={redirect_url}&response_type=code&scope=email
 			
 			// Generate a unique state parameter and store it in the session.
-			$state = hash("sha1", time() . uniqid(mt_rand(), true));
+			$state = hash("sha256", time() . uniqid(mt_rand(), true));
 			$this->session("state", $state);
 			
 			$url_params = Array(
@@ -201,20 +328,27 @@
 		}
 		
 		// function loginButton(). Returns the URL for the login dialog.
-		public function loginButton($button_text, $redirect_url, $permissions = Array(), $params = Array(), $colour = "rgb(47,71,122)") {
+		public function loginButton($button_text, $redirect_url, $permissions = Array(), $params = Array(), $colour = null) {
 			// Check if button_text is a string.
 			if(!is_string($button_text)) throw new Exception(__METHOD__ . "(): \$button_text must be a string.");
 			
 			// Check if colour is a valid hex, rgb(a) or hsl(a) colour.
-			if(!preg_match("/(\#([0-9ABCDEF][0-9ABCDEF][0-9ABCDEF]([0-9ABCDEF][0-9ABCDEF][0-9ABCDEF])?)|rgb\(([0-9]*), ?([0-9]*), ?([0-9]*)\)|rgba\(([0-9]*), ?([0-9]*), ?([0-9]*), ?([0-9]*)\)|rgb\(([0-9]*), ?([0-9]*), ?([0-9]*)\)|rgba\(([0-9]*), ?([0-9]*), ?([0-9]*), ?([0-9]*)\)|black|gray|white|red|green|blue|transparent)/i", $colour)) throw new Exception(__METHOD__ . "(): \$colour must be a string.");
+			$expression = "/(\#([0-9ABCDEF][0-9ABCDEF][0-9ABCDEF]([0-9ABCDEF][0-9ABCDEF][0-9ABCDEF])?)|";
+			$expression .= "rgb\(([0-9]*), *([0-9]*), *([0-9]*)\)|";
+			$expression .= "rgba\(([0-9]*), *([0-9]*), *([0-9]*), *(0|0\.[0-9]*|1)\)|";
+			$expression .= "hsl\(([0-9]*), *([0-9]*)%, *([0-9]*)%\)|";
+			$expression .= "hsla\(([0-9]*), *([0-9]*)%, *([0-9]*)%, *([0-9]*)\)|";
+			$expression .= "black|gray|white|red|green|blue|transparent)/i";
+			if($colour === null) $colour = $this->options([ "button_colour" ]);
+			elseif(!is_string($colour) || !preg_match($expression, $colour)) throw new Exception(__METHOD__ . "(): \$colour must be a string containing a valid colour.");
 			
-			// Get a Login Dialog URL using the OAuth::loginURL() function.
+			// Get a Login Dialog URL using the OAuth2::loginURL() function.
 			$url = $this->loginURL($redirect_url, $permissions, $params);
 			
 			// Build the html tag.
 			$button = "<a href=\"";
 			$button .= htmlentities($url);
-			$button .= "\" style=\"background-color:{$colour};display:block;min-width:80px;width:calc(100%-20px);padding:10px;text-align:center;color:white;font-family:arial;text-decoration:none;\">";
+			$button .= "\" style=\"background-color:{$colour};display:inline-block;min-width:80px;width:calc(100% - 20px);padding:10px;text-align:center;color:white;font-family:arial;text-decoration:none;\">";
 			$button .= htmlentities($button_text);
 			$button .= "</a>";
 			
@@ -223,7 +357,7 @@
 		
 		// function loginRedirect(). Redirects to the login dialog.
 		public function loginRedirect($redirect_url, $permissions = Array(), $params = Array()) {
-			// Get a Login Dialog URL using the OAuth::loginURL() function.
+			// Get a Login Dialog URL using the OAuth2::loginURL() function.
 			$url = $this->loginURL($redirect_url, $permissions, $params);
 			
 			// Redirect to the Login Dialog.
@@ -318,6 +452,7 @@
 		public function defaultoptions() {
 			$options = new stdClass();
 			$options->session_prefix = "oauth_";
+			$options->button_colour = "rgb(47,71,122)";
 			
 			// Login Dialog. Set a few important variables for using the Login Dialog.
 			$options->dialog = new stdClass();

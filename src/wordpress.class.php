@@ -8,6 +8,7 @@
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		protected $options = Array(
 			"session_prefix"		=> "wordpress_",
+			"button_colour"			=> "#0087be",
 			"dialog"				=> Array("base_url" => "https://public-api.wordpress.com/oauth2/authorize"),
 			"api"					=> Array("base_url" => "https://public-api.wordpress.com/rest/v1", "token_auth" => 2),
 			"requests"				=> Array("/oauth/token" => "https://public-api.wordpress.com/oauth2/token", "/oauth/token/debug" => "https://public-api.wordpress.com/oauth2/token")

@@ -8,6 +8,7 @@
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		protected $options = Array(
 			"session_prefix"		=> "amazon_",
+			"button_colour"			=> "#ff9900",
 			"dialog"				=> Array("base_url" => "https://www.amazon.com/ap/oa"),
 			"api"					=> Array("base_url" => "https://api.amazon.com", "token_auth" => 2),
 			"requests"				=> Array("/oauth/token" => "/auth/o2/token", "/oauth/token/debug" => "/auth/o2/tokeninfo")

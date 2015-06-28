@@ -43,6 +43,34 @@ Default (OAuth2)
     
     ```
 
+- To automatically set / get an access token:
+    ```php
+    // Will a execute task in the order:
+    // Set the access token to $_GET["access_token"].
+    // Set the access token to $_POST["access_token"].
+    // Get an access token from the code $_GET["code"] (and check $_GET["state"]). This will try to guess the redirect_uri from the current url, make sure the server does not redirect anywhere, like from http to https.
+    // Get an access token from the username and password $_POST["username"] and $_POST["password"].
+    // Get an access token from the refresh token $_GET["refresh_token"].
+    // Get an access token from the refresh token $_POST["refresh_token"].
+    switch($oauth->autorun()) {
+        case OAuth2::AutoSetToken:
+            echo "The access token was set to {$oauth->accessToken()}.\n"; // Note: this value came from the user, if outputting html make sure to filter this.
+            break;
+        case OAuth2::AutoGetFromCode:
+            echo "The code {$_GET["code"]} was used to get the access token {$oauth->accessToken()}.\n"; // Note: this value came from the user, if outputting html make sure to filter this.
+            break;
+        case OAuth2::AutoGetFromPassword:
+            echo "The username {$_POST["username"]} and password ******** was used to get the access token {$oauth->accessToken()}.\n"; // Note: this value came from the user, if outputting html make sure to filter this.
+            break;
+        case OAuth2::AutoGetFromRefreshToken:
+            echo "The refresh token " . (isset($_GET["refresh_token"]) ? $_GET["refresh_token"] : $_POST["refresh_token"]) . " was used to get the access token {$oauth->accessToken()}.\n"; // Note: this value came from the user, if outputting html make sure to filter this.
+            break;
+        default: case OAuth2::AutoFail:
+            echo "Nothing happened" . ($oauth->accessToken() != null ? ", but an access token was already set" : ", an access token is still not set") . ".\n";
+            break;
+    }
+    
+    ```
 - To get a link to the Login Dialog:
     ```php
     $redirect_url = "http://example.com/facebook/code.php";
@@ -103,8 +131,8 @@ Facebook `U` `P`    | OAuthFacebook         | facebook.class.php        | https:
 Google `U` `P`      | OAuthGoogle           | google.class.php          | https://console.developers.google.com/
 Microsoft `U` `P`   | OAuthMicrosoft        | microsoft.class.php       | https://account.live.com/developers/applications/create
 Yahoo `U` `P`       | OAuthYahoo            | yahoo.class.php           | https://developer.apps.yahoo.com/dashboard/createKey.html
-GitHub `U`          | OAuthGitHub           | github.class.php          | https://github.com/settings/applications/new
-LinkedIn `U`        | OAuthLinkedin         | linkedin.class.php        | https://www.linkedin.com/developer/apps/new
+GitHub `U` `P`      | OAuthGitHub           | github.class.php          | https://github.com/settings/applications/new
+LinkedIn `U` `P`    | OAuthLinkedin         | linkedin.class.php        | https://www.linkedin.com/developer/apps/new
 Amazon `U`          | OAuthAmazon           | amazon.class.php          | https://developer.amazon.com/lwa/sp/overview.html
 Disqus `U`          | OAuthDisqus           | disqus.class.php          | https://disqus.com/api/applications/register/
 Instagram `U`       | OAuthInstagram        | instagram.class.php       | https://instagram.com/developer/clients/register/
@@ -113,7 +141,7 @@ samuelthomas.ml `U` `P` | OAuthST           | st.class.php              | https:
 TeamViewer `U`      | OAuthTeamViewer       | teamviewer.class.php      | https://login.teamviewer.com/nav/api
 WordPress.com `U`   | OAuthWordPress        | wordpress.class.php       | https://developer.wordpress.com/apps/new/
 
-All the built-in providers above have an extra method, userProfile `U`, that returns the user's data in a object:
+All the built-in providers above have an extra method, userProfile `U`, that returns the user's data in an object:
 ```php
 try { $user = $oauth->userProfile(); }
 catch(Exception $error) { exit("OAuth Provider returned an error: " . print_r($error, true)); }
@@ -213,6 +241,45 @@ The OAuthFacebook class has some additional methods:
         if(($post_id = $oauth->post((array)$post)) !== false) echo "The text you entered was posted to the user's timeline. The post id was {$post_id}.\n";
         else echo "Something went wrong... the text you entered was not posted to the user's timeline.\n";
     } catch(Exception $error) { exit("Facebook returned an error: {$error->getMessage()}\n"); }
+    ```
+
+#### samuelthomas.ml
+- To get all storage objects:
+    ```php
+    try { $objects = $oauth->objects(); }
+    catch(Exception $error) { exit("samuelthomas.ml returned an error: {$error->getMessage()}\n"); }
+    print_r($objects);
+    
+    ```
+- To get a storage object:
+    ```php
+    try { $object = $oauth->object("name"); }
+    catch(Exception $error) { exit("samuelthomas.ml returned an error: {$error->getMessage()}\n"); }
+    print_r($object);
+    
+    ```
+- To set a storage object:
+    ```php
+    try { $object = $oauth->object("name", "value"); }
+    catch(Exception $error) { exit("samuelthomas.ml returned an error: {$error->getMessage()}\n"); }
+    print_r($object);
+    
+    ```
+- To delete a storage object:
+    ```php
+    try {
+        if($oauth->object("name", null)) echo "Storage object is deleted.\n";
+        else echo "Error deleting storage object.\n";
+    } catch(Exception $error) { exit("samuelthomas.ml returned an error: {$error->getMessage()}\n"); }
+    
+    ```
+- To delete all storage objects:
+    ```php
+    try {
+        if($oauth->deleteObjects()) echo "Storage objects are deleted.\n";
+        else echo "Error deleting storage objects.\n";
+    } catch(Exception $error) { exit("samuelthomas.ml returned an error: {$error->getMessage()}\n"); }
+    
     ```
 
 Extending the OAuth2 class.

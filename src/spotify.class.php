@@ -8,6 +8,7 @@
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		protected $options = Array(
 			"session_prefix"		=> "spotify_",
+			"button_colour"			=> "#2ebd59",
 			"dialog"				=> Array("base_url" => "https://accounts.spotify.com/authorize"),
 			"api"					=> Array("base_url" => "https://api.spotify.com/v1", "token_auth" => 2, "callback" => "OAuthSpotify::apiCallback"),
 			"requests"				=> Array("/oauth/token" => "https://accounts.spotify.com/api/token", "/oauth/token/debug" => "https://accounts.spotify.com/api/token")

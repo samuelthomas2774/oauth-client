@@ -8,6 +8,7 @@
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		protected $options = Array(
 			"session_prefix"		=> "instagram_",
+			"button_colour"			=> "#3f729b",
 			"dialog"				=> Array("base_url" => "https://api.instagram.com/oauth/authorize/"),
 			"api"					=> Array("base_url" => "https://api.instagram.com/v1"),
 			"requests"				=> Array("/oauth/token" => "https://api.instagram.com/oauth/access_token", "/oauth/token/debug" => "https://api.instagram.com/oauth/access_tokens")

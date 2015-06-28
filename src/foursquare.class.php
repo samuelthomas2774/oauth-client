@@ -8,6 +8,7 @@
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		protected $options = Array(
 			"session_prefix"		=> "foursquare_",
+			"button_colour"			=> "#f94877",
 			"dialog"				=> Array("base_url" => "https://foursquare.com/oauth2/authorize"),
 			"api"					=> Array("base_url" => "https://api.foursquare.com/v2", "token_auth" => false),
 			"requests"				=> Array("/oauth/token" => "https://foursquare.com/oauth2/access_token", "/oauth/token/debug" => "https://foursquare.com/oauth2/access_token")

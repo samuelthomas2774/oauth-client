@@ -28,7 +28,7 @@
 	$oauth = new $server->class($server->id, $server->secret, Array("errors" => Array("throw" => false)));
 	
 	// Delete the access token if needed.
-	if(isset($_GET["del_token"])) $oauth->accessToken(false);
+	if(isset($_GET["del_token"])) $oauth->accessToken(null);
 	
 	// Output a Login Button.
 	echo $oauth->loginButton("Login with {$server->name}", "https://example.com/code.php/{$server->url}", $server->scope);
@@ -38,12 +38,15 @@
 	if($oauth->accessToken() != null) {
 		// The user is logged in, you can do whatever you like here.
 		// In this example we just print the profile data.
-		try {
-			$profile = $oauth->userProfile();
+		$profile = $oauth->userProfile();
+		$picture = $oauth->profilePicture();
+		if(!isset($oauth->error)) {
 			echo "<pre>" . print_r($profile, true) . "</pre><br /><br />\n\n";
-		} catch(Exception $error) {
+			echo "<pre>" . print_r($picture, true) . "</pre><br /><br />\n\n";
+		} else {
 			// Errors are added to $oauth->error.
-			echo "<pre>Error: " . print_r($error, true) . "</pre><br /><br />\n\n";
+			echo "<pre>Error: " . print_r($oauth->error, true) . "</pre><br /><br />\n\n";
+			unset($oauth->error);
 		}
 	} else {
 		echo "You have not granted access to {$server->name}. Click the link above.<br />\n\n";
