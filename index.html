@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="OAuth 2.0 Client : A PHP OAuth 2.0 Client library with built-in support for Facebook, Google, Microsoft, Yahoo, GitHub &amp; Linkedin and more.">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>OAuth 2.0 Client</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/samuelthomas2774/oauth-client">View on GitHub</a>
+
+          <h1 id="project_title">OAuth 2.0 Client</h1>
+          <h2 id="project_tagline">A PHP OAuth 2.0 Client library with built-in support for Facebook, Google, Microsoft, Yahoo, GitHub &amp; Linkedin and more.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/samuelthomas2774/oauth-client/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/samuelthomas2774/oauth-client/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p><strong><a href="#built-in-providers">Built-in providers</a></strong></p>
+
+<ul>
+<li>Facebook <a href="https://facebook.com">https://facebook.com</a>
+</li>
+<li>Google <a href="https://google.co.uk">https://google.co.uk</a>
+</li>
+<li>Microsoft <a href="https://microsoft.com/en-gb/">https://microsoft.com/en-gb/</a>
+</li>
+<li>Yahoo <a href="https://yahoo.co.uk">https://yahoo.co.uk</a>
+</li>
+<li>GitHub <a href="https://github.com">https://github.com</a>
+</li>
+<li>LinkedIn <a href="https://linkedin.com">https://linkedin.com</a>
+</li>
+<li>Spotify <a href="https://spotify.com">https://spotify.com</a>
+</li>
+<li>Amazon <a href="https://amazon.co.uk">https://amazon.co.uk</a>
+</li>
+<li>Disqus <a href="https://disqus.com">https://disqus.com</a>
+</li>
+<li>Instagram <a href="https://instagram.com">https://instagram.com</a>
+</li>
+<li>samuelthomas.ml <a href="http://samuelthomas.ml">http://samuelthomas.ml</a> (my website)</li>
+<li>TeamViewer <a href="https://teamviewer.com">https://teamviewer.com</a>
+</li>
+<li>WordPress.com <a href="https://wordpress.com">https://wordpress.com</a>
+</li>
+<li>Other, just create a new OAuth2 object and include the dialog-&gt;base_url, api-&gt;base_url and requests-&gt;{"/oauth/token"} options.</li>
+</ul>
+
+<h2>
+<a id="default-oauth2" class="anchor" href="#default-oauth2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Default (OAuth2)</h2>
+
+<ol>
+<li>
+<p>Include src/oauth.class.php in all page that need access to your other provider.</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">require_once</span> <span class="pl-c1">__DIR__</span> <span class="pl-k">.</span> <span class="pl-s"><span class="pl-pds">'</span>/oauth-client/src/oauth.class.php<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+<li>
+<p>Create a new OAuth2 object with the parameters $client_id, $client_secret and $options.
+The $options array must have at least dialog-&gt;base_url, api-&gt;base_url and requests-&gt;{"/oauth/token"}.</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-smi">$client_id</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>appid<span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1"><span class="pl-smi">$client_secret</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>appsecret<span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1"><span class="pl-smi">$oauth</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">OAuth2</span>(</span>
+<span class="pl-s1">    <span class="pl-smi">$client_id</span>, <span class="pl-smi">$client_secret</span>,</span>
+<span class="pl-s1">    <span class="pl-smi">$options</span> <span class="pl-k">=</span> <span class="pl-k">Array</span>(</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">"</span>dialog<span class="pl-pds">"</span></span> <span class="pl-k">=&gt;</span> <span class="pl-k">Array</span>(<span class="pl-s"><span class="pl-pds">"</span>base_url<span class="pl-pds">"</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>https://facebook.com/dialog/oauth<span class="pl-pds">"</span></span>),</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">"</span>api<span class="pl-pds">"</span></span> <span class="pl-k">=&gt;</span> <span class="pl-k">Array</span>(<span class="pl-s"><span class="pl-pds">"</span>base_url<span class="pl-pds">"</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>https://graph.facebook.com/v2.2<span class="pl-pds">"</span></span>),</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">"</span>requests<span class="pl-pds">"</span></span> <span class="pl-k">=&gt;</span> <span class="pl-k">Array</span>(<span class="pl-s"><span class="pl-pds">"</span>/oauth/token<span class="pl-pds">"</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>/oauth/access_token<span class="pl-pds">"</span></span>)</span>
+<span class="pl-s1">    )</span>
+<span class="pl-s1">);</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+</ol>
+
+<ul>
+<li>
+<p>To automatically set / get an access token:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-c">// Will a execute task in the order:</span></span>
+<span class="pl-s1"><span class="pl-c">// Set the access token to $_GET["access_token"].</span></span>
+<span class="pl-s1"><span class="pl-c">// Set the access token to $_POST["access_token"].</span></span>
+<span class="pl-s1"><span class="pl-c">// Get an access token from the code $_GET["code"] (and check $_GET["state"]). This will try to guess the redirect_uri from the current url, make sure the server does not redirect anywhere, like from http to https.</span></span>
+<span class="pl-s1"><span class="pl-c">// Get an access token from the username and password $_POST["username"] and $_POST["password"].</span></span>
+<span class="pl-s1"><span class="pl-c">// Get an access token from the refresh token $_GET["refresh_token"].</span></span>
+<span class="pl-s1"><span class="pl-c">// Get an access token from the refresh token $_POST["refresh_token"].</span></span>
+<span class="pl-s1"><span class="pl-k">switch</span>(<span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>autorun()) {</span>
+<span class="pl-s1">    <span class="pl-k">case</span> <span class="pl-c1">OAuth2</span><span class="pl-k">::</span><span class="pl-c1">AutoSetToken</span>:</span>
+<span class="pl-s1">        <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>The access token was set to {<span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>accessToken()}.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>; <span class="pl-c">// Note: this value came from the user, if outputting html make sure to filter this.</span></span>
+<span class="pl-s1">        <span class="pl-k">break</span>;</span>
+<span class="pl-s1">    <span class="pl-k">case</span> <span class="pl-c1">OAuth2</span><span class="pl-k">::</span><span class="pl-c1">AutoGetFromCode</span>:</span>
+<span class="pl-s1">        <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>The code {<span class="pl-smi">$_GET</span>[<span class="pl-s"><span class="pl-pds">"</span>code<span class="pl-pds">"</span></span>]} was used to get the access token {<span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>accessToken()}.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>; <span class="pl-c">// Note: this value came from the user, if outputting html make sure to filter this.</span></span>
+<span class="pl-s1">        <span class="pl-k">break</span>;</span>
+<span class="pl-s1">    <span class="pl-k">case</span> <span class="pl-c1">OAuth2</span><span class="pl-k">::</span><span class="pl-c1">AutoGetFromPassword</span>:</span>
+<span class="pl-s1">        <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>The username {<span class="pl-smi">$_POST</span>[<span class="pl-s"><span class="pl-pds">"</span>username<span class="pl-pds">"</span></span>]} and password ******** was used to get the access token {<span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>accessToken()}.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>; <span class="pl-c">// Note: this value came from the user, if outputting html make sure to filter this.</span></span>
+<span class="pl-s1">        <span class="pl-k">break</span>;</span>
+<span class="pl-s1">    <span class="pl-k">case</span> <span class="pl-c1">OAuth2</span><span class="pl-k">::</span><span class="pl-c1">AutoGetFromRefreshToken</span>:</span>
+<span class="pl-s1">        <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>The refresh token <span class="pl-pds">"</span></span> <span class="pl-k">.</span> (<span class="pl-c1">isset</span>(<span class="pl-smi">$_GET</span>[<span class="pl-s"><span class="pl-pds">"</span>refresh_token<span class="pl-pds">"</span></span>]) ? <span class="pl-smi">$_GET</span>[<span class="pl-s"><span class="pl-pds">"</span>refresh_token<span class="pl-pds">"</span></span>] : <span class="pl-smi">$_POST</span>[<span class="pl-s"><span class="pl-pds">"</span>refresh_token<span class="pl-pds">"</span></span>]) <span class="pl-k">.</span> <span class="pl-s"><span class="pl-pds">"</span> was used to get the access token {<span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>accessToken()}.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>; <span class="pl-c">// Note: this value came from the user, if outputting html make sure to filter this.</span></span>
+<span class="pl-s1">        <span class="pl-k">break</span>;</span>
+<span class="pl-s1">    <span class="pl-k">default</span>: <span class="pl-k">case</span> <span class="pl-c1">OAuth2</span><span class="pl-k">::</span><span class="pl-c1">AutoFail</span>:</span>
+<span class="pl-s1">        <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Nothing happened<span class="pl-pds">"</span></span> <span class="pl-k">.</span> (<span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>accessToken() <span class="pl-k">!</span><span class="pl-k">=</span> <span class="pl-c1">null</span> ? <span class="pl-s"><span class="pl-pds">"</span>, but an access token was already set<span class="pl-pds">"</span></span> : <span class="pl-s"><span class="pl-pds">"</span>, an access token is still not set<span class="pl-pds">"</span></span>) <span class="pl-k">.</span> <span class="pl-s"><span class="pl-pds">"</span>.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">        <span class="pl-k">break</span>;</span>
+<span class="pl-s1">}</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+<li>
+<p>To get a link to the Login Dialog:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-smi">$redirect_url</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>http://example.com/facebook/code.php<span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1"><span class="pl-smi">$permissions</span> <span class="pl-k">=</span> <span class="pl-k">Array</span>(<span class="pl-s"><span class="pl-pds">"</span>email<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>user_friends<span class="pl-pds">"</span></span>); <span class="pl-c">// Optional scope array.</span></span>
+<span class="pl-s1"><span class="pl-smi">$login_url</span> <span class="pl-k">=</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>loginURL(<span class="pl-smi">$redirect_url</span>, <span class="pl-smi">$permissions</span>);</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+<li>
+<p>To get an access token from the code that was returned:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-c">// Must match the $redirect_url given to OAuth2::loginURL() exactly. The user will not be redirected anywhere.</span></span>
+<span class="pl-s1"><span class="pl-smi">$redirect_url</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>http://example.com/facebook/code.php<span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">// Returns an object of data returned from the server. This may include a refresh_token.</span></span>
+<span class="pl-s1"><span class="pl-smi">$token_data</span> <span class="pl-k">=</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>getAccessTokenFromCode(<span class="pl-smi">$redirect_url</span>);</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+<li>
+<p>To get an access token a refresh token:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-c">// Returns an object of data returned from the server. This may include a new refresh_token.</span></span>
+<span class="pl-s1"><span class="pl-smi">$token_data</span> <span class="pl-k">=</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>getAccessTokenFromRefreshToken(<span class="pl-smi">$refresh_token</span>);</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+<li>
+<p>To make API Requests: (The access token will be included automatically).</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-smi">$method</span> <span class="pl-k">=</span> <span class="pl-c1">OAuth2</span><span class="pl-k">::</span><span class="pl-c1">GET</span>; <span class="pl-c">// Must be OAuth2::GET, OAuth2::POST, OAuth2::PUT or OAuth2::DELETE.</span></span>
+<span class="pl-s1"><span class="pl-smi">$url</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>/me<span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1"><span class="pl-c">//$params = Array("fields" =&gt; "id,name"); // You can also add an optional array of parameters.</span></span>
+<span class="pl-s1"><span class="pl-smi">$request</span> <span class="pl-k">=</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>api(<span class="pl-smi">$method</span>, <span class="pl-smi">$url</span> <span class="pl-c">/* , $params = Array() /* , $headers = Array() /* , $auth = false */</span> );</span>
+<span class="pl-s1"><span class="pl-k">try</span> { <span class="pl-smi">$request</span><span class="pl-k">-&gt;</span>execute(); } <span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>OAuth Provider returned an error: <span class="pl-pds">"</span></span> <span class="pl-k">.</span> <span class="pl-c1">print_r</span>(<span class="pl-smi">$error</span>, <span class="pl-c1">true</span>)); }</span>
+<span class="pl-s1"><span class="pl-smi">$response_plaintext</span> <span class="pl-k">=</span> <span class="pl-smi">$request</span><span class="pl-k">-&gt;</span>response();</span>
+<span class="pl-s1"><span class="pl-smi">$response_array</span> <span class="pl-k">=</span> <span class="pl-smi">$response</span><span class="pl-k">-&gt;</span>responseArray();</span>
+<span class="pl-s1"><span class="pl-smi">$response_object</span> <span class="pl-k">=</span> <span class="pl-smi">$response</span><span class="pl-k">-&gt;</span>responseObject();</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+<li>
+<p>To get / set the current access token:
+You do not need to do this at the start of the script to get the access token from the session, this is done automatically. Also, this function updates the access token in the session.</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-c">// Get</span></span>
+<span class="pl-s1"><span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>accessToken();</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">// Set</span></span>
+<span class="pl-s1"><span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>accessToken(<span class="pl-smi">$new_access_token</span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">// Set without updating the access token in the session.</span></span>
+<span class="pl-s1"><span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>accessToken(<span class="pl-smi">$new_access_token</span>, <span class="pl-c1">false</span>);</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+</ul>
+
+<p>You can also use these methods in extended classes (subclasses).</p>
+
+<h2>
+<a id="built-in-providers" class="anchor" href="#built-in-providers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Built-in providers</h2>
+
+<p>Any other providers please contact me at <a href="https://samuelthomas.ml/about/contact">https://samuelthomas.ml/about/contact</a> and I'll add it as soon as possible.</p>
+
+<table>
+<thead>
+<tr>
+<th><strong>Provider</strong></th>
+<th><strong>Class</strong></th>
+<th><strong>File in /src</strong></th>
+<th><strong>Sign-up url</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Facebook <code>U</code> <code>P</code>
+</td>
+<td>OAuthFacebook</td>
+<td>facebook.class.php</td>
+<td><a href="https://developers.facebook.com/apps/">https://developers.facebook.com/apps/</a></td>
+</tr>
+<tr>
+<td>Google <code>U</code> <code>P</code>
+</td>
+<td>OAuthGoogle</td>
+<td>google.class.php</td>
+<td><a href="https://console.developers.google.com/">https://console.developers.google.com/</a></td>
+</tr>
+<tr>
+<td>Microsoft <code>U</code> <code>P</code>
+</td>
+<td>OAuthMicrosoft</td>
+<td>microsoft.class.php</td>
+<td><a href="https://account.live.com/developers/applications/create">https://account.live.com/developers/applications/create</a></td>
+</tr>
+<tr>
+<td>Yahoo <code>U</code> <code>P</code>
+</td>
+<td>OAuthYahoo</td>
+<td>yahoo.class.php</td>
+<td><a href="https://developer.apps.yahoo.com/dashboard/createKey.html">https://developer.apps.yahoo.com/dashboard/createKey.html</a></td>
+</tr>
+<tr>
+<td>GitHub <code>U</code> <code>P</code>
+</td>
+<td>OAuthGitHub</td>
+<td>github.class.php</td>
+<td><a href="https://github.com/settings/applications/new">https://github.com/settings/applications/new</a></td>
+</tr>
+<tr>
+<td>LinkedIn <code>U</code> <code>P</code>
+</td>
+<td>OAuthLinkedin</td>
+<td>linkedin.class.php</td>
+<td><a href="https://www.linkedin.com/developer/apps/new">https://www.linkedin.com/developer/apps/new</a></td>
+</tr>
+<tr>
+<td>Amazon <code>U</code>
+</td>
+<td>OAuthAmazon</td>
+<td>amazon.class.php</td>
+<td><a href="https://developer.amazon.com/lwa/sp/overview.html">https://developer.amazon.com/lwa/sp/overview.html</a></td>
+</tr>
+<tr>
+<td>Disqus <code>U</code>
+</td>
+<td>OAuthDisqus</td>
+<td>disqus.class.php</td>
+<td><a href="https://disqus.com/api/applications/register/">https://disqus.com/api/applications/register/</a></td>
+</tr>
+<tr>
+<td>Instagram <code>U</code>
+</td>
+<td>OAuthInstagram</td>
+<td>instagram.class.php</td>
+<td><a href="https://instagram.com/developer/clients/register/">https://instagram.com/developer/clients/register/</a></td>
+</tr>
+<tr>
+<td>Spotify <code>U</code>
+</td>
+<td>OAuthSpotify</td>
+<td>spotify.class.php</td>
+<td><a href="https://developer.spotify.com/my-applications/#!/applications/create">https://developer.spotify.com/my-applications/#!/applications/create</a></td>
+</tr>
+<tr>
+<td>samuelthomas.ml <code>U</code> <code>P</code>
+</td>
+<td>OAuthST</td>
+<td>st.class.php</td>
+<td><a href="https://samuelthomas.ml/developer/clients">https://samuelthomas.ml/developer/clients</a></td>
+</tr>
+<tr>
+<td>TeamViewer <code>U</code>
+</td>
+<td>OAuthTeamViewer</td>
+<td>teamviewer.class.php</td>
+<td><a href="https://login.teamviewer.com/nav/api">https://login.teamviewer.com/nav/api</a></td>
+</tr>
+<tr>
+<td>WordPress.com <code>U</code>
+</td>
+<td>OAuthWordPress</td>
+<td>wordpress.class.php</td>
+<td><a href="https://developer.wordpress.com/apps/new/">https://developer.wordpress.com/apps/new/</a></td>
+</tr>
+</tbody>
+</table>
+
+<p>All the built-in providers above have an extra method, userProfile <code>U</code>, that returns the user's data in an object:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">try</span> { <span class="pl-smi">$user</span> <span class="pl-k">=</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>userProfile(); }</span>
+<span class="pl-s1"><span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>OAuth Provider returned an error: <span class="pl-pds">"</span></span> <span class="pl-k">.</span> <span class="pl-c1">print_r</span>(<span class="pl-smi">$error</span>, <span class="pl-c1">true</span>)); }</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">// $user == stdClass::__set_state(Array("id" =&gt; 1, "username" =&gt; "samuelthomas2774", "name" =&gt; "Samuel Elliott", "email" =&gt; null, "response" =&gt; $response_from_server));</span></span>
+<span class="pl-s1"></span></pre></div>
+
+<p>Some also have a profilePicture method <code>P</code>, that returns the user's profile picture and an &lt;img /&gt; tag:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">try</span> { <span class="pl-smi">$picture</span> <span class="pl-k">=</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>userProfile(); }</span>
+<span class="pl-s1"><span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>OAuth Provider returned an error: <span class="pl-pds">"</span></span> <span class="pl-k">.</span> <span class="pl-c1">print_r</span>(<span class="pl-smi">$error</span>, <span class="pl-c1">true</span>)); }</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">// $picture == stdClass::__set_state(Array("url" =&gt; "https://gravatar.com/avatar/?s=50&amp;d=mm", "tag" =&gt; "&lt;img src=\"https://gravatar.com/avatar/?s=50&amp;d=mm\" style=\"width:50px;height:50px;\" /&gt;"));</span></span>
+<span class="pl-s1"></span></pre></div>
+
+<h4>
+<a id="facebook" class="anchor" href="#facebook" aria-hidden="true"><span class="octicon octicon-link"></span></a>Facebook</h4>
+
+<p>The OAuthFacebook class has some additional methods:</p>
+
+<ul>
+<li>
+<p>To parse a signed request sent from Facebook when the page is loaded in a page tab or Facebook Canvas:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-smi">$signed_request</span> <span class="pl-k">=</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>parseSignedRequest(<span class="pl-c">/* $_POST["signed_request"] */</span>);</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+<li>
+<p>To get an object of permissions the user granted:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">try</span> { <span class="pl-smi">$permissions</span> <span class="pl-k">=</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>permissions(); }</span>
+<span class="pl-s1"><span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>Facebook returned an error: {<span class="pl-smi">$error</span><span class="pl-k">-&gt;</span>getMessage()}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>); }</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-k">if</span>(<span class="pl-k">!</span><span class="pl-c1">isset</span>(<span class="pl-smi">$permissions</span><span class="pl-k">-&gt;</span><span class="pl-smi">email</span>) <span class="pl-k">||</span> (<span class="pl-smi">$permissions</span><span class="pl-k">-&gt;</span><span class="pl-smi">email</span><span class="pl-k">-&gt;</span><span class="pl-smi">granted</span> <span class="pl-k">!</span><span class="pl-k">=</span> <span class="pl-c1">true</span>))</span>
+<span class="pl-s1">    <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>You have &amp;lt;b&amp;gt;not&amp;lt;/b&amp;gt; allowed access to your email address.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1"><span class="pl-k">if</span>(<span class="pl-k">!</span><span class="pl-c1">isset</span>(<span class="pl-smi">$permissions</span><span class="pl-k">-&gt;</span><span class="pl-smi">publish_actions</span>) <span class="pl-k">||</span> (<span class="pl-smi">$permissions</span><span class="pl-k">-&gt;</span><span class="pl-smi">publish_actions</span><span class="pl-k">-&gt;</span><span class="pl-smi">granted</span> <span class="pl-k">!</span><span class="pl-k">=</span> <span class="pl-c1">true</span>))</span>
+<span class="pl-s1">    <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>You have &amp;lt;b&amp;gt;not&amp;lt;/b&amp;gt; allowed posting to your timeline.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">// To get the response as it was sent:</span></span>
+<span class="pl-s1"><span class="pl-smi">$permissions_response</span> <span class="pl-k">=</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>permissions(<span class="pl-c1">false</span>);</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+<li>
+<p>To check if a permission has been granted:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">try</span> {</span>
+<span class="pl-s1">    <span class="pl-k">if</span>(<span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>permission(<span class="pl-s"><span class="pl-pds">"</span>email<span class="pl-pds">"</span></span>)) <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>You allowed access to your email address.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">    <span class="pl-k">else</span> <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>You have &amp;lt;b&amp;gt;not&amp;lt;/b&amp;gt; allowed access to your email address.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">} <span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>Facebook returned an error: {<span class="pl-smi">$error</span><span class="pl-k">-&gt;</span>getMessage()}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>); }</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+<li>
+<p>To get an object of user ids for other apps that are linked to the same business and that the user has ever authorized.</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">try</span> { <span class="pl-smi">$ids</span> <span class="pl-k">=</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>ids(); }</span>
+<span class="pl-s1"><span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>Facebook returned an error: {<span class="pl-smi">$error</span><span class="pl-k">-&gt;</span>getMessage()}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>); }</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-k">if</span>(<span class="pl-c1">isset</span>(<span class="pl-smi">$ids</span><span class="pl-k">-&gt;</span>{<span class="pl-smi">$other_app_id</span>})) <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Your user id for the app {<span class="pl-smi">$ids</span><span class="pl-k">-&gt;</span>{<span class="pl-smi">$other_app_id</span>}<span class="pl-k">-&gt;</span><span class="pl-smi">app_name</span>} is: {<span class="pl-smi">$ids</span><span class="pl-k">-&gt;</span>{<span class="pl-smi">$other_app_id</span>}<span class="pl-k">-&gt;</span><span class="pl-smi">user_id</span>}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1"><span class="pl-k">else</span> <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>You have never authorized the app {<span class="pl-smi">$other_app_id</span>}.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+<li>
+<p>To deauthorize the application or removes one permission:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-c">// Deauthorize one permission:</span></span>
+<span class="pl-s1"><span class="pl-k">if</span>(<span class="pl-c1">isset</span>(<span class="pl-smi">$_GET</span>[<span class="pl-s"><span class="pl-pds">"</span>deauth<span class="pl-pds">"</span></span>]) <span class="pl-k">&amp;&amp;</span> (<span class="pl-smi">$_GET</span>[<span class="pl-s"><span class="pl-pds">"</span>deauth<span class="pl-pds">"</span></span>] <span class="pl-k">==</span> <span class="pl-s"><span class="pl-pds">"</span>email<span class="pl-pds">"</span></span>)) {</span>
+<span class="pl-s1">    <span class="pl-k">try</span> {</span>
+<span class="pl-s1">        <span class="pl-k">if</span>(<span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>deauth(<span class="pl-s"><span class="pl-pds">"</span>email<span class="pl-pds">"</span></span>)) <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>This app no longer has access to your email.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">        <span class="pl-k">else</span> <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Something went wrong... this app still has access to your email.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">    } <span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>Facebook returned an error: {<span class="pl-smi">$error</span><span class="pl-k">-&gt;</span>getMessage()}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>); }</span>
+<span class="pl-s1">}</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">// Deauthorize all permissions:</span></span>
+<span class="pl-s1"><span class="pl-k">else</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>deauth();</span></pre></div>
+</li>
+<li>
+<p>To get an object of all the pages the user manages:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">try</span> { <span class="pl-smi">$pages</span> <span class="pl-k">=</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>pages(); }</span>
+<span class="pl-s1"><span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>Facebook returned an error: {<span class="pl-smi">$error</span><span class="pl-k">-&gt;</span>getMessage()}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>); }</span>
+<span class="pl-s1"><span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>You have <span class="pl-pds">"</span></span> <span class="pl-k">.</span> <span class="pl-c1">count</span>(<span class="pl-smi">$pages</span>) <span class="pl-k">.</span> <span class="pl-s"><span class="pl-pds">"</span> Facebook Pages.<span class="pl-cce">\n\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1"><span class="pl-k">foreach</span>(<span class="pl-smi">$pages</span> <span class="pl-k">as</span> <span class="pl-smi">$page_id</span> <span class="pl-k">=&gt;</span> <span class="pl-smi">$page</span>) {</span>
+<span class="pl-s1">    <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Page ID: {<span class="pl-smi">$page</span><span class="pl-k">-&gt;</span><span class="pl-smi">id</span>}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">    <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Page Name: {<span class="pl-smi">$page</span><span class="pl-k">-&gt;</span><span class="pl-smi">id</span>}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">    <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Page Access Token: {<span class="pl-smi">$page</span><span class="pl-k">-&gt;</span><span class="pl-smi">access_token</span>}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">    <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Page Access Token Permissions: {<span class="pl-smi">$page</span><span class="pl-k">-&gt;</span><span class="pl-smi">permissions</span>}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">    <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Page Category: {<span class="pl-smi">$page</span><span class="pl-k">-&gt;</span><span class="pl-smi">id</span>}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-smi">$oauth_page</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">OAuthFacebook</span>(<span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>client()<span class="pl-k">-&gt;</span><span class="pl-smi">id</span>, <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>client()<span class="pl-k">-&gt;</span><span class="pl-smi">secret</span>, <span class="pl-k">Array</span>(<span class="pl-s"><span class="pl-pds">"</span>access_token<span class="pl-pds">"</span></span> <span class="pl-k">=&gt;</span> <span class="pl-smi">$page</span><span class="pl-k">-&gt;</span><span class="pl-smi">access_token</span>));</span>
+<span class="pl-s1">    <span class="pl-c">// You can use the above object to make Graph API requests as the page. When you use a page access token, only the OAuth::api() and OAuth::options() functions will work.</span></span>
+<span class="pl-s1">    <span class="pl-k">try</span> { <span class="pl-smi">$request</span> <span class="pl-k">=</span> <span class="pl-smi">$oauth_page</span><span class="pl-k">-&gt;</span>api(<span class="pl-s"><span class="pl-pds">"</span>GET<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>/{<span class="pl-smi">$page</span><span class="pl-k">-&gt;</span><span class="pl-smi">id</span>}<span class="pl-pds">"</span></span>); <span class="pl-smi">$request</span><span class="pl-k">-&gt;</span>execute(); }</span>
+<span class="pl-s1">    <span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>Facebook returned an error: {<span class="pl-smi">$error</span><span class="pl-k">-&gt;</span>getMessage()}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>); }</span>
+<span class="pl-s1">    <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>API response: {<span class="pl-smi">$request</span><span class="pl-k">-&gt;</span>response()}<span class="pl-cce">\n\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">}</span></pre></div>
+</li>
+<li>
+<p>To post to the user's timeline:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-c">// Note that the text is from $_POST: Facebook requires that the text here is entered by the user, not prefilled.</span></span>
+<span class="pl-s1"><span class="pl-c">// Apps are not even allowed to suggest text and let the user edit it.</span></span>
+<span class="pl-s1"><span class="pl-smi">$post</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">stdClass</span>();</span>
+<span class="pl-s1"><span class="pl-smi">$post</span><span class="pl-k">-&gt;</span><span class="pl-smi">message</span> <span class="pl-k">=</span> <span class="pl-smi">$_POST</span>[<span class="pl-s"><span class="pl-pds">"</span>facebook_post_text<span class="pl-pds">"</span></span>];</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-k">try</span> {</span>
+<span class="pl-s1">    <span class="pl-k">if</span>((<span class="pl-smi">$post_id</span> <span class="pl-k">=</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>post((<span class="pl-k">array</span>)<span class="pl-smi">$post</span>)) <span class="pl-k">!</span><span class="pl-k">==</span> <span class="pl-c1">false</span>) <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>The text you entered was posted to the user's timeline. The post id was {<span class="pl-smi">$post_id</span>}.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">    <span class="pl-k">else</span> <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Something went wrong... the text you entered was not posted to the user's timeline.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">} <span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>Facebook returned an error: {<span class="pl-smi">$error</span><span class="pl-k">-&gt;</span>getMessage()}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>); }</span></pre></div>
+</li>
+</ul>
+
+<h4>
+<a id="samuelthomasml" class="anchor" href="#samuelthomasml" aria-hidden="true"><span class="octicon octicon-link"></span></a>samuelthomas.ml</h4>
+
+<ul>
+<li>
+<p>To get all storage objects:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">try</span> { <span class="pl-smi">$objects</span> <span class="pl-k">=</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>objects(); }</span>
+<span class="pl-s1"><span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>samuelthomas.ml returned an error: {<span class="pl-smi">$error</span><span class="pl-k">-&gt;</span>getMessage()}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>); }</span>
+<span class="pl-s1"><span class="pl-c1">print_r</span>(<span class="pl-smi">$objects</span>);</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+<li>
+<p>To get a storage object:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">try</span> { <span class="pl-smi">$object</span> <span class="pl-k">=</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>object(<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>); }</span>
+<span class="pl-s1"><span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>samuelthomas.ml returned an error: {<span class="pl-smi">$error</span><span class="pl-k">-&gt;</span>getMessage()}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>); }</span>
+<span class="pl-s1"><span class="pl-c1">print_r</span>(<span class="pl-smi">$object</span>);</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+<li>
+<p>To set a storage object:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">try</span> {</span>
+<span class="pl-s1">    <span class="pl-k">if</span>(<span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>object(<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>value<span class="pl-pds">"</span></span>)) <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Updated storage object.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">    <span class="pl-k">else</span> <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Error updating storage object.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">} <span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>samuelthomas.ml returned an error: {<span class="pl-smi">$error</span><span class="pl-k">-&gt;</span>getMessage()}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>); }</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+<li>
+<p>To delete a storage object:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">try</span> {</span>
+<span class="pl-s1">    <span class="pl-k">if</span>(<span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>object(<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>, <span class="pl-c1">null</span>)) <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Storage object is deleted.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">    <span class="pl-k">else</span> <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Error deleting storage object.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">} <span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>samuelthomas.ml returned an error: {<span class="pl-smi">$error</span><span class="pl-k">-&gt;</span>getMessage()}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>); }</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+<li>
+<p>To delete all storage objects:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">try</span> {</span>
+<span class="pl-s1">    <span class="pl-k">if</span>(<span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>deleteObjects()) <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Storage objects are deleted.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">    <span class="pl-k">else</span> <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Error deleting storage objects.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">} <span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>samuelthomas.ml returned an error: {<span class="pl-smi">$error</span><span class="pl-k">-&gt;</span>getMessage()}<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>); }</span>
+<span class="pl-s1"></span></pre></div>
+</li>
+</ul>
+
+<h2>
+<a id="extending-the-oauth2-class" class="anchor" href="#extending-the-oauth2-class" aria-hidden="true"><span class="octicon octicon-link"></span></a>Extending the OAuth2 class.</h2>
+
+<p>You can extend the OAuth2 and other classes to add new functions and make existing functions work differently:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">require_once</span> <span class="pl-c1">__DIR__</span> <span class="pl-k">.</span> <span class="pl-s"><span class="pl-pds">'</span>/oauth-client/src/facebook.class.php<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s1"><span class="pl-k">class</span> <span class="pl-en">My_Extended_Facebook_Class</span> <span class="pl-k">extends</span> <span class="pl-e">OAuthFacebook</span> {</span>
+<span class="pl-s1">    <span class="pl-c">// Options. Customize default options (optional).</span></span>
+<span class="pl-s1">    <span class="pl-k">protected</span> <span class="pl-smi">$options</span> <span class="pl-k">=</span> <span class="pl-k">Array</span>(</span>
+<span class="pl-s1">        <span class="pl-c">// Change the api-&gt;base_url option to use a different api version.</span></span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">"</span>api<span class="pl-pds">"</span></span> <span class="pl-k">=&gt;</span> <span class="pl-k">Array</span>(<span class="pl-s"><span class="pl-pds">"</span>base_url<span class="pl-pds">"</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>https://graph.facebook.com/v1.0<span class="pl-pds">"</span></span>)</span>
+<span class="pl-s1">    );</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-c">// Add a new function for getting the current user's id.</span></span>
+<span class="pl-s1">    <span class="pl-k">public</span> <span class="pl-k">function</span> <span class="pl-en">userid</span>() {</span>
+<span class="pl-s1">        <span class="pl-smi">$user</span> <span class="pl-k">=</span> <span class="pl-smi">$this</span><span class="pl-k">-&gt;</span>userProfile(<span class="pl-k">Array</span>(<span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>));</span>
+<span class="pl-s1">        <span class="pl-k">return</span> <span class="pl-smi">$user</span><span class="pl-k">-&gt;</span><span class="pl-smi">id</span>;</span>
+<span class="pl-s1">    }</span>
+<span class="pl-s1">}</span>
+<span class="pl-s1"></span></pre></div>
+
+<p>You can then use the newly created class:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-smi">$oauth</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">My_Extended_Facebook_Class</span>(<span class="pl-s"><span class="pl-pds">"</span>appid<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>appsecret<span class="pl-pds">"</span></span>);</span>
+<span class="pl-s1"><span class="pl-k">try</span> { <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Your Facebook User ID (for this app) is: <span class="pl-pds">"</span></span> <span class="pl-k">.</span> <span class="pl-smi">$oauth</span><span class="pl-k">-&gt;</span>userid(); }</span>
+<span class="pl-s1"><span class="pl-k">catch</span>(<span class="pl-c1">Exception</span> <span class="pl-smi">$error</span>) { <span class="pl-k">exit</span>(<span class="pl-s"><span class="pl-pds">"</span>Facebook returned an error: <span class="pl-pds">"</span></span> <span class="pl-k">.</span> <span class="pl-c1">print_r</span>(<span class="pl-smi">$error</span>, <span class="pl-c1">true</span>)); }</span>
+<span class="pl-s1"></span></pre></div>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">OAuth 2.0 Client maintained by <a href="https://github.com/samuelthomas2774">samuelthomas2774</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
