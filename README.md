@@ -3,6 +3,11 @@ OAuth Client
 
 An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsoft, Yahoo, GitHub, LinkedIn & more.
 
+<pre>
+<b>Live Demo</b>: You can see the current source on Heroku, running from examples/all, here:<br />
+<a href="http://oauth-client-test.herokuapp.com">http://oauth-client-test.herokuapp.com/</a>
+</pre>
+
 **[Built-in providers](#built-in-providers)**
 
 - Facebook https://facebook.com

@@ -28,22 +28,16 @@
 	require_once __DIR__ . '/' . ltrim($server->file, "/");
 	$oauth = new $server->class($server->id, $server->secret, Array("errors" => Array("throw" => false)));
 	
-	// Delete the access token if needed.
-	if(isset($_GET["del_token"])) $oauth->accessToken(null);
-	
 	// Errors should be thrown here: just an example of using OAuth2::options().
 	$oauth->options([ "errors", "throw" ], true);
 	
-	// Try to fetch an access token with the code in $_GET["code"]. Also check the state in $_GET["state"].
+	// Do stuff.
 	try {
-		$oauth->getAccessTokenFromCode($_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["HTTP_HOST"] . "/code.php/{$server->url}");
+		$action = $oauth->autorun();
 		
 		// --------
-		// If we got here, no error was thrown and an access token was successfully retrieved from the code.
-		// Output the code and access token.
-		echo "Success! Click the link at the bottom of the page to return home and fetch data using the access token.<br />\n";
-		echo "Code: " . htmlspecialchars($_GET["code"]) . "<br />\n";
-		echo "Access Token: " . htmlspecialchars($oauth->accessToken()) . "\n<br /><br />\n\n";
+		// Check what happened.
+		echo "Action {$action} completed.<br /><br />\n\n";
 	} catch(Exception $error) {
 		echo "Error - Click the link at the bottom of the page to return home and try again: " . $error->getMessage() . "\n<br /><br />\n\n";
 	}
