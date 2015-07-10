@@ -2,6 +2,9 @@
 	// Start a session (files are loaded later).
 	session_start();
 	
+	// Require and register the autoloader.
+	require_once __DIR__ . '/../../src/autoload.php';
+	
 	// Get all the servers from clients.json.
 	if(file_exists(__DIR__ . "/../../../clients.json")) $servers = json_decode(file_get_contents(__DIR__ . "/../../../clients.json"));
 	else $servers = json_decode(file_get_contents(__DIR__ . "/clients.json"));
@@ -29,7 +32,7 @@
 	$server->url = $server_url;
 	if(!isset($server->name)) $server->name = ucfirst(strtolower($server->url));
 	if(!isset($server->scope)) $server->scope = Array();
-	require_once __DIR__ . '/' . ltrim($server->file, "/");
+	if(isset($server->file)) require_once __DIR__ . '/' . ltrim($server->file, "/");
 	$oauth = new $server->class($server->id, $server->secret, Array("errors" => Array("throw" => false)));
 	
 	// Delete the access token if needed.

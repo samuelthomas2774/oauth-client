@@ -7,8 +7,7 @@
 			"email",
 			"user_friends"
 		],
-		"class": "OAuthFacebook",
-		"file": "../../src/facebook.class.php"
+		"class": "OAuthFacebook"
 	},
 	"google": {
 		"id": "0000000000000000",
@@ -16,8 +15,7 @@
 		"scope": [
 			"https://www.googleapis.com/auth/plus.login"
 		],
-		"class": "OAuthGoogle",
-		"file": "../../src/google.class.php"
+		"class": "OAuthGoogle"
 	},
 	"microsoft": {
 		"id": "0000000000000000",
@@ -25,13 +23,11 @@
 		"scope": [
 			"wl.basic"
 		],
-		"class": "OAuthMicrosoft",
-		"file": "../../src/microsoft.class.php"
+		"class": "OAuthMicrosoft"
 	},
 	"yahoo": {
 		"id": "0000000000000000",
 		"secret": "0000000000000000000000000000000000000000",
-		"class": "OAuthYahoo",
-		"file": "../../src/yahoo.class.php"
+		"class": "OAuthYahoo"
 	}
 }

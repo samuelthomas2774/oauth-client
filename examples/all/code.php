@@ -2,6 +2,9 @@
 	// Start a session (files are loaded later).
 	session_start();
 	
+	// Require and register the autoloader.
+	require_once __DIR__ . '/../../src/autoload.php';
+	
 	// Get the current server from PATH_INFO.
 	if(!isset($_SERVER["PATH_INFO"])) {
 		echo "Server was not found.<br />\n\n";
@@ -25,7 +28,7 @@
 	$server->url = $server_url;
 	if(!isset($server->name)) $server->name = ucfirst(strtolower($server->url));
 	if(!isset($server->scope)) $server->scope = Array();
-	require_once __DIR__ . '/' . ltrim($server->file, "/");
+	if(isset($server->file)) require_once __DIR__ . '/' . ltrim($server->file, "/");
 	$oauth = new $server->class($server->id, $server->secret, Array("errors" => Array("throw" => false)));
 	
 	// Delete the access token if needed.

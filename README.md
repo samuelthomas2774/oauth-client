@@ -6,6 +6,8 @@ An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsof
 > **Live Demo**: You can see the current source on Heroku, running from examples/all, here:  
 > http://oauth-client-test.herokuapp.com
 
+> **New**: Autoloader and composer support
+
 **[Built-in providers](#built-in-providers)**
 
 - Facebook https://facebook.com
@@ -25,7 +27,34 @@ An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsof
 
 Default (OAuth2)
 ------------
-1. Include src/oauth.class.php in all page that need access to your other provider.
+1. Include src/autoload.php in all pages that need access to any provider.
+    This will load any class in the src directory when used.
+    ```php
+    require_once __DIR__ . '/oauth-client/src/autoload.php';
+    
+    ```
+    
+    *Or*
+    
+    If you are using composer, add "samuelthomas2774/oauth-client": "2.1.*" to the require object in your composer.json.
+    Then, include vendor/autoload.php in all pages that need access to any provider.
+    ```json
+    {
+        "require": {
+            "samuelthomas2774/oauth-client": "2.1.*"
+        }
+    }
+    
+    ```
+    
+    ```php
+    require_once __DIR__ . '/oauth-client/src/autoload.php';
+    
+    ```
+    
+    *Or*
+    
+    Include src/oauth.class.php in all pages that need access to your other provider.
     ```php
     require_once __DIR__ . '/oauth-client/src/oauth.class.php';
     
