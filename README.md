@@ -23,6 +23,7 @@ An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsof
 - samuelthomas.ml http://samuelthomas.ml (my website)
 - TeamViewer https://teamviewer.com
 - WordPress.com https://wordpress.com
+- Eventbrite https://eventbrite.com
 - Other, just create a new OAuth2 object and include the dialog->base_url, api->base_url and requests->{"/oauth/token"} options.
 
 Default (OAuth2)
@@ -172,6 +173,7 @@ Spotify `U`         | OAuthSpotify          | spotify.class.php         | https:
 samuelthomas.ml `U` `P` | OAuthST           | st.class.php              | https://samuelthomas.ml/developer/clients
 TeamViewer `U`      | OAuthTeamViewer       | teamviewer.class.php      | https://login.teamviewer.com/nav/api
 WordPress.com `U`   | OAuthWordPress        | wordpress.class.php       | https://developer.wordpress.com/apps/new/
+Eventbrite `U`      | OAuthEventbrite       | eventbrite.class.php      | https://www.eventbrite.co.uk/myaccount/apps/new/
 
 All the built-in providers above have an extra method, userProfile `U`, that returns the user's data in an object:
 ```php
