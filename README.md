@@ -26,6 +26,44 @@ An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsof
 - Eventbrite https://eventbrite.com
 - Other, just create a new OAuth2 object and include the dialog->base_url, api->base_url and requests->{"/oauth/token"} options.
 
+Requirements and installation
+------------
+
+This requires at least PHP/5.4.
+
+| Version | Supported |
+|---------|-----------|
+| PHP/5.3 | No        |
+| PHP/5.4 | Not tested |
+| PHP/5.5 | Yes       |
+| PHP/5.6 | Yes       |
+| PHP/7.0 | Not tested |
+
+To install this, you can either download the .zip or .tar and extract it or use composer.
+
+#### Download .zip / .tar
+
+1. Download the .zip or .tar file from the [releases](/samuelthomas2774/oauth-client/releases) page.
+2. Extract the files from the downloaded .zip or .tar file.
+3. Upload the extracted files to your website, or move them to wherever they should be.
+
+#### Composer
+
+1. Add "samuelthomas2774/oauth-client": "~2.1.0" to your composer.json.
+    ```json
+    {
+        "require": {
+            "samuelthomas2774/oauth-client": "~2.1.0"
+        }
+    }
+    
+    ```
+2. Run composer. This will automatically download the latest patch version.
+    ```
+    php composer.phar install
+    
+    ```
+
 Default (OAuth2)
 ------------
 1. Include src/autoload.php in all pages that need access to any provider.
@@ -347,3 +385,13 @@ try { echo "Your Facebook User ID (for this app) is: " . $oauth->userid(); }
 catch(Exception $error) { exit("Facebook returned an error: " . print_r($error, true)); }
 
 ```
+
+Contributing
+------------
+
+Please fork and edit this if you spot a bug or want to add a new feature, pull requests for useful features, bug fixes and additional providers will be accepted (unless they add more bugs than they fix :smile:).
+
+If you would like a new feature but can't or don't want to add if yourself, just [contact me on my website][st/about/contact] or [create an issue with the `feature` label][issue:new:feature].
+
+[st/about/contact]: https://samuelthomas.ml/about/contact
+[issue:new:feature]: https://github.com/samuelthomas2774/oauth-client/issues/new?labels[]=feature

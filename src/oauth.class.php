@@ -50,9 +50,8 @@
 			if(!is_array($options) && !is_object($options)) throw new Exception(__METHOD__ . "(): \$options must be an array or an object.");
 			else {
 				$default_options = $this->defaultoptions();
-				if(is_object($this->options) || is_array($this->options)) $extended_options = (array)$this->options;
+				if(is_object($this->options) || is_array($this->options)) $extended_options = $this->options;
 				else $extended_options = Array();
-				$user_options = (array)$options;
 				
 				$this->options = $default_options;
 				foreach($extended_options as $key => $value) $this->options($key, $value);
@@ -60,9 +59,9 @@
 			}
 			
 			// Try to restore the access token from options or the session.
-			if($this->options("access_token") != null) {
+			if(is_string($this->options("access_token"))) {
 				$this->token = $this->options("access_token"); unset($this->options->access_token);
-			} elseif($this->session("token") != null) $this->token = $this->session("token");
+			} elseif(is_string($this->session("token"))) $this->token = $this->session("token");
 		}
 		
 		// function autorun(). Completes most OAuth-related tasks itself.
@@ -126,17 +125,17 @@
 		// function getAccessTokenFromCode(). Exchanges the code for an access token.
 		public function getAccessTokenFromCode($redirect_url, $code = null, $state = true) {
 			// Check if redirect_url is a url. The redirect_url should be exactly the same as the redirect_url used in the login dialog. (So really, this should just be the same as the current url.)
-			if(!filter_var($redirect_url, FILTER_VALIDATE_URL)) throw new Exception(__METHOD__ . "(): \$redirect_url must be a valid url.");
+			if(!is_string($redirect_url) || !filter_var($redirect_url, FILTER_VALIDATE_URL)) throw new Exception(__METHOD__ . "(): \$redirect_url must be a valid url.");
 			
 			// Check if code is a string or null.
 			if(is_string($code)) $code = trim($code);
-			elseif(($code == null) && isset($_GET["code"])) $code = trim($_GET["code"]);
+			elseif(($code === null) && isset($_GET["code"])) $code = trim($_GET["code"]);
 			else throw new Exception(__METHOD__ . "(): \$code must be a string.");
 			
 			// Check state if required.
-			if($state == true) $state = isset($_GET["state"]) ? $_GET["state"] : null;
-			if(($this->options("session_prefix") != null) && ($state != false) && ( // Check state? Ignore if sessions are disabled (as state won't exist) or if $state is set to false.
-				($this->session("state") == null) || // State is not set: trigger error.
+			if($state === true) $state = isset($_GET["state"]) ? $_GET["state"] : null;
+			if($this->sessions() && ($state !== false) && ( // Check state? Ignore if sessions are disabled (as state won't exist) or if $state is set to false.
+				!is_string($this->session("state")) || // State is not set (or is not string): trigger error.
 				($this->session("state") != $state) // State does not match $state: trigger error.
 			)) {
 				// Invalid state parameter.
@@ -204,19 +203,19 @@
 		// function iloginURL(). Returns the URL for the login dialog.
 		public function iloginURL($redirect_url, $permissions = Array(), $params = Array()) {
 			if(is_array($params) && !isset($params["response_type"])) $params["response_type"] = "token";
-			return $this->loginURL($redirect_uri, $permissions, $params);
+			return $this->loginURL($redirect_url, $permissions, $params);
 		}
 		
 		// function iloginButton(). Returns the URL for the login dialog.
 		public function iloginButton($button_text, $redirect_url, $permissions = Array(), $params = Array(), $colour = null) {
 			if(is_array($params) && !isset($params["response_type"])) $params["response_type"] = "token";
-			return $this->loginButton($button_text, $redirect_uri, $permissions, $params, $colour);
+			return $this->loginButton($button_text, $redirect_url, $permissions, $params, $colour);
 		}
 		
 		// function iloginRedirect(). Redirects to the login dialog.
-		public function iloginRedirect($redirect_url, $permissions = Array(), $params = Array()) {
+		public function iloginRedirect($redirect_url, $permissions = Array(), $params = Array(), $message = "") {
 			if(is_array($params) && !isset($params["response_type"])) $params["response_type"] = "token";
-			return $this->loginRedirect($redirect_uri, $permissions, $params);
+			return $this->loginRedirect($redirect_url, $permissions, $params, $message);
 		}
 		
 		// --- Resource Owner Credentials Grant --- //
@@ -356,23 +355,29 @@
 		}
 		
 		// function loginRedirect(). Redirects to the login dialog.
-		public function loginRedirect($redirect_url, $permissions = Array(), $params = Array()) {
+		public function loginRedirect($redirect_url, $permissions = Array(), $params = Array(), $message) {
 			// Get a Login Dialog URL using the OAuth2::loginURL() function.
 			$url = $this->loginURL($redirect_url, $permissions, $params);
 			
+			// Make sure $message is a string.
+			if(!is_string($message)) $message = "";
+			
+			// Make sure headers have not been sent.
+			if(headers_sent()) throw new Exception(__METHOD__ . "(): Headers have already been sent.");
+			
 			// Redirect to the Login Dialog.
 			header("Location: {$url}", true, 303);
-			exit();
+			exit($message);
 		}
 		
 		// function accessToken(). Returns / sets the current access token.
 		public function accessToken($token = false, $session = true) {
 			if($token === null) {
 				$this->token = null;
-				if($session == true) $this->session("token", null);
+				if($session === true) $this->session("token", null);
 			} elseif(is_string($token)) {
 				$this->token = $token;
-				if($session == true) $this->session("token", $token);
+				if($session === true) $this->session("token", $token);
 			} else {
 				return $this->token;
 			}
@@ -406,7 +411,6 @@
 			$options = Array(&$this->options);
 			$ek = 0;
 			$nk = array_keys($name);
-			$lo = end($nk);
 			foreach($name as $i => $key) {
 				if(is_object($options[$ek])) {
 					if(!isset($options[$ek]->{$key}) && $aset) {
@@ -491,8 +495,25 @@
 		// -- FOR OAuth2 AND OAuthRequest USE ONLY -- //
 		// function triggerError(). Triggers an error. This should only be used by the OAuth2 and OAuthRequest classes.
 		public function triggerError($message, $error = null) {
-			$this->error = $error != null ? $error : $message;
-			if($this->options([ "errors", "throw" ]) == true) throw new Exception($message);
+			$this->error = $error !== null ? $error : $message;
+			if($this->options([ "errors", "throw" ]) === true) throw new Exception($message);
+		}
+		
+		// function sessions(). Checks if sessions are enabled.
+		public function sessions() {
+			// Get session_prefix. If not a string or false reset to default.
+			if(!is_string($session_prefix = $this->options("session_prefix")) && ($session_prefix !== false))
+				$this->options("session_prefix", $session_prefix = $this->defaultoptions()->session_prefix);
+			
+			if(session_status() !== PHP_SESSION_ACTIVE)
+				// Doesn't matter if sessions are disabled: one hasn't been started.
+				return false;
+			elseif($session_prefix === false)
+				// Sessions are diabled.
+				return false;
+			else
+				// Sessions are enabled and one is active.
+				return true;
 		}
 		
 		// function session(). Returns / Sets session data. This should only be used by the OAuth2 and OAuthRequest classes.
@@ -500,14 +521,11 @@
 		public function session($name) {
 			$params = func_get_args();
 			
-			// Get session_prefix. If not a string or false reset to default.
-			if(!is_string($session_prefix = $this->options("session_prefix")) && ($session_prefix != false))
-				$this->options("session_prefix", $session_prefix = $this->defaultoptions()->session_prefix);
+			// Check if sessions are enabled.
+			if(!$this->sessions()) return null;
+			$session_prefix = $this->options([ "session_prefix" ]);
 			
-			if($session_prefix == false)
-				// Sessions are diabled.
-				return null;
-			elseif(array_key_exists(1, $params) && ($params[1] === null)) {
+			if(array_key_exists(1, $params) && ($params[1] === null)) {
 				// Delete
 				$_SESSION[$session_prefix . $name] = null;
 				unset($_SESSION[$session_prefix . $name]);
@@ -526,14 +544,11 @@
 		// Fails silently if sessions are disabled.
 		// This can now be done with OAuth2::session(), by setting $value to null.
 		public function sessionDelete($name) {
-			$session_prefix = $this->options("session_prefix");
-			if(!is_string($session_prefix) && ($session_prefix != false))
-				$this->options("session_prefix", $session_prefix = $this->defaultoptions()->session_prefix);
+			// Check if sessions are enabled.
+			if(!$this->sessions()) return null;
+			$session_prefix = $this->options([ "session_prefix" ]);
 			
-			if($session_prefix == false)
-				// Sessions are diabled.
-				return null;
-			elseif(isset($_SESSION[$session_prefix . $name]))
+			if(isset($_SESSION[$session_prefix . $name]))
 				// Delete
 				unset($_SESSION[$session_prefix . $name]);
 		}

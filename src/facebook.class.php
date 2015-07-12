@@ -96,7 +96,7 @@
 			$data = json_decode(base64_decode(strtr($payload, "-_", "+/")), false);
 			
 			// Confirm the signature.
-			$expected_sig = hash_hmac("sha256", $payload, $this->client()->secret, $raw = true);
+			$expected_sig = hash_hmac("sha256", $payload, $this->client()->secret, true);
 			if($sig !== $expected_sig)
 				throw new Exception(__METHOD__ . "(): Invalid signature. Make sure you have entered the client_secret correctly.");
 			
