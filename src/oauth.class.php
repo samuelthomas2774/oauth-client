@@ -355,7 +355,7 @@
 		}
 		
 		// function loginRedirect(). Redirects to the login dialog.
-		public function loginRedirect($redirect_url, $permissions = Array(), $params = Array(), $message) {
+		public function loginRedirect($redirect_url, $permissions = Array(), $params = Array(), $message = "") {
 			// Get a Login Dialog URL using the OAuth2::loginURL() function.
 			$url = $this->loginURL($redirect_url, $permissions, $params);
 			
