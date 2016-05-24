@@ -10,7 +10,7 @@
 			"email": "samuel@samuelthomas.ml",
 			"homepage": "https://samuelthomas.ml"
 		}
-    ],
+	],
 	"autoload": {
 		"files": [ "src/autoload.php" ]
 	}

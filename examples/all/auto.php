@@ -12,8 +12,7 @@
 	} $server_url = ltrim($_SERVER["PATH_INFO"], "/");
 	
 	// Get all the servers from clients.json.
-	if(file_exists(__DIR__ . "/../../../clients.json")) $servers = json_decode(file_get_contents(__DIR__ . "/../../../clients.json"));
-	else $servers = json_decode(file_get_contents(__DIR__ . "/clients.json"));
+	$servers = require __DIR__ . '/clients.php';
 	if(!is_object($servers)) {
 		echo "Invalid clients.json file.<br />\n\n";
 		goto session;
