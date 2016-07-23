@@ -16,7 +16,7 @@
 		
 		// function api(). Modify the API request before the user gets it.
 		public function api($method, $url, $params = Array(), $headers = Array(), $auth = false) {
-			if(!isset($params["access_token"]) && !isset($headers["Authorization"]) && ($this->accessToken() != null))
+			if(is_array($headers) && !isset($headers["Authorization"]) && is_string($this->accessToken()))
 				$headers["Authorization"] = "token " . $this->accessToken();
 			
 			// Everything here is done by the OAuthRequest class.

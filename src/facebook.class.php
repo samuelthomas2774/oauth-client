@@ -17,8 +17,8 @@
 		// function __construct(). Creates a new OAuth2 object.
 		public function __construct($client_id, $client_secret, $options = Array()) {
 			parent::__construct($client_id, $client_secret, $options);
-			if($this->options([ "api", "version" ]) != null) {
-				$this->setVersion($this->options([ "api", "version" ]));
+			if(is_numeric($this->options([ "api", "version" ]))) {
+				$this->setVersion((float)$this->options([ "api", "version" ]));
 				unset($this->options->api->version);
 			}
 		}
@@ -34,50 +34,57 @@
 		
 		// function setVersion(). Sets the Graph API Version.
 		public function setVersion($version = 2.3) {
-			// Check if version is a numeric.
-			if(!is_numeric($version)) throw new Exception(__METHOD__ . "(): \$signed_request must be a string.");
+			// Check if version is numeric.
+			if(!is_numeric($version)) throw new Exception(__METHOD__ . "(): \$version must be a string.");
 			else $version = (float)$version;
 			
+			$this->options([ "dialog", "base_url" ], "https://www.facebook.com/dialog/oauth");
+			$this->options([ "dialog", "scope_separator" ], ",");
+			$this->options([ "api", "base_url" ], "https://graph.facebook.com");
+			$this->options([ "requests", "/oauth/token" ], "/oauth/access_token");
+			$this->options([ "requests", "/oauth/token:response" ], "json");
+			$this->options([ "requests", "/oauth/token/debug" ], "/debug_token");
+			
 			switch($version) {
-				default: case 2.3:
+				case 2.7:
+					$this->options([ "dialog", "base_url" ], "https://www.facebook.com/v2.7/dialog/oauth");
+					$this->options([ "api", "base_url" ], "https://graph.facebook.com/v2.7");
+					break;
+				default: case 2.6:
+					$this->options([ "dialog", "base_url" ], "https://www.facebook.com/v2.6/dialog/oauth");
+					$this->options([ "api", "base_url" ], "https://graph.facebook.com/v2.6");
+					break;
+				case 2.5:
+					$this->options([ "dialog", "base_url" ], "https://www.facebook.com/v2.5/dialog/oauth");
+					$this->options([ "api", "base_url" ], "https://graph.facebook.com/v2.5");
+					break;
+				case 2.4:
+					$this->options([ "dialog", "base_url" ], "https://www.facebook.com/v2.4/dialog/oauth");
+					$this->options([ "api", "base_url" ], "https://graph.facebook.com/v2.4");
+					break;
+				case 2.3:
 					$this->options([ "dialog", "base_url" ], "https://www.facebook.com/v2.3/dialog/oauth");
-					$this->options([ "dialog", "scope_separator" ], ",");
 					$this->options([ "api", "base_url" ], "https://graph.facebook.com/v2.3");
-					$this->options([ "requests", "/oauth/token" ], "/oauth/access_token");
-					$this->options([ "requests", "/oauth/token:response" ], "json");
-					$this->options([ "requests", "/oauth/token/debug" ], "/debug_token");
 					break;
-				default: case 2.2:
+				case 2.2:
 					$this->options([ "dialog", "base_url" ], "https://www.facebook.com/v2.2/dialog/oauth");
-					$this->options([ "dialog", "scope_separator" ], ",");
 					$this->options([ "api", "base_url" ], "https://graph.facebook.com/v2.2");
-					$this->options([ "requests", "/oauth/token" ], "/oauth/access_token");
 					$this->options([ "requests", "/oauth/token:response" ], "query");
-					$this->options([ "requests", "/oauth/token/debug" ], "/debug_token");
 					break;
-				default: case 2.1:
+				case 2.1:
 					$this->options([ "dialog", "base_url" ], "https://www.facebook.com/v2.1/dialog/oauth");
-					$this->options([ "dialog", "scope_separator" ], ",");
 					$this->options([ "api", "base_url" ], "https://graph.facebook.com/v2.1");
-					$this->options([ "requests", "/oauth/token" ], "/oauth/access_token");
 					$this->options([ "requests", "/oauth/token:response" ], "query");
-					$this->options([ "requests", "/oauth/token/debug" ], "/debug_token");
 					break;
-				default: case 2:
+				case 2:
 					$this->options([ "dialog", "base_url" ], "https://www.facebook.com/v2.0/dialog/oauth");
-					$this->options([ "dialog", "scope_separator" ], ",");
 					$this->options([ "api", "base_url" ], "https://graph.facebook.com/v2.0");
-					$this->options([ "requests", "/oauth/token" ], "/oauth/access_token");
 					$this->options([ "requests", "/oauth/token:response" ], "query");
-					$this->options([ "requests", "/oauth/token/debug" ], "/debug_token");
 					break;
-				default: case 1:
+				case 1:
 					$this->options([ "dialog", "base_url" ], "https://www.facebook.com/v1.0/dialog/oauth");
-					$this->options([ "dialog", "scope_separator" ], ",");
 					$this->options([ "api", "base_url" ], "https://graph.facebook.com/v1.0");
-					$this->options([ "requests", "/oauth/token" ], "/oauth/access_token");
 					$this->options([ "requests", "/oauth/token:response" ], "query");
-					$this->options([ "requests", "/oauth/token/debug" ], "/debug_token");
 					break;
 			}
 		}
@@ -86,7 +93,7 @@
 		public function parseSignedRequest($signed_request = null) {
 			// Check if code is a string or null.
 			if(is_string($signed_request)) $signed_request = trim($signed_request);
-			elseif(($signed_request == null) && isset($_POST["signed_request"])) $signed_request = trim($_POST["signed_request"]);
+			elseif(($signed_request === null) && isset($_POST["signed_request"])) $signed_request = trim($_POST["signed_request"]);
 			else throw new Exception(__METHOD__ . "(): \$signed_request must be a string.");
 			
 			list($encoded_sig, $payload) = explode(".", $signed_request, 2);
@@ -109,16 +116,20 @@
 			if(!is_string($access_token)) $access_token = $this->token;
 			
 			// Example request: GET /oauth/token/debug?access_token={access_token}
-			$request = $this->api(OAuth2::GET, $this->options("requests")["/oauth/token/debug"], Array(
+			$request = $this->api(OAuth2::GET, $this->options([ "requests", "/oauth/token/debug" ], Array(
 				"access_token" => $this->client()->id . "|" . $this->client()->secret,
 				"input_token" => $access_token
-			));
+			)));
 			
-			try { $request->execute(); parse_str($request->response(), $response); }
-			catch(Exception $e) { return false; }
+			try {
+				$request->execute();
+				if($this->options([ "requests", "/oauth/token:response" ]) == "query") $response = $request->responseQueryString();
+				elseif($this->options([ "requests", "/oauth/token:response" ]) == "xml") $response = $request->responseXMLObject();
+				else $response = $request->responseObject();
+			} catch(Exception $e) { return false; }
 			if(isset($response->error)) return false;
 			
-			if($response["expires_in"] <= 0) return false;
+			if($response->expires_in <= 0) return false;
 			return true;
 		}
 		
@@ -166,11 +177,11 @@
 		// function permissions(). Fetches the permissions and returns them in an array.
 		public function permissions($rearrange = true) {
 			$request = $this->api(OAuth2::GET, "/me/permissions");
-			
 			$request->execute();
 			$response = $request->responseObject();
+			if(isset($request->error)) return false;
 			
-			if($rearrange == false) {
+			if($rearrange === false) {
 				return $response;
 			} else {
 				$permissions = new stdClass();
@@ -190,21 +201,18 @@
 		public function permission($permission) {
 			$permissions = $this->permissions();
 			
-			if(isset($permissions->{$permission}) && ($permissions->{$permission}->granted == true)) {
-				return true;
-			} else {
-				return false;
-			}
+			if(isset($permissions->{$permission}) && ($permissions->{$permission}->granted === true)) return true;
+			else return false;
 		}
 		
 		// function ids(). Fetches the user ids for other apps the user has authorised and are linked to the same business.
 		public function ids($rearrange = true) {
 			$request = $this->api(OAuth2::GET, "/me/ids_for_business");
-			
 			$request->execute();
 			$response = $request->responseObject();
+			if(isset($request->error)) return false;
 			
-			if($rearrange == false) {
+			if($rearrange === false) {
 				return $response;
 			} else {
 				$ids = new stdClass();
@@ -222,26 +230,26 @@
 		
 		// function deauth(). De-authorises the application, or removes one permission. Once this is called, the user will have to authorise the application again using the Facebook Login Dialog.
 		public function deauth($permission = null) {
-			$request = $this->api(OAuth2::DELETE, "/me/permissions" . (is_string($permission) ? "/" . $permission : ""));
-			
+			$request = $this->api(OAuth2::DELETE, "/me/permissions" . (is_string($permission) ? "/" . urlencode($permission) : ""));
 			$request->execute();
 			$response = $request->responseObject();
+			if(isset($request->error)) return false;
 			
-			if($response->success == true) return true;
+			if(isset($response->success) && ($response->success === true)) return true;
 			else return false;
 		}
 		
 		// function pages(). Fetches a list of all the pages the user manages. Requires the manage_pages permission.
 		public function pages($rearrange = true) {
-			$permissions = $this->permissions(); if(!isset($permissions->manage_pages) || ($permissions->manage_pages->status == "declined"))
+			if(!$this->permission("manage_pages"))
 				throw new Exception(__METHOD__ . "(): User has declined the manage_pages permission.");
 			
 			$request = $this->api(OAuth2::GET, "/me/accounts");
-			
 			$request->execute();
 			$response = $request->responseObject();
+			if(isset($request->error)) return false;
 			
-			if($rearrange == false) {
+			if($rearrange === false) {
 				return $response;
 			} else {
 				$pages = new stdClass();
@@ -252,7 +260,10 @@
 					$pages->{$page->id}->access_token = $page->access_token;
 					$pages->{$page->id}->permissions = $page->perms;
 					$pages->{$page->id}->category = $page->category;
-					$pages->{$page->id}->category_list = $page->category_list;
+					$pages->{$page->id}->category_list = isset($page->category_list) ? $page->category_list : null;
+					$pages->{$page->id}->oauth = new self($this->client()->id, $this->client()->secret, Array(
+						"access_token" => $page->access_token
+					));
 				}
 				
 				return $pages;
@@ -260,27 +271,26 @@
 		}
 		
 		// function post(). Posts something to the user's timeline. Requires the publish_actions permission.
-		public function post($post2 = Array(), $returnid = false) {
-			$permissions = $this->permissions(); if(!isset($permissions->publish_actions) || ($permissions->publish_actions->status == "declined"))
+		public function post($message, $post = Array(), $returnid = false) {
+			if(!$this->permission("publish_actions"))
 				throw new Exception(__METHOD__ . "(): User has declined the publish_actions permission.");
 			
-			$post = Array();
-			if(isset($post2["message"])) $post["message"] = $post2["message"];
-			if(isset($post2["link"])) $post["link"] = $post2["link"];
-			if(isset($post2["place"])) $post["place"] = $post2["place"];
-			if(isset($post2["place"]) && isset($post2["tags"])) $post["tags"] = $post2["tags"];
+			// Check $post is an array / object.
+			if(is_array($post) || is_object($post)) $post = (object)$post;
+			else throw new Exception(__METHOD__ . "(): \$post must be an array/object.");
+			
+			// Check $message is a string.
+			if(is_string($message)) $post->message = $message;
+			else throw new Exception(__METHOD__ . "(): \$message must be a string.");
 			
 			$request = $this->api(OAuth2::POST, "/me/feed", $post);
-			
 			$request->execute();
 			$response = $request->responseObject();
 			
 			if(isset($response->id)) {
-				if($returnid == true) return $response->id;
+				if($returnid === true) return $response->id;
 				else return true;
-			} else {
-				return false;
-			}
+			} else return false;
 		}
 	}
 	
