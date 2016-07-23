@@ -49,11 +49,11 @@ To install this, you can either download the .zip or .tar and extract it or use 
 
 #### Composer
 
-1. Add "samuelthomas2774/oauth-client": "~2.1.0" to your composer.json.
+1. Add "samuelthomas2774/oauth-client": "~2.2.0" to your composer.json.
     ```json
     {
         "require": {
-            "samuelthomas2774/oauth-client": "~2.1.0"
+            "samuelthomas2774/oauth-client": "~2.2.0"
         }
     }
     
@@ -75,17 +75,7 @@ Default (OAuth2)
     
     *Or*
     
-    If you are using composer, add "samuelthomas2774/oauth-client": "2.1.*" to the require object in your composer.json.
-    Then, include vendor/autoload.php in all pages that need access to any provider.
-    ```json
-    {
-        "require": {
-            "samuelthomas2774/oauth-client": "2.1.*"
-        }
-    }
-    
-    ```
-    
+    If you are using composer, include vendor/autoload.php in all pages that need access to any provider.
     ```php
     require_once __DIR__ . '/oauth-client/src/autoload.php';
     
@@ -103,14 +93,11 @@ Default (OAuth2)
     ```php
     $client_id = "appid";
     $client_secret = "appsecret";
-    $oauth = new OAuth2(
-        $client_id, $client_secret,
-        $options = Array(
-            "dialog" => Array("base_url" => "https://facebook.com/dialog/oauth"),
-            "api" => Array("base_url" => "https://graph.facebook.com/v2.2"),
-            "requests" => Array("/oauth/token" => "/oauth/access_token")
-        )
-    );
+    $oauth = new OAuth2($client_id, $client_secret, $options = Array(
+        "dialog" => Array("base_url" => "https://facebook.com/dialog/oauth"),
+        "api" => Array("base_url" => "https://graph.facebook.com/v2.2"),
+        "requests" => Array("/oauth/token" => "/oauth/access_token")
+    ));
     
     ```
 
@@ -194,6 +181,7 @@ You can also use these methods in extended classes (subclasses).
 
 Built-in providers
 ------------
+
 Any other providers please contact me at https://samuelthomas.ml/about/contact and I'll add it as soon as possible.
 
 **Provider**        | **Class**             | **File in /src**          | **Sign-up url**
@@ -214,6 +202,7 @@ WordPress.com `U`   | OAuthWordPress        | wordpress.class.php       | https:
 Eventbrite `U`      | OAuthEventbrite       | eventbrite.class.php      | https://www.eventbrite.co.uk/myaccount/apps/new/
 
 All the built-in providers above have an extra method, userProfile `U`, that returns the user's data in an object:
+
 ```php
 try { $user = $oauth->userProfile(); }
 catch(Exception $error) { exit("OAuth Provider returned an error: " . print_r($error, true)); }
@@ -223,6 +212,7 @@ catch(Exception $error) { exit("OAuth Provider returned an error: " . print_r($e
 ```
 
 Some also have a profilePicture method `P`, that returns the user's profile picture and an &lt;img /&gt; tag:
+
 ```php
 try { $picture = $oauth->userProfile(); }
 catch(Exception $error) { exit("OAuth Provider returned an error: " . print_r($error, true)); }
@@ -232,6 +222,7 @@ catch(Exception $error) { exit("OAuth Provider returned an error: " . print_r($e
 ```
 
 #### Facebook
+
 The OAuthFacebook class has some additional methods:
 
 - To parse a signed request sent from Facebook when the page is loaded in a page tab or Facebook Canvas:
@@ -316,6 +307,7 @@ The OAuthFacebook class has some additional methods:
     ```
 
 #### samuelthomas.ml
+
 - To get all storage objects:
     ```php
     try { $objects = $oauth->objects(); }
@@ -355,8 +347,9 @@ The OAuthFacebook class has some additional methods:
     
     ```
 
-Extending the OAuth2 class.
+Extending the OAuth2 class
 ------------
+
 You can extend the OAuth2 and other classes to add new functions and make existing functions work differently:
 
 ```php
