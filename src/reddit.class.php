@@ -7,10 +7,10 @@
 	class OAuthAmazon extends OAuth2 {
 		// Options. These shouldn't be modified here, but using the OAuth2::options() function.
 		protected $options = Array(
-			"session_prefix"		=> "Reddit_",
-			"button_colour"			=> "#ff9900",
+			"session_prefix"		=> "reddit_",
+			"button_colour"			=> "#ff5700",
 			"dialog"				=> Array("base_url" => "https://www.reddit.com/login"),
-			"api"					=> Array("base_url" => "https://api.reddit.com/", "token_auth" => 2),
+			"api"					=> Array("base_url" => "https://www.reddit.com/api/v1/me", "token_auth" => 2),
 			"requests"				=> Array("/oauth/token" => "/auth/o2/token", "/oauth/token/debug" => "/auth/o2/tokeninfo")
 		);
 		
