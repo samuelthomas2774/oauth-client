@@ -8,10 +8,12 @@
 		{
 			"name": "Samuel Elliott",
 			"email": "samuel@samuelthomas.ml",
-			"homepage": "https://samuelthomas.ml"
+			"homepage": "https://samuelelliott.ml"
 		}
 	],
 	"autoload": {
-		"files": [ "src/autoload.php" ]
+		"psr-4": {
+            "OAuth2\\": "src/"
+        }
 	}
 }
