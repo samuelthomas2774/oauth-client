@@ -10,6 +10,9 @@ use stdClass;
 use Exception;
 use TypeError;
 
+use GuzzleHttp\Client as HttpClient;
+use Psr\Http\Message\ResponseInterface;
+
 class OAuth
 {
     /**
@@ -45,7 +48,7 @@ class OAuth
      * If this is a string, an object of that class will be created.
      * If this is null, sessions will be disabled.
      *
-     * @var \OAuth2\SessionHandlerInterface
+     * @var \OAuth2\SessionHandlerInterface|string
      */
     // public $session_handler = 'OAuth2\\DefaultSessionHandler';
     public $session_handler = null;
@@ -55,9 +58,9 @@ class OAuth
      *
      * @var array
      */
-    public $api_headers = array(
-        'User-Agent'            => 'OAuth 2.0 Client https://github.com/samuelthomas2774/oauth-client'
-    );
+    public $api_headers = [
+        'User-Agent' => 'OAuth 2.0 Client https://github.com/samuelthomas2774/oauth-client',
+    ];
 
     /**
      * Base API URL.
@@ -88,6 +91,13 @@ class OAuth
      * @var string
      */
     public $scope_separator = ' ';
+
+    /**
+     * Options to pass to Guzzle when sending requests.
+     *
+     * @var array
+     */
+    public $guzzle_options = [];
 
     /**
      * The last request's error.
@@ -128,15 +138,71 @@ class OAuth
      *
      * @param string $method
      * @param string $url
-     * @param array $params
-     * @param array $headers
-     * @param boolean $auth
-     * @return \OAuth2\Request
+     * @param array $options
+     * @param boolean|\OAuth2\AccessToken|string $auth If true the request will be authenticated with the client ID and secret, if an \OAuth2\AccessToken or string the request will be authenticated with that access token, if false the request will not be authenticated, if null the request will be authenticated with the current access token
+     * @return object
      */
-    public function api(string $method, string $url, array $params = array(), array $headers = array(), boolean $auth = false)
+    public function api(string $method, string $url, array $options = [], $auth = null, bool $return_guzzle_response = false)
     {
-        // Everything here is done by the OAuth2\Request class
-        return new Request($this, $method, $url, $params, $headers, $auth);
+        $client = new HttpClient(array_merge([
+            'base_uri' => $this->base_api_endpoint,
+        ], $this->guzzle_options));
+
+        if ($auth instanceof AccessToken || is_string($auth)) {
+            $options = $this->authenticateAccessTokenToApiRequestOptions($method, $url, $options, is_string($auth) ? new AccessToken($auth) : $auth);
+        } elseif ($auth === true) {
+            $options = $this->authenticateClientToApiRequestOptions($method, $url, $options);
+        } elseif ($this->access_token && $auth !== false) {
+            $options = $this->authenticateAccessTokenToApiRequestOptions($method, $url, $options, $this->access_token);
+        }
+
+        $response = $client->request($method, $url, $options);
+
+        if ($return_guzzle_response) {
+            return $response;
+        }
+
+        return $this->getApiResponse($method, $url, $options, $response);
+    }
+
+    /**
+     * Returns the request options with an Authorization header with the client ID and secret.
+     *
+     * @param string $method
+     * @param string $url
+     * @param array $options
+     * @return array $options
+     */
+    protected function authenticateClientToApiRequestOptions(string $method, string $url, array $options): array
+    {
+        if (!isset($options['headers']) || !is_array($options['headers'])) $options['headers'] = [];
+
+        $options['headers']['Authorization'] = 'Basic ' . base64_encode($this->client_id . ':' . $this->client_secret);
+
+        return $options;
+    }
+
+    /**
+     * Returns the request options with an Authorization header with the access token.
+     *
+     * @param string $method
+     * @param string $url
+     * @param array $options
+     * @param \OAuth2\AccessToken $token
+     * @return array $options
+     */
+    protected function authenticateAccessTokenToApiRequestOptions(string $method, string $url, array $options, AccessToken $token): array
+    {
+        if (!isset($options['headers']) || !is_array($options['headers'])) $options['headers'] = [];
+
+        $options['headers']['Authorization'] = 'Bearer ' . $token->access_token;
+
+        return $options;
+    }
+
+    protected function getApiResponse(string $method, string $url, array $options, ResponseInterface $response)
+    {
+        return json_decode($response->getBody());
     }
 
     /** Authorisation Code Grant */
@@ -154,16 +220,15 @@ class OAuth
         // Check if redirect_url is a url - the redirect_url should be exactly the same as the redirect_url used in the login dialog (so really, this should just be the same as the current url)
         if (!filter_var($redirect_url, FILTER_VALIDATE_URL)) throw new TypeError('$redirect_url must be a valid URL.');
 
-        $request = $this->api(OAuth::POST, $this->token_endpoint, array(
-            'grant_type'            => 'authorization_code',
-            'client_id'             => $this->client_id,
-            'client_secret'         => $this->client_secret,
-            'redirect_uri'          => $redirect_url,
-            'code'                  => $code
-        ), null, true);
-
-        $request->execute();
-        $response = $request->responseObject();
+        $response = $this->api('POST', $this->token_endpoint, [
+            'form_params' => [
+                'grant_type' => 'authorization_code',
+                'client_id' => $this->client_id,
+                'client_secret' => $this->client_secret,
+                'redirect_uri' => $redirect_url,
+                'code' => $code,
+            ],
+        ], false);
 
         if (isset($response->access_token)) {
             return $this->createAccessTokenFromSuccessfulResponse($response);
@@ -199,15 +264,14 @@ class OAuth
         if ($refresh_token instanceof AccessToken) $refresh_token = $refresh_token->getRefreshToken();
         if (!is_string($refresh_token)) throw new TypeError('$refresh_token must be an OAuth2\AccessToken object with a refresh token or a string.');
 
-        $request = $this->api(OAuth2::POST, $this->token_endpoint, array(
-            'grant_type'            => 'refresh_token',
-            'client_id'             => $this->client_id,
-            'client_secret'         => $this->client_secret,
-            'refresh_token'         => $refresh_token
-        ), null, true);
-
-        $request->execute();
-        $response = $request->responseObject();
+        $response = $this->api('POST', $this->token_endpoint, [
+            'form_params' => [
+                'grant_type' => 'refresh_token',
+                'client_id' => $this->client_id,
+                'client_secret' => $this->client_secret,
+                'refresh_token' => $refresh_token,
+            ]
+        ], false);
 
         if (isset($response->access_token)) {
             return $this->createAccessTokenFromSuccessfulResponse($response);
@@ -250,16 +314,15 @@ class OAuth
      */
     public function getAccessTokenFromUserCredentials(string $username, string $password)
     {
-        $request = $this->api(OAuth2::POST, $this->token_endpoint, array(
-            'grant_type'            => 'password',
-            'client_id'             => $this->client_id,
-            'client_secret'         => $this->client_secret,
-            'username'              => $username,
-            'password'              => $password
-        ), null, true);
-
-        $request->execute();
-        $response = $request->responseObject();
+        $response = $this->api('POST', $this->token_endpoint, [
+            'form_params' => [
+                'grant_type' => 'password',
+                'client_id' => $this->client_id,
+                'client_secret' => $this->client_secret,
+                'username' => $username,
+                'password' => $password,
+            ]
+        ], false);
 
         if (isset($response->access_token)) {
             return $this->createAccessTokenFromSuccessfulResponse($response);
@@ -277,14 +340,13 @@ class OAuth
      */
     public function getAccessTokenFromClientCredentials()
     {
-        $request = $this->api(OAuth2::POST, $this->token_endpoint, array(
-            'grant_type'            => 'client_credentials',
-            'client_id'             => $this->client_id,
-            'client_secret'         => $this->client_secret
-        ), null, true);
-
-        $request->execute();
-        $response = $request->responseObject();
+        $response = $this->api('POST', $this->token_endpoint, [
+            'form_params' => [
+                'grant_type' => 'client_credentials',
+                'client_id' => $this->client_id,
+                'client_secret' => $this->client_secret,
+            ],
+        ], false);
 
         if (isset($response->access_token)) {
             return $this->createAccessTokenFromSuccessfulResponse($response);
@@ -306,13 +368,13 @@ class OAuth
         // Check if redirect_url is a url - the redirect_url should go to a PHP script on the same domain that runs OAuth2::getAccessTokenFromCode()
         if (!filter_var($redirect_url, FILTER_VALIDATE_URL)) throw new Exception('$redirect_url must be a valid URL.');
 
-        $url_params = array(
-            'response_type'         => 'code',
-            'client_id'             => $this->client_id,
-            'redirect_uri'          => $redirect_url,
-            'scope'                 => implode($this->scope_separator, $scope),
-            'state'                 => $state
-        );
+        $url_params = [
+            'response_type' => 'code',
+            'client_id' => $this->client_id,
+            'redirect_uri' => $redirect_url,
+            'scope' => implode($this->scope_separator, $scope),
+            'state' => $state,
+        ];
 
         $url = $this->authorise_endpoint . '?' . http_build_query(array_merge($params, $url_params));
         return $url;
@@ -343,204 +405,6 @@ class OAuth
         if (headers_sent()) throw new Exception('Headers have already been sent.');
 
         // Redirect to the Login Dialog
-        header("Location: {$url}", true, 303);
-    }
-
-    /**
-     * Get or set the current access token.
-     *
-     * @param string $access_token
-     * @param boolean $session
-     */
-    public function accessToken($token = false, $session = true)
-    {
-        if ($token === null) {
-            $this->token = null;
-            if ($session === true) $this->session('token', null);
-        } elseif (is_string($token)) {
-            $this->token = $token;
-            if ($session === true) $this->session('token', $token);
-        } else {
-            return $this->token;
-        }
-    }
-
-    // function options(): Returns / sets an option
-    // Get: $oauth->options("session_prefix");
-    // Get: $oauth->options(Array("dialog", "base_url"));
-    // Get: $oauth->options([ "dialog", "base_url" ]);
-    // Set: $oauth->options("session_prefix", "oauth_");
-    // Set: $oauth->options(Array("dialog", "base_url"), "https://www.facebook.com/dialog/oauth");
-    // Set: $oauth->options([ "dialog", "base_url" ], "https://www.facebook.com/dialog/oauth");
-    // Set: $oauth->options(Array("api", "headers"), Array("X-Header" => "X-Value")); // Array will be merged.
-    /**
-     * @deprecated
-     */
-    public function options($name) {
-        $params = func_get_args();
-        if(is_string($name) || is_int($name)) $name = Array($name);
-        if(!is_array($name)) return null;
-        $aset = array_key_exists(1, $params) ? true : false;
-
-        $options = Array(&$this->options);
-        $ek = 0;
-        foreach($name as $i => $key) {
-            if(is_object($options[$ek])) {
-                if(!isset($options[$ek]->{$key}) && $aset) {
-                    $options[$ek]->{$key} = new stdClass();
-                    $options[$ek + 1] = &$options[$ek]->{$key};
-                } elseif(!isset($options[$ek]->{$key}) && !$aset) $options[$ek + 1] = null;
-                else $options[$ek + 1] = &$options[$ek]->{$key};
-            } elseif(is_array($options[$ek])) {
-                if(!isset($options[$ek][$key]) && $aset) {
-                    $options[$ek][$key] = Array();
-                    $options[$ek + 1] = &$options[$ek][$key];
-                } elseif(!isset($options[$ek][$key]) && !$aset) $options[$ek + 1] = null;
-                else $options[$ek + 1] = &$options[$ek][$key];
-            } else {
-                $options[$ek + 1] = &$options[$ek];
-            }
-            $ek++;
-        }
-        $option = &$options[$ek];
-
-        if($aset && !array_key_exists(2, $params)) {
-            $value = $params[1];
-
-            /*if(is_object($option) && (is_object($value) || is_array($value))) {
-                foreach($value as $k => $v) {
-                    if(is_object($v)) $option->{$k} = (object)array_merge((array)$option->{$k}, (array)$v);
-                    if(is_array($v)) $option->{$k} = (array)array_merge((array)$option->{$k}, (array)$v);
-                    else $option->{$k} = $v;
-                }
-            } elseif(is_array($option) && (is_object($value) || is_array($value))) {
-                foreach($value as $k => $v) {
-                    if(is_object($v)) $option[$k] = (object)array_merge((array)$option[$k], (array)$v);
-                    if(is_array($v)) $option[$k] = (array)array_merge((array)$option[$k], (array)$v);
-                    else $option[$k] = $v;
-                }
-            } else*/ $option = $value;
-        } else {
-            return $option;
-        }
-    }
-
-    // function defaultoptions(): Returns the default options
-    /**
-     * @deprecated
-     */
-    public function defaultoptions() {
-        $options = new stdClass();
-        $options->session_prefix = 'oauth_';
-        $options->button_colour = 'rgb(47,71,122)';
-
-        $options->session_handler = new stdClass();
-        $options->session_handler->check = 'OAuth2::_session_check';
-        $options->session_handler->get = 'OAuth2::_session_get';
-        $options->session_handler->set = 'OAuth2::_session_set';
-        $options->session_handler->delete = 'OAuth2::_session_delete';
-
-        // Login Dialog: Set a few important variables for using the Login Dialog
-        $options->dialog = new stdClass();
-        $options->dialog->base_url = 'https://mydatastore.com/oauth/authorize';
-        $options->dialog->scope_separator = ' ';
-
-        // API: Set a few important variables for using the API
-        // token_auth: 1 = access_token parameter (default), 2 = Authorization header, false = Do not automatically send an access token
-        $options->api = new stdClass();
-        $options->api->base_url = 'https://api.mydatastore.com';
-        $options->api->token_auth = true;
-        $options->api->headers = Array(
-            'User-Agent' => 'OAuth 2.0 Client https://github.com/samuelthomas2774/oauth-client'
-        );
-        $options->api->callback = null;
-
-        // Default requests: Sets a few important variables for the requests this class makes
-        $options->requests = new stdClass();
-        $options->requests->{'/oauth/token'} = '/oauth/token';
-        $options->requests->{'/oauth/token:response'} = 'json';
-        $options->requests->{'/oauth/token/debug'} = '/oauth/token/debug';
-
-        // Errors: Sets how and when this class triggers errors
-        // Invalid parameter exceptions are thrown even if throw is set to false here
-        $options->errors = new stdClass();
-        $options->errors->throw = true;
-
-        return $options;
-    }
-
-    /**
-     * Get the client ID and secret.
-     *
-     * @return \stdClass
-     */
-    public function client()
-    {
-        return (object)$this->client;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function triggerError($message, $error = null) {
-        $this->error = $error !== null ? $error : $message;
-        if($this->options([ 'errors', 'throw' ]) === true) throw new Exception($message);
-    }
-
-    /**
-     * Check if sessions are enabled.
-     */
-    public function sessions(&$prefix = null)
-    {
-        // Get session_prefix - if not a string or false reset to default
-        if (!is_string($prefix = $this->options([ 'session_prefix' ])) && ($prefix !== false))
-            $this->options('session_prefix', $prefix = $this->defaultoptions()->session_prefix);
-
-        if (!call_user_func($this->options([ 'session_handler', 'check' ]), $this))
-            // Doesn't matter if sessions are disabled: one hasn't been started
-            return false;
-        elseif($prefix === false)
-            // Sessions are diabled
-            return false;
-        else
-            // Sessions are enabled and one is active
-            return true;
-    }
-
-    /**
-     * Get or set session data.
-     * Fails silently if sessions are disabled.
-     *
-     * @param string $key
-     * @param $value
-     * @return
-     */
-    public function session($name, $value = null)
-    {
-        // Check if sessions are enabled
-        if (!$this->sessions($session_prefix)) return null;
-
-        if ((func_num_args() >= 2) && ($value === null))
-            // Delete
-            call_user_func($this->options([ 'session_handler', 'delete' ]), $session_prefix . $name, $this);
-        elseif (func_num_args() >= 2)
-            // Set
-            call_user_func($this->options([ 'session_handler', 'set' ]), $session_prefix . $name, $value, $this);
-        else
-            // Get
-            return call_user_func($this->options([ 'session_handler', 'get' ]), $session_prefix . $name, $this);
-    }
-
-    /**
-     * @deprecated
-     */
-    public function sessionDelete($name) {
-        // Check if sessions are enabled.
-        if(!$this->sessions()) return null;
-        $session_prefix = $this->options([ 'session_prefix' ]);
-
-        if(isset($_SESSION[$session_prefix . $name]))
-            // Delete
-            unset($_SESSION[$session_prefix . $name]);
+        header('Location: ' . $url, true, 303);
     }
 }

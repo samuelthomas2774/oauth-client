@@ -15,5 +15,8 @@
 		"psr-4": {
             "OAuth2\\": "src/"
         }
+	},
+	"require": {
+		"guzzlehttp/guzzle": "~6.0"
 	}
 }
