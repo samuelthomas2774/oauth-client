@@ -404,6 +404,20 @@ class OAuth
         header('Location: ' . $url, true, 303);
     }
 
+    public function generateImplicitAuthoriseUrl(string $redirect_url = null, array $scope = [], array $params = [])
+    {
+        if (!isset($params['response_type'])) $params['response_type'] = 'token';
+
+        return $this->generateAuthoriseUrl(null, $redirect_url, $scope, $params);
+    }
+
+    public function redirectToImplicitAuthoriseEndpoint(string $redirect_url = null, array $scope = [], array $params = [])
+    {
+        if (!isset($params['response_type'])) $params['response_type'] = 'token';
+
+        return $this->redirectToAuthoriseEndpoint(null, $redirect_url, $scope, $params);
+    }
+
     public function getAccessToken()
     {
         return $this->access_token;
@@ -453,13 +467,14 @@ class OAuth
      *
      * @param string $key
      * @param mixed $value
+     * @return mixed
      */
     public function session(string $name, $value = null)
     {
         // Check if sessions are enabled
         if (!$this->sessions()) return null;
 
-        if ((func_num_args() >= 2) && ($value === null)) {
+        if ((func_num_args() >= 2) && $value === null) {
             // Delete
             call_user_func([$this->getSessionHandler(), 'delete'], $this->session_prefix . $name);
         } elseif (func_num_args() >= 2) {
