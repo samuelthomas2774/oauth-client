@@ -13,7 +13,7 @@ interface SessionHandlerInterface
      *
      * @return boolean
      */
-    public function enabled(): boolean;
+    public function enabled(): bool;
 
     /**
      * Get session data.
@@ -30,7 +30,7 @@ interface SessionHandlerInterface
      * @param $value
      * @return boolean
      */
-    public function set(string $key, $value): boolean;
+    public function set(string $key, $value): bool;
 
     /**
      * Delete session data.
@@ -38,5 +38,5 @@ interface SessionHandlerInterface
      * @param string $key
      * @return boolean
      */
-    public function delete(string $key): boolean;
+    public function delete(string $key): bool;
 }

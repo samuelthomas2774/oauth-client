@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Base OAuth client class
+ * Base OAuth 2.0 client class.
  */
 
 namespace OAuth2;
@@ -50,8 +50,8 @@ class OAuth
      *
      * @var \OAuth2\SessionHandlerInterface|string
      */
-    // public $session_handler = 'OAuth2\\DefaultSessionHandler';
-    public $session_handler = null;
+    public $session_handler = 'OAuth2\\DefaultSessionHandler';
+    // public $session_handler = null;
 
     /**
      * Default headers to send to the API.
@@ -100,37 +100,27 @@ class OAuth
     public $guzzle_options = [];
 
     /**
-     * The last request's error.
-     */
-    public $error = null;
-
-    /** Request constants */
-    const GET = 'GET';
-    const POST = 'POST';
-    const PUT = 'PUT';
-    const DELETE = 'DELETE';
-
-    const responseText = 10;
-    const responseJSONArray = 21;
-    const responseJSONObject = 22;
-    const responseQueryStringArray = 31;
-    const responseQueryStringObject = 32;
-    const responseXMLArray = 41;
-    const responseXMLObject = 42;
-    const responseSimpleXMLObject = 43;
-
-    /**
      * Creates a new OAuth client object.
      *
      * @param string $client_id
      * @param string $client_secret
-     * @param string $access_token
+     * @param \OAuth2\AccessToken|string $access_token
      */
-    public function __construct(string $client_id, string $client_secret, string $access_token = null)
+    public function __construct(string $client_id, string $client_secret, $token = null, array $options = [])
     {
         $this->client_id = $client_id;
         $this->client_secret = $client_secret;
-        $this->access_token = $access_token;
+
+        if (array_key_exists('session_handler', $options)) $this->session_handler = $options['session_handler'];
+        if (array_key_exists('session_prefix', $options)) $this->session_prefix = $options['session_prefix'];
+        if (array_key_exists('base_api_endpoint', $options)) $this->base_api_endpoint = $options['base_api_endpoint'];
+        if (array_key_exists('authorise_endpoint', $options)) $this->authorise_endpoint = $options['authorise_endpoint'];
+        if (array_key_exists('token_endpoint', $options)) $this->token_endpoint = $options['token_endpoint'];
+        if (array_key_exists('scope_separator', $options)) $this->scope_separator = $options['scope_separator'];
+        if (array_key_exists('guzzle_options', $options)) $this->guzzle_options = $options['guzzle_options'];
+
+        if ($token) $this->setAccessToken($token);
+        elseif ($this->session('token') && $token !== false) $this->setAccessToken($this->session('token'));
     }
 
     /**
@@ -195,7 +185,7 @@ class OAuth
     {
         if (!isset($options['headers']) || !is_array($options['headers'])) $options['headers'] = [];
 
-        $options['headers']['Authorization'] = 'Bearer ' . $token->access_token;
+        $options['headers']['Authorization'] = 'Bearer ' . $token->getAccessToken();
 
         return $options;
     }
@@ -213,12 +203,15 @@ class OAuth
      * @param string $code
      * @param string $redirect_url
      * @param array $requested_scope The requested scope to use in the {@see OAuth2\AccessToken} object if none is available
+     * @param boolean $update_session
      * @return \OAuth2\AccessToken
      */
-    public function getAccessTokenFromCode(string $code, string $redirect_url, array $requested_scope = null)
+    public function getAccessTokenFromCode(string $code, string $redirect_url, array $requested_scope = [], bool $update_session = true): AccessToken
     {
         // Check if redirect_url is a url - the redirect_url should be exactly the same as the redirect_url used in the login dialog (so really, this should just be the same as the current url)
-        if (!filter_var($redirect_url, FILTER_VALIDATE_URL)) throw new TypeError('$redirect_url must be a valid URL.');
+        if (!filter_var($redirect_url, FILTER_VALIDATE_URL)) {
+            throw new TypeError('$redirect_url must be a valid URL.');
+        }
 
         $response = $this->api('POST', $this->token_endpoint, [
             'form_params' => [
@@ -231,20 +224,38 @@ class OAuth
         ], false);
 
         if (isset($response->access_token)) {
-            return $this->createAccessTokenFromSuccessfulResponse($response);
+            $token = $this->createAccessTokenFromSuccessfulResponse($response, $requested_scope);
+
+            if ($update_session) $this->setAccessToken($token);
+
+            return $token;
         } else {
             throw new Exception($response);
         }
     }
 
+    public function getAccessTokenFromRequestCode(string $redirect_url, array $requested_scope = [], bool $update_session = true)
+    {
+        if (!isset($_GET['code']) || !isset($_GET['state'])) {
+            throw new Exception('Missing code and state.');
+        }
+
+        $state = $this->session('state');
+        if (empty($state) || $state !== $_GET['state']) {
+            throw new Exception('Invalid state.');
+        }
+
+        return $this->getAccessTokenFromCode($_GET['code'], $redirect_url, $requested_scope, $update_session);
+    }
+
     /**
      * Creates an {@see OAuth2\AccessToken} object from a successful response from the token endpoint.
      *
-     * @param \stdClass $response
+     * @param mixed $response
      * @param array $requested_scope
      * @return \OAuth2\AccessToken
      */
-    public function createAccessTokenFromSuccessfulResponse(stdClass $response, array $requested_scope = null)
+    protected function createAccessTokenFromSuccessfulResponse($response, array $requested_scope = []): AccessToken
     {
         $refresh_token = isset($response->refresh_token) ? $response->refresh_token : null;
         $expires = isset($response->expires_in) ? time() + $response->expires_in : null;
@@ -259,7 +270,7 @@ class OAuth
      * @param \OAuth2\AccessToken|string $refresh_token
      * @return \stdClass
      */
-    public function getAccessTokenFromRefreshToken($refresh_token)
+    public function getAccessTokenFromRefreshToken($refresh_token): AccessToken
     {
         if ($refresh_token instanceof AccessToken) $refresh_token = $refresh_token->getRefreshToken();
         if (!is_string($refresh_token)) throw new TypeError('$refresh_token must be an OAuth2\AccessToken object with a refresh token or a string.');
@@ -280,29 +291,6 @@ class OAuth
         }
     }
 
-    /** Implicit Grant */
-
-    // function iloginURL(): Returns the URL for the login dialog
-    public function iloginURL($redirect_url, $permissions = array(), $params = array())
-    {
-        if (is_array($params) && !isset($params['response_type'])) $params['response_type'] = 'token';
-        return $this->loginURL($redirect_url, $permissions, $params);
-    }
-
-    // function iloginButton(): Returns the URL for the login dialog
-    public function iloginButton($button_text, $redirect_url, $permissions = array(), $params = array(), $colour = null)
-    {
-        if (is_array($params) && !isset($params['response_type'])) $params['response_type'] = 'token';
-        return $this->loginButton($button_text, $redirect_url, $permissions, $params, $colour);
-    }
-
-    // function iloginRedirect(): Redirects to the login dialog
-    public function iloginRedirect($redirect_url, $permissions = array(), $params = array(), $message = '')
-    {
-        if (is_array($params) && !isset($params['response_type'])) $params['response_type'] = 'token';
-        return $this->loginRedirect($redirect_url, $permissions, $params, $message);
-    }
-
     /** Resource Owner Credentials Grant */
 
     /**
@@ -310,9 +298,9 @@ class OAuth
      *
      * @param string $username
      * @param string $password
-     * @return \stdClass
+     * @return \OAuth2\AccessToken
      */
-    public function getAccessTokenFromUserCredentials(string $username, string $password)
+    public function getAccessTokenFromUserCredentials(string $username, string $password): AccessToken
     {
         $response = $this->api('POST', $this->token_endpoint, [
             'form_params' => [
@@ -336,9 +324,9 @@ class OAuth
     /**
      * Exchanges the client credentials for an access token.
      *
-     * @return \stdClass
+     * @return \OAuth2\AccessToken
      */
-    public function getAccessTokenFromClientCredentials()
+    public function getAccessTokenFromClientCredentials(): AccessToken
     {
         $response = $this->api('POST', $this->token_endpoint, [
             'form_params' => [
@@ -356,19 +344,20 @@ class OAuth
     }
 
     /**
-     * Generate the URL to redirect users to to authorise this client.
+     * Generate a URL to redirect users to to authorise this client.
      *
      * @param string $state
      * @param string $redirect_url
      * @param array $scope
      * @param array $params
+     * @return string
      */
-    public function generateLoginURL(string $state = null, string $redirect_url = null, array $scope = array(), array $params = array())
+    public function generateAuthoriseUrl(string $state = null, string $redirect_url = null, array $scope = [], array $params = []): string
     {
         // Check if redirect_url is a url - the redirect_url should go to a PHP script on the same domain that runs OAuth2::getAccessTokenFromCode()
         if (!filter_var($redirect_url, FILTER_VALIDATE_URL)) throw new Exception('$redirect_url must be a valid URL.');
 
-        $url_params = [
+        $default_params = [
             'response_type' => 'code',
             'client_id' => $this->client_id,
             'redirect_uri' => $redirect_url,
@@ -376,17 +365,25 @@ class OAuth
             'state' => $state,
         ];
 
-        $url = $this->authorise_endpoint . '?' . http_build_query(array_merge($params, $url_params));
-        return $url;
+        return $this->authorise_endpoint . (strpos($this->authorise_endpoint, '?') !== false ? '&' : '?')
+            . http_build_query(array_merge($default_params, $params));
     }
 
-    public function generateLoginURLAndState(string $redirect_url = null, array $scope = array(), array $params = array())
+    /**
+     * Generate a URL to redirect users to to authorise this client with a state.
+     *
+     * @param string $redirect_url
+     * @param array $scope
+     * @param array $params
+     * @return string
+     */
+    public function generateAuthoriseUrlAndState(string $redirect_url = null, array $scope = [], array $params = [])
     {
         // Generate a unique state parameter and store it in the session
         $state = hash('sha256', time() . uniqid(mt_rand(), true));
         $this->session('state', $state);
 
-        return $this->generateLoginURL($state, $redirect_url, $scope, $params);
+        return $this->generateAuthoriseUrl($state, $redirect_url, $scope, $params);
     }
 
     /**
@@ -396,15 +393,81 @@ class OAuth
      * @param array $scope
      * @param array $params
      */
-    public function redirectToAuthoriseEndpoint(string $redirect_url = null, string $scope = array(), $params = array())
+    public function redirectToAuthoriseEndpoint(string $redirect_url = null, array $scope = [], array $params = [])
     {
-        // Get a Login Dialog URL using the OAuth2::loginURL() function
-        $url = $this->generateLoginURLAndState($redirect_url, $scope, $params);
+        $url = $this->generateAuthoriseUrlAndState($redirect_url, $scope, $params);
 
         // Make sure headers have not been sent
         if (headers_sent()) throw new Exception('Headers have already been sent.');
 
         // Redirect to the Login Dialog
         header('Location: ' . $url, true, 303);
+    }
+
+    public function getAccessToken()
+    {
+        return $this->access_token;
+    }
+
+    public function setAccessToken($token, bool $update_session = true)
+    {
+        if (is_string($token)) $token = new AccessToken($token);
+
+        if (!$token instanceof AccessToken && $token !== null) throw new TypeError('$token must be an \OAuth2\AccessToken object, a string or null.');
+
+        $this->access_token = $token;
+
+        if ($update_session) $this->session('token', $token);
+    }
+
+    /**
+     * Returns the current session handler.
+     *
+     * @return \OAuth2\SessionHandlerInterface
+     */
+    public function getSessionHandler(): SessionHandlerInterface
+    {
+        if (is_string($this->session_handler)) {
+            $this->session_handler = new $this->session_handler();
+        }
+
+        return $this->session_handler;
+    }
+
+    /**
+     * Check if sessions are enabled.
+     *
+     * @return boolean
+     */
+    public function sessions(): bool
+    {
+        // No session handler
+        if (!$this->session_handler) return false;
+
+        return call_user_func([$this->getSessionHandler(), 'enabled']);
+    }
+
+    /**
+     * Get or set session data.
+     * Fails silently if sessions are disabled.
+     *
+     * @param string $key
+     * @param mixed $value
+     */
+    public function session(string $name, $value = null)
+    {
+        // Check if sessions are enabled
+        if (!$this->sessions()) return null;
+
+        if ((func_num_args() >= 2) && ($value === null)) {
+            // Delete
+            call_user_func([$this->getSessionHandler(), 'delete'], $this->session_prefix . $name);
+        } elseif (func_num_args() >= 2) {
+            // Set
+            call_user_func([$this->getSessionHandler(), 'set'], $this->session_prefix . $name, $value);
+        } else {
+            // Get
+            return call_user_func([$this->getSessionHandler(), 'get'], $this->session_prefix . $name);
+        }
     }
 }
