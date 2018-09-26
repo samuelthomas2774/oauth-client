@@ -113,6 +113,13 @@ class OAuth
     public $guzzle_options = [];
 
     /**
+     * The last generated state for each session prefix.
+     *
+     * @var array
+     */
+    protected static $state = [];
+
+    /**
      * Creates a new OAuth client object.
      *
      * @param string $client_id
@@ -450,13 +457,30 @@ class OAuth
      * @param array $params
      * @return string
      */
-    public function generateAuthoriseUrlAndState(string $redirect_url = null, array $scope = [], array $params = [])
+    public function generateAuthoriseUrlAndState(string $redirect_url = null, array $scope = [], array $params = []): string
     {
         // Generate a unique state parameter and store it in the session
+        $state = $this->getState();
+
+        return $this->generateAuthoriseUrl($state, $redirect_url, $scope, $params);
+    }
+
+    /**
+     * Generate a state.
+     *
+     * @param boolean $update_session
+     * @return string
+     */
+    public function getState(bool $update_session = true): string
+    {
+        if (array_key_exists($this->session_prefix, self::$state)) {
+            return self::$state[$this->session_prefix];
+        }
+
         $state = hash('sha256', time() . uniqid(mt_rand(), true));
         $this->session('state', $state);
 
-        return $this->generateAuthoriseUrl($state, $redirect_url, $scope, $params);
+        return self::$state[$this->session_prefix];
     }
 
     /**
@@ -477,14 +501,14 @@ class OAuth
         header('Location: ' . $url, true, 303);
     }
 
-    public function generateImplicitAuthoriseUrl(string $redirect_url = null, array $scope = [], array $params = [])
+    public function generateImplicitAuthoriseUrl(string $redirect_url = null, array $scope = [], array $params = []): string
     {
         if (!isset($params['response_type'])) $params['response_type'] = 'token';
 
         return $this->generateAuthoriseUrl(null, $redirect_url, $scope, $params);
     }
 
-    public function redirectToImplicitAuthoriseEndpoint(string $redirect_url = null, array $scope = [], array $params = [])
+    public function redirectToImplicitAuthoriseEndpoint(string $redirect_url = null, array $scope = [], array $params = []): string
     {
         if (!isset($params['response_type'])) $params['response_type'] = 'token';
 
@@ -545,7 +569,7 @@ class OAuth
     public function session(string $name, $value = null)
     {
         // Check if sessions are enabled
-        if (!$this->sessions()) return null;
+        if (!$this->sessions()) return;
 
         if ((func_num_args() >= 2) && $value === null) {
             // Delete
