@@ -6,7 +6,17 @@
 
 namespace OAuth2;
 
+use OAuth2\Exceptions\OAuthException;
+use OAuth2\Exceptions\AccessDeniedException;
+use OAuth2\Exceptions\InvalidRequestException;
+use OAuth2\Exceptions\InvalidScopeException;
+use OAuth2\Exceptions\ServerErrorException;
+use OAuth2\Exceptions\TemporarilyUnavailableException;
+use OAuth2\Exceptions\UnauthorisedClientException;
+use OAuth2\Exceptions\UnsupportedResponseTypeException;
+
 use stdClass;
+use Throwable;
 use Exception;
 use TypeError;
 
@@ -246,20 +256,6 @@ class OAuth
         }
     }
 
-    public function getAccessTokenFromRequestCode(string $redirect_url, array $requested_scope = [], bool $update_session = true)
-    {
-        if (!isset($_GET['code']) || !isset($_GET['state'])) {
-            throw new Exception('Missing code and state.');
-        }
-
-        $state = $this->session('state');
-        if (empty($state) || $state !== $_GET['state']) {
-            throw new Exception('Invalid state.');
-        }
-
-        return $this->getAccessTokenFromCode($_GET['code'], $redirect_url, $requested_scope, $update_session);
-    }
-
     /**
      * Creates an {@see OAuth2\AccessToken} object from a successful response from the token endpoint.
      *
@@ -274,6 +270,47 @@ class OAuth
         $scope = isset($response->scope) ? explode($this->scope_separator, $response->scope) : $requested_scope;
 
         return new AccessToken($response->access_token, $refresh_token, $expires, $scope);
+    }
+
+    public function getAccessTokenFromRequestCode(string $redirect_url, array $requested_scope = [], bool $update_session = true)
+    {
+        if (isset($_GET['error'])) {
+            $this->handleErrorFromOAuthAuthoriseRequest($_GET);
+        }
+
+        if (!isset($_GET['code']) || !isset($_GET['state'])) {
+            throw new Exception('Missing code and state.');
+        }
+
+        $state = $this->session('state');
+        if (empty($state) || $state !== $_GET['state']) {
+            throw new Exception('Invalid state.');
+        }
+
+        return $this->getAccessTokenFromCode($_GET['code'], $redirect_url, $requested_scope, $update_session);
+    }
+
+    // https://tools.ietf.org/html/rfc6749#section-4.1.2.1
+    protected function handleErrorFromOAuthAuthoriseRequest(array $request, Throwable $previous = null)
+    {
+        switch ($request['error']) {
+            default:
+                throw OAuthException::fromRequest($request, $previous);
+            case 'invalid_request':
+                throw InvalidRequestException::fromRequest($request, $previous);
+            case 'unauthorised_client':
+                throw UnauthorisedClientException::fromRequest($request, $previous);
+            case 'access_denied':
+                throw AccessDeniedException::fromRequest($request, $previous);
+            case 'unsupported_response_type':
+                throw UnsupportedResponseTypeException::fromRequest($request, $previous);
+            case 'invalid_scope':
+                throw InvalidScopeException::fromRequest($request, $previous);
+            case 'server_error':
+                throw ServerErrorException::fromRequest($request, $previous);
+            case 'temporarily_unavailable':
+                throw TemporarilyUnavailableException::fromRequest($request, $previous);
+        }
     }
 
     /**
