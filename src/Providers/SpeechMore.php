@@ -9,6 +9,13 @@ use OAuth2\UserPicturesInterface;
 class SpeechMore extends OAuth implements UserProfilesInterface, UserPicturesInterface
 {
     /**
+     * Session prefix.
+     *
+     * @var string
+     */
+    public $session_prefix = 'speechmore_';
+
+    /**
      * Base API URL.
      *
      * @var string

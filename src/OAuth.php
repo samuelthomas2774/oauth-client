@@ -81,7 +81,7 @@ class OAuth
      *
      * @var string
      */
-    public $token_endpoint = 'https://example.com/token';
+    public $token_endpoint = '/token';
 
     /**
      * Scope separator.
@@ -105,6 +105,7 @@ class OAuth
      * @param string $client_id
      * @param string $client_secret
      * @param \OAuth2\AccessToken|string $access_token
+     * @param array $options
      */
     public function __construct(string $client_id, string $client_secret, $token = null, array $options = [])
     {
@@ -134,9 +135,7 @@ class OAuth
      */
     public function api(string $method, string $url, array $options = [], $auth = null, bool $return_guzzle_response = false)
     {
-        $client = new HttpClient(array_merge([
-            'base_uri' => $this->base_api_endpoint,
-        ], $this->guzzle_options));
+        $client = new HttpClient($this->getGuzzleDefaultOptions());
 
         if ($auth instanceof AccessToken || is_string($auth)) {
             $options = $this->authenticateAccessTokenToApiRequestOptions($method, $url, $options, is_string($auth) ? new AccessToken($auth) : $auth);
@@ -146,13 +145,26 @@ class OAuth
             $options = $this->authenticateAccessTokenToApiRequestOptions($method, $url, $options, $this->access_token);
         }
 
-        $response = $client->request($method, $url, $options);
+        $response = $client->request($method, $url, $this->getGuzzleOptionsForRequest($method, $url, $options));
 
         if ($return_guzzle_response) {
             return $response;
         }
 
         return $this->getApiResponse($method, $url, $options, $response);
+    }
+
+    protected function getGuzzleDefaultOptions()
+    {
+        return array_merge([
+            'base_uri' => $this->base_api_endpoint,
+            'headers' => $this->api_headers,
+        ], $this->guzzle_options);
+    }
+
+    protected function getGuzzleOptionsForRequest(string $method, string $url, array $options = [])
+    {
+        return $options;
     }
 
     /**
