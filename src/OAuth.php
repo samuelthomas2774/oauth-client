@@ -14,6 +14,9 @@ use OAuth2\Exceptions\ServerErrorException;
 use OAuth2\Exceptions\TemporarilyUnavailableException;
 use OAuth2\Exceptions\UnauthorisedClientException;
 use OAuth2\Exceptions\UnsupportedResponseTypeException;
+use OAuth2\Exceptions\InvalidClientException;
+use OAuth2\Exceptions\InvalidGrantException;
+use OAuth2\Exceptions\UnsupportedGrantTypeException;
 
 use stdClass;
 use Throwable;
@@ -252,7 +255,7 @@ class OAuth
 
             return $token;
         } else {
-            throw new Exception($response);
+            $this->handleErrorFromOAuthTokenResponse($response);
         }
     }
 
@@ -270,6 +273,27 @@ class OAuth
         $scope = isset($response->scope) ? explode($this->scope_separator, $response->scope) : $requested_scope;
 
         return new AccessToken($response->access_token, $refresh_token, $expires, $scope);
+    }
+
+    // https://tools.ietf.org/html/rfc6749#section-5.2
+    protected function handleErrorFromOAuthTokenResponse($response, Throwable $previous = null)
+    {
+        switch ($response->error) {
+            default:
+                throw OAuthException::fromResponse($response, $previous);
+            case 'invalid_request':
+                throw InvalidRequestException::fromResponse($response, $previous);
+            case 'invalid_client':
+                throw InvalidClientException::fromResponse($response, $previous);
+            case 'invalid_grant':
+                throw InvalidGrantException::fromResponse($response, $previous);
+            case 'unauthorized_client':
+                throw UnauthorisedClientException::fromResponse($response, $previous);
+            case 'unsupported_grant_type':
+                throw UnsupportedGrantTypeException::fromResponse($response, $previous);
+            case 'invalid_scope':
+                throw InvalidScopeException::fromResponse($response, $previous);
+        }
     }
 
     public function getAccessTokenFromRequestCode(string $redirect_url, array $requested_scope = [], bool $update_session = true)
@@ -298,7 +322,7 @@ class OAuth
                 throw OAuthException::fromRequest($request, $previous);
             case 'invalid_request':
                 throw InvalidRequestException::fromRequest($request, $previous);
-            case 'unauthorised_client':
+            case 'unauthorized_client':
                 throw UnauthorisedClientException::fromRequest($request, $previous);
             case 'access_denied':
                 throw AccessDeniedException::fromRequest($request, $previous);
@@ -336,7 +360,7 @@ class OAuth
         if (isset($response->access_token)) {
             return $this->createAccessTokenFromSuccessfulResponse($response);
         } else {
-            throw new Exception($response);
+            $this->handleErrorFromOAuthTokenResponse($response);
         }
     }
 
@@ -364,7 +388,7 @@ class OAuth
         if (isset($response->access_token)) {
             return $this->createAccessTokenFromSuccessfulResponse($response);
         } else {
-            throw new Exception($response);
+            $this->handleErrorFromOAuthTokenResponse($response);
         }
     }
 
@@ -388,7 +412,7 @@ class OAuth
         if (isset($response->access_token)) {
             return $this->createAccessTokenFromSuccessfulResponse($response);
         } else {
-            throw new Exception($response);
+            $this->handleErrorFromOAuthTokenResponse($response);
         }
     }
 
