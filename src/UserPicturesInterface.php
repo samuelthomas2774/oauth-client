@@ -10,5 +10,5 @@ interface UserPicturesInterface
      * @param integer $size
      * @return string
      */
-    public function getUserPictureUrl(int $size = 50): string;
+    public function getUserPictureUrl(int $size = 50): ?string;
 }

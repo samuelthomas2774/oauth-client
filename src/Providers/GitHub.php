@@ -6,6 +6,9 @@ use OAuth2\OAuth;
 use OAuth2\AccessToken;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
+use OAuth2\UserProfile;
+
+use OAuth2\ProviderUserProfiles\GitHub as GitHubUserProfile;
 
 use Psr\Http\Message\ResponseInterface;
 use stdClass;
@@ -80,18 +83,19 @@ class GitHub extends OAuth implements UserProfilesInterface, UserPicturesInterfa
     /**
      * Returns the current user.
      *
-     * @return \stdClass
+     * @return \OAuth2\ProviderUserProfiles\GitHub
      */
-    public function getUserProfile()
+    public function getUserProfile(): UserProfile
     {
         $response = $this->api('GET', 'user');
 
-        $user = new stdClass();
-        $user->id = isset($response->id) ? $response->id : null;
-        $user->username = isset($response->login) ? $response->login : $user->id;
-        $user->name = isset($response->name) ? $response->name : $user->username;
-        $user->email = isset($response->email) ? $response->email : null;
+        $user = new GitHubUserProfile(isset($response->id) ? $response->id : '');
+
         $user->response = $response;
+        $user->name = $response->name;
+        $user->url = $response->html_url;
+
+        if (isset($response->email)) $user->email_addresses = [$response->email];
 
         return $user;
     }
@@ -102,7 +106,7 @@ class GitHub extends OAuth implements UserProfilesInterface, UserPicturesInterfa
      * @param integer $size
      * @return string
      */
-    public function getUserPictureUrl(int $size = 50): string
+    public function getUserPictureUrl(int $size = 50): ?string
     {
         $response = $this->api('GET', 'user');
 

@@ -6,6 +6,9 @@ use OAuth2\OAuth;
 use OAuth2\AccessToken;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
+use OAuth2\UserProfile;
+
+use OAuth2\ProviderUserProfiles\Facebook as FacebookUserProfile;
 
 use Psr\Http\Message\ResponseInterface;
 use stdClass;
@@ -112,7 +115,7 @@ class Facebook extends OAuth implements UserProfilesInterface, UserPicturesInter
      * @param array $fields
      * @return \stdClass
      */
-    public function getUserProfile(array $fields = [])
+    public function getUserProfile(array $fields = []): UserProfile
     {
         $fields = array_merge($fields, ['id', 'name', 'email']);
 
@@ -120,13 +123,12 @@ class Facebook extends OAuth implements UserProfilesInterface, UserPicturesInter
             'query' => ['fields' => implode(',', $fields)],
         ]);
 
-        $user = new stdClass();
+        $user = new FacebookUserProfile(isset($response->id) ? $response->id : '');
 
-        $user->id = isset($response->id) ? $response->id : null;
-        $user->username = isset($response->username) ? $response->username : $user->id;
-        $user->name = isset($response->name) ? $response->name : null;
-        $user->email = isset($response->email) ? $response->email : null;
         $user->response = $response;
+
+        if (isset($response->name)) $user->name = $response->name;
+        if (isset($response->email)) $user->email_addresses = [$response->email];
 
         return $user;
     }
@@ -137,7 +139,7 @@ class Facebook extends OAuth implements UserProfilesInterface, UserPicturesInter
      * @param integer $size
      * @return string
      */
-    public function getUserPictureUrl(int $size = 50): string
+    public function getUserPictureUrl(int $size = 50): ?string
     {
         $response = $this->api('GET', 'me', [
             'query' => ['fields' => 'id,picture.width(' . $size . ').height(' . $size . ')'],

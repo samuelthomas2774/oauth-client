@@ -7,7 +7,7 @@ interface UserProfilesInterface
     /**
      * Returns the current user.
      *
-     * @return mixed
+     * @return \OAuth2\UserProfile
      */
-    public function getUserProfile();
+    public function getUserProfile(): UserProfile;
 }
