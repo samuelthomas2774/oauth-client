@@ -140,6 +140,10 @@ class OAuth
         if (array_key_exists('scope_separator', $options)) $this->scope_separator = $options['scope_separator'];
         if (array_key_exists('guzzle_options', $options)) $this->guzzle_options = $options['guzzle_options'];
 
+        if ($this instanceof MultipleInstancesInterface && array_key_exists('instance_url', $options)) {
+            $this->setInstanceUrl($options['instance_url']);
+        }
+
         if ($token) $this->setAccessToken($token);
         elseif ($this->session('token') && $token !== false) $this->setAccessToken($this->session('token'));
     }

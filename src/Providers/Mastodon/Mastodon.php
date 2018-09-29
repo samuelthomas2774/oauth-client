@@ -41,27 +41,15 @@ class Mastodon extends OAuth implements UserProfilesInterface, UserPicturesInter
     public $token_endpoint = '/oauth/token';
 
     /**
-     * Creates a new OAuth client object.
+     * Sets the instance URL of the client.
      *
-     * @param string $client_id
-     * @param string $client_secret
-     * @param \OAuth2\AccessToken|string $access_token
-     * @param array $options
+     * @param string $instance_url
      */
-    public function __construct(string $client_id, string $client_secret, $token = null, array $options = [])
-    {
-        if (array_key_exists('instance_url', $options)) {
-            $this->setInstanceUrl($options['instance_url']);
-        }
-
-        parent::__construct($client_id, $client_secret, $token, $options);
-    }
-
     public function setInstanceUrl(string $instance_url)
     {
         $instance_url = rtrim($instance_url, '/');
 
-        $this->session_prefix = 'mastodon_' . preg_replace(['/[^a-z0-9-_.:]/i', '/[-.:]/', '/(.{2,})/'], ['', '_', '$1'], $instance_url) . '_';
+        $this->session_prefix = 'mastodon_' . preg_replace(['/[^a-z0-9-_.:]/i', '/[-.:]/', '/([^a-zA-Z0-9]{2,})/'], ['', '_', '$1'], $instance_url) . '_';
         $this->base_api_endpoint = $instance_url . '/api/v1/';
         $this->authorise_endpoint = $instance_url . '/oauth/authorize';
         $this->token_endpoint = $instance_url . '/oauth/token';
