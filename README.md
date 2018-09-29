@@ -29,6 +29,7 @@ An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsof
 - [DeviantArt](https://deviantart.com)
 - [Twitch](https://twitch.tv)
 - [Vimeo](https://vimeo.com)
+- [Reddit](https://reddit.com)
 - Other, just create a new OAuth2\\OAuth object and include the base_api_endpoint, authorise_endpoint and token_endpoint options
 
 Requirements and installation
@@ -168,6 +169,7 @@ Deezer              | OAuth2\\Providers\\Deezer\\Deezer             | https://de
 DeviantArt          | OAuth2\\Providers\\DeviantArt\\DeviantArt     | https://www.deviantart.com/developers/register
 Twitch              | OAuth2\\Providers\\Twitch\\Twitch             | https://dev.twitch.tv/dashboard/apps/create
 Vimeo               | OAuth2\\Providers\\Vimeo\\Vimeo               | https://developer.vimeo.com/apps/new
+Reddit              | OAuth2\\Providers\\Reddit\\Reddit             | https://www.reddit.com/prefs/apps
 
 \* This URL is for the default instance used
 
