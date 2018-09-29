@@ -1,9 +1,12 @@
 <?php
 
-namespace OAuth2\Providers;
+namespace OAuth2\Providers\WordPress;
 
 use OAuth2\OAuth;
 use OAuth2\UserProfilesInterface;
+use OAuth2\UserProfile;
+
+use OAuth2\Providers\WordPress\UserProfile as WordPressUserProfile;
 
 class WordPress extends OAuth implements UserProfilesInterface
 {
@@ -38,14 +41,18 @@ class WordPress extends OAuth implements UserProfilesInterface
     /**
      * Returns the current user.
      *
-     * @return \stdClass
+     * @return \OAuth2\Providers\WordPress\UserProfile
      */
-    public function getUserProfile()
+    public function getUserProfile(): UserProfile
     {
         $response = $this->api('GET', 'me');
 
-        $response->id = $response->ID;
+        $user = new WordPressUserProfile(isset($response->ID) ? $response->ID : '');
 
-        return $response;
+        $user->response = $response;
+        $user->name = $response->name;
+        $user->email_addresses = [$response->email];
+
+        return $user;
     }
 }

@@ -1,9 +1,12 @@
 <?php
 
-namespace OAuth2\Providers;
+namespace OAuth2\Providers\Disqus;
 
 use OAuth2\OAuth;
 use OAuth2\UserProfilesInterface;
+use OAuth2\UserProfile;
+
+use OAuth2\Providers\Disqus\UserProfile as DisqusUserProfile;
 
 class Disqus extends OAuth implements UserProfilesInterface
 {
@@ -56,12 +59,18 @@ class Disqus extends OAuth implements UserProfilesInterface
     /**
      * Returns the current user.
      *
-     * @return \stdClass
+     * @return \OAuth2\Providers\Disqus\UserProfile
      */
-    public function getUserProfile()
+    public function getUserProfile(): UserProfile
     {
         $response = $this->api('GET', 'users/details.json');
 
-        return $response->response;
+        $user = new DisqusUserProfile(isset($response->response->id) ? $response->response->id : '');
+
+        $user->response = $response;
+        $user->name = $response->response->name;
+        $user->email_addresses = [$response->response->email];
+
+        return $user;
     }
 }

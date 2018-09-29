@@ -1,6 +1,6 @@
 <?php
 
-namespace OAuth2\Providers\Facebook;
+namespace OAuth2\Providers\LinkedIn;
 
 use OAuth2\UserProfile as BaseUserProfile;
 

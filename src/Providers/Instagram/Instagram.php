@@ -1,9 +1,12 @@
 <?php
 
-namespace OAuth2\Providers;
+namespace OAuth2\Providers\Instagram;
 
 use OAuth2\OAuth;
 use OAuth2\UserProfilesInterface;
+use OAuth2\UserProfile;
+
+use OAuth2\Providers\Instagram\UserProfile as InstagramUserProfile;
 
 class Instagram extends OAuth implements UserProfilesInterface
 {
@@ -56,12 +59,18 @@ class Instagram extends OAuth implements UserProfilesInterface
     /**
      * Returns the current user.
      *
-     * @return \stdClass
+     * @return \OAuth2\Providers\Instagram\UserProfile
      */
-    public function getUserProfile()
+    public function getUserProfile(): UserProfile
     {
         $response = $this->api('GET', 'users/self/');
 
-        return $response->data;
+        $user = new InstagramUserProfile(isset($response->data->id) ? $response->data->id : '');
+
+        $user->response = $response;
+        $user->name = $response->data->name;
+        $user->email_addresses = [$response->data->email];
+
+        return $user;
     }
 }

@@ -1,9 +1,12 @@
 <?php
 
-namespace OAuth2\Providers;
+namespace OAuth2\Providers\Spotify;
 
 use OAuth2\OAuth;
 use OAuth2\UserProfilesInterface;
+use OAuth2\UserProfile;
+
+use OAuth2\Providers\Spotify\UserProfile as SpotifyUserProfile;
 
 class Spotify extends OAuth implements UserProfilesInterface
 {
@@ -38,12 +41,18 @@ class Spotify extends OAuth implements UserProfilesInterface
     /**
      * Returns the current user.
      *
-     * @return \stdClass
+     * @return \OAuth2\Providers\Spotify\UserProfile
      */
-    public function getUserProfile()
+    public function getUserProfile(): UserProfile
     {
         $response = $this->api('GET', 'me');
 
-        return $response;
+        $user = new SpotifyUserProfile(isset($response->id) ? $response->id : '');
+
+        $user->response = $response;
+        $user->name = $response->name;
+        $user->email_addresses = [$response->email];
+
+        return $user;
     }
 }

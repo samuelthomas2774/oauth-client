@@ -1,8 +1,11 @@
 <?php
 
-namespace OAuth2\Providers;
+namespace OAuth2\Providers\Amazon;
 
 use OAuth2\OAuth;
+use OAuth2\UserProfile;
+
+use OAuth2\Providers\Amazon\UserProfile as AmazonUserProfile;
 
 class Amazon extends OAuth
 {
@@ -37,14 +40,18 @@ class Amazon extends OAuth
     /**
      * Returns the current user.
      *
-     * @return \stdClass
+     * @return \OAuth2\Providers\Amazon\UserProfile
      */
-    public function getUserProfile()
+    public function getUserProfile(): UserProfile
     {
         $response = $this->api('GET', 'user/profile');
 
-        $response->id = $response->user_id;
+        $user = new AmazonUserProfile(isset($response->user_id) ? $response->user_id : '');
 
-        return $response;
+        $user->response = $response;
+        $user->name = $response->name;
+        $user->email_addresses = [$response->email];
+
+        return $user;
     }
 }

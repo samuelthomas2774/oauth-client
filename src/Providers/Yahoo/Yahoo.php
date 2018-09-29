@@ -1,10 +1,13 @@
 <?php
 
-namespace OAuth2\Providers;
+namespace OAuth2\Providers\Yahoo;
 
 use OAuth2\OAuth;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
+use OAuth2\UserProfile;
+
+use OAuth2\Providers\Yahoo\UserProfile as YahooUserProfile;
 
 use stdClass;
 
@@ -48,18 +51,17 @@ class Yahoo extends OAuth implements UserProfilesInterface, UserPicturesInterfac
     /**
      * Returns the current user.
      *
-     * @return \stdClass
+     * @return \OAuth2\Providers\Yahoo\UserProfile
      */
-    public function getUserProfile()
+    public function getUserProfile(): UserProfile
     {
         $response = $this->api('GET', 'user/me/profile');
 
-        $user = new stdClass();
-        $user->id = isset($response->profile->guid) ? $response->profile->guid : null;
-        $user->username = is_string($user->id) || is_numeric($user->id) ? $user->id : null;
-        $user->name = isset($response->profile->nickname) ? $response->profile->nickname : $user->username;
-        $user->email = isset($user->response->emails->account) ? $user->response->emails->account : null;
+        $user = new YahooUserProfile(isset($response->profile->guid) ? $response->profile->guid : '');
+
         $user->response = $response;
+        $user->name = $response->profile->nickname;
+        $user->email_addresses = [$response->emails->account];
 
         return $user;
     }
@@ -70,11 +72,11 @@ class Yahoo extends OAuth implements UserProfilesInterface, UserPicturesInterfac
      * @param integer $size
      * @return string
      */
-    public function getUserPictureUrl(int $size = 50): string
+    public function getUserPictureUrl(int $size = 50): ?string
     {
         $response = $this->api('GET', 'user/me/profile/image/' . $size . 'x' . $size);
 
-        if (!isset($response->image->url) || !isset($response->image->width) || !isset($response->image->height)) return;
+        if (!isset($response->image->url) || !isset($response->image->width) || !isset($response->image->height)) return null;
 
         return $response->image->url;
     }

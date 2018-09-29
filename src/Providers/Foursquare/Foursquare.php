@@ -1,10 +1,13 @@
 <?php
 
-namespace OAuth2\Providers;
+namespace OAuth2\Providers\Foursquare;
 
 use OAuth2\OAuth;
 use OAuth2\AccessToken;
 use OAuth2\UserProfilesInterface;
+use OAuth2\UserProfile;
+
+use OAuth2\Providers\Foursquare\UserProfile as FoursquareUserProfile;
 
 class Foursquare extends OAuth implements UserProfilesInterface
 {
@@ -69,12 +72,18 @@ class Foursquare extends OAuth implements UserProfilesInterface
     /**
      * Returns the current user.
      *
-     * @return \stdClass
+     * @return \OAuth2\Providers\Foursquare\UserProfile
      */
-    public function getUserProfile()
+    public function getUserProfile(): UserProfile
     {
         $response = $this->api('GET', 'users/self');
 
-        return $response->response->user;
+        $user = new FoursquareUserProfile(isset($response->response->user->id) ? $response->response->user->id : '');
+
+        $user->response = $response;
+        $user->name = $response->response->user->name;
+        $user->email_addresses = [$response->response->user->email];
+
+        return $user;
     }
 }

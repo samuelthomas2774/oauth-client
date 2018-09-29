@@ -1,10 +1,13 @@
 <?php
 
-namespace OAuth2\Providers;
+namespace OAuth2\Providers\LinkedIn;
 
 use OAuth2\OAuth;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
+use OAuth2\UserProfile;
+
+use OAuth2\Providers\LinkedIn\UserProfile as LinkedInUserProfile;
 
 use stdClass;
 use Psr\Http\Message\ResponseInterface;
@@ -49,18 +52,18 @@ class LinkedIn extends OAuth implements UserProfilesInterface, UserPicturesInter
     /**
      * Returns the current user.
      *
-     * @return \stdClass
+     * @return \OAuth2\Providers\LinkedIn\UserProfile
      */
-    public function getUserProfile()
+    public function getUserProfile(): UserProfile
     {
         $response = $this->api('GET', 'people/~');
 
-        $user = new stdClass();
-        $user->id = isset($response->id) ? $response->id : null;
-        $user->username = $user->id;
-        $user->name = isset($response->firstName) ? $response->firstName . (isset($response->lastName) ? ' ' . $response->lastName : '') : $user->username;
-        $user->email = isset($response->emailAddress) ? $response->emailAddress : null;
+        $user = new LinkedInUserProfile(isset($response->id) ? $response->id : '');
+
         $user->response = $response;
+        $user->name = isset($response->firstName) ? $response->firstName . (isset($response->lastName) ? ' ' . $response->lastName : '') : null;
+
+        if (isset($response->emailAddress)) $user->email_addresses = [$response->emailAddress];
 
         return $user;
     }
@@ -70,11 +73,11 @@ class LinkedIn extends OAuth implements UserProfilesInterface, UserPicturesInter
      *
      * @return string
      */
-    public function getUserPictureUrl(int $size = 50): string
+    public function getUserPictureUrl(int $size = 50): ?string
     {
         $response = $this->api('GET', 'people/~:(id,pictureUrl)');
 
-        if (!isset($response->pictureUrl)) return;
+        if (!isset($response->pictureUrl)) return null;
 
         return $response->pictureUrl;
     }
