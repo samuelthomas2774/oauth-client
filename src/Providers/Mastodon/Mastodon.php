@@ -1,11 +1,14 @@
 <?php
 
-namespace OAuth2\Providers;
+namespace OAuth2\Providers\Mastodon;
 
 use OAuth2\OAuth;
 use OAuth2\AccessToken;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
+use OAuth2\UserProfile;
+
+use OAuth2\Providers\Mastodon\UserProfile as MastodonUserProfile;
 
 class Mastodon extends OAuth implements UserProfilesInterface, UserPicturesInterface
 {
@@ -35,7 +38,7 @@ class Mastodon extends OAuth implements UserProfilesInterface, UserPicturesInter
      *
      * @var string
      */
-    public $token_endpoint = 'https://mastodon.social/oauth/token';
+    public $token_endpoint = '/oauth/token';
 
     /**
      * Creates a new OAuth client object.
@@ -67,20 +70,29 @@ class Mastodon extends OAuth implements UserProfilesInterface, UserPicturesInter
     /**
      * Returns the current user.
      *
-     * @return \stdClass
+     * @return \OAuth2\Providers\Mastodon\UserProfile
      */
-    public function getUserProfile()
+    public function getUserProfile(): UserProfile
     {
         $response = $this->api('GET', 'account/verify_credentials');
 
-        $user = new stdClass();
-        $user->id = isset($response->id) ? $response->id : null;
-        $user->username = isset($response->username) ? $response->username : $user->id;
-        $user->name = isset($response->display_name) ? $response->display_name : $user->username;
-        $user->email = isset($response->email) ? $response->email : null;
+        $user = new MastodonUserProfile(isset($response->id) ? $response->id : '');
+
         $user->response = $response;
+        $user->username = $response->username;
+        $user->name = $response->display_name;
+        $user->email_addresses = [$response->email];
 
         return $user;
+        //
+        // $user = new stdClass();
+        // $user->id = isset($response->id) ? $response->id : null;
+        // $user->username = isset($response->username) ? $response->username : $user->id;
+        // $user->name = isset($response->display_name) ? $response->display_name : $user->username;
+        // $user->email = isset($response->email) ? $response->email : null;
+        // $user->response = $response;
+        //
+        // return $user;
     }
 
     /**
@@ -88,11 +100,11 @@ class Mastodon extends OAuth implements UserProfilesInterface, UserPicturesInter
      *
      * @return string
      */
-    public function getUserPictureUrl(int $size = 50): string
+    public function getUserPictureUrl(int $size = 50): ?string
     {
         $response = $this->api('GET', 'account/verify_credentials');
 
-        if (!isset($response->avatar)) return;
+        if (!isset($response->avatar)) return null;
 
         return $response->avatar;
     }
