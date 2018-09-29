@@ -101,7 +101,7 @@ class Discord extends OAuth implements UserProfilesInterface, UserPicturesInterf
      * @param string $type Either "png", "jpg", "webp" or "gif"
      * @return string
      */
-    public function getUserPictureUrl(int $size = 50, string $type = 'png'): ?string
+    public function getUserPictureUrl(int $size = 50, string $type = 'png'): string
     {
         $size = min(max($size, 16), 2048);
         $size = 2 ** (ceil(log($size - 1, 2)) + 1);

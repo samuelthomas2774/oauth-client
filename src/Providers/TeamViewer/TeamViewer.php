@@ -3,8 +3,8 @@
 namespace OAuth2\Providers\TeamViewer;
 
 use OAuth2\OAuth;
-use OAuth2\UserProfilesInterface;
 use OAuth2\UserProfile;
+use OAuth2\UserProfilesInterface;
 
 use OAuth2\Providers\TeamViewer\UserProfile as TeamViewerUserProfile;
 

@@ -9,8 +9,6 @@ use OAuth2\UserPicturesInterface;
 
 use OAuth2\Providers\Google\UserProfile as GoogleUserProfile;
 
-use stdClass;
-
 class Google extends OAuth implements UserProfilesInterface, UserPicturesInterface
 {
     /**

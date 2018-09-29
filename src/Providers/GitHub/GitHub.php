@@ -4,14 +4,13 @@ namespace OAuth2\Providers\GitHub;
 
 use OAuth2\OAuth;
 use OAuth2\AccessToken;
+use OAuth2\UserProfile;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
-use OAuth2\UserProfile;
 
 use OAuth2\Providers\GitHub\UserProfile as GitHubUserProfile;
 
 use Psr\Http\Message\ResponseInterface;
-use stdClass;
 
 class GitHub extends OAuth implements UserProfilesInterface, UserPicturesInterface
 {

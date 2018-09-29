@@ -3,13 +3,11 @@
 namespace OAuth2\Providers\Yahoo;
 
 use OAuth2\OAuth;
+use OAuth2\UserProfile;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
-use OAuth2\UserProfile;
 
 use OAuth2\Providers\Yahoo\UserProfile as YahooUserProfile;
-
-use stdClass;
 
 class Yahoo extends OAuth implements UserProfilesInterface, UserPicturesInterface
 {

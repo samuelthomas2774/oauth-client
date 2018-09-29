@@ -4,9 +4,11 @@ namespace OAuth2\Providers\Facebook;
 
 use OAuth2\OAuth;
 use OAuth2\AccessToken;
+use OAuth2\UserProfile;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
-use OAuth2\UserProfile;
+
+use OAuth2\Exceptions\ApiException;
 
 use OAuth2\Providers\Facebook\UserProfile as FacebookUserProfile;
 
@@ -55,7 +57,7 @@ class Facebook extends OAuth implements UserProfilesInterface, UserPicturesInter
         $data = json_decode($response->getBody());
 
         if (isset($data->error)) {
-            throw new Exception($data->error);
+            throw new ApiException($data->error);
         }
 
         return $data;
@@ -69,9 +71,13 @@ class Facebook extends OAuth implements UserProfilesInterface, UserPicturesInter
      */
     public function parseSignedRequest(string $signed_request = null)
     {
-        // Check if code is a string or null
-        if (!is_string($signed_request) && isset($_POST['signed_request'])) $signed_request = trim($_POST['signed_request']);
-        else throw new Exception('$signed_request must be a string.');
+        if (!is_string($signed_request)) {
+            if (!isset($_POST['signed_request'])) {
+                throw new Exception('Missing signed_request.');
+            }
+
+            $signed_request = trim($_POST['signed_request']);
+        }
 
         list($encoded_sig, $payload) = explode('.', $signed_request, 2);
 

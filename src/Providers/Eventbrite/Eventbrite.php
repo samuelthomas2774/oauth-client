@@ -3,8 +3,8 @@
 namespace OAuth2\Providers\Eventbrite;
 
 use OAuth2\OAuth;
-use OAuth2\UserProfilesInterface;
 use OAuth2\UserProfile;
+use OAuth2\UserProfilesInterface;
 
 use OAuth2\Providers\Eventbrite\UserProfile as EventbriteUserProfile;
 

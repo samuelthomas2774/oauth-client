@@ -4,10 +4,10 @@ namespace OAuth2\Providers\Mastodon;
 
 use OAuth2\OAuth;
 use OAuth2\AccessToken;
+use OAuth2\UserProfile;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
 use OAuth2\MultipleInstancesInterface;
-use OAuth2\UserProfile;
 
 use OAuth2\Providers\Mastodon\UserProfile as MastodonUserProfile;
 
@@ -76,15 +76,6 @@ class Mastodon extends OAuth implements UserProfilesInterface, UserPicturesInter
         $user->email_addresses = [$response->email];
 
         return $user;
-        //
-        // $user = new stdClass();
-        // $user->id = isset($response->id) ? $response->id : null;
-        // $user->username = isset($response->username) ? $response->username : $user->id;
-        // $user->name = isset($response->display_name) ? $response->display_name : $user->username;
-        // $user->email = isset($response->email) ? $response->email : null;
-        // $user->response = $response;
-        //
-        // return $user;
     }
 
     /**

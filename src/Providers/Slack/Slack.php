@@ -73,7 +73,7 @@ class Slack extends OAuth implements UserProfilesInterface, UserPicturesInterfac
      * @param integer $size
      * @return string
      */
-    public function getUserPictureUrl(int $size = 50): ?string
+    public function getUserPictureUrl(int $size = 50): string
     {
         $response = $this->api('GET', 'users.identity');
 

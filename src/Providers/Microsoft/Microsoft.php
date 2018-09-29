@@ -3,12 +3,10 @@
 namespace OAuth2\Providers\Microsoft;
 
 use OAuth2\OAuth;
-use OAuth2\UserProfilesInterface;
 use OAuth2\UserProfile;
+use OAuth2\UserProfilesInterface;
 
 use OAuth2\Providers\Microsoft\UserProfile as MicrosoftUserProfile;
-
-use stdClass;
 
 class Microsoft extends OAuth implements UserProfilesInterface
 {
