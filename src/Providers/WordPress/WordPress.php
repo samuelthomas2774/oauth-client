@@ -50,8 +50,10 @@ class WordPress extends OAuth implements UserProfilesInterface
         $user = new WordPressUserProfile(isset($response->ID) ? $response->ID : '');
 
         $user->response = $response;
-        $user->name = $response->name;
+        $user->username = $response->username;
+        $user->name = $response->display_name;
         $user->email_addresses = [$response->email];
+        $user->url = $response->profile_URL;
 
         return $user;
     }

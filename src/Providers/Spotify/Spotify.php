@@ -50,8 +50,9 @@ class Spotify extends OAuth implements UserProfilesInterface
         $user = new SpotifyUserProfile(isset($response->id) ? $response->id : '');
 
         $user->response = $response;
-        $user->name = $response->name;
-        $user->email_addresses = [$response->email];
+        $user->username = $response->id;
+        $user->name = $response->display_name;
+        $user->url = $response->external_urls->spotify;
 
         return $user;
     }

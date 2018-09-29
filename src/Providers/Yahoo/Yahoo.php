@@ -61,7 +61,10 @@ class Yahoo extends OAuth implements UserProfilesInterface, UserPicturesInterfac
 
         $user->response = $response;
         $user->name = $response->profile->nickname;
-        $user->email_addresses = [$response->emails->account];
+
+        // Should this be here?
+        // It uses the hostname profile.yahoo.com, but that doesn't even resolve anymore
+        // $user->url = $response->profile->profileUrl;
 
         return $user;
     }
@@ -76,8 +79,8 @@ class Yahoo extends OAuth implements UserProfilesInterface, UserPicturesInterfac
     {
         $response = $this->api('GET', 'user/me/profile/image/' . $size . 'x' . $size);
 
-        if (!isset($response->image->url) || !isset($response->image->width) || !isset($response->image->height)) return null;
+        if (!isset($response->image->imageUrl) || !isset($response->image->width) || !isset($response->image->height)) return null;
 
-        return $response->image->url;
+        return $response->image->imageUrl;
     }
 }

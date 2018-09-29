@@ -60,7 +60,8 @@ class TeamViewer extends OAuth implements UserProfilesInterface
 
         $user->response = $response;
         $user->name = $response->name;
-        $user->email_addresses = [$response->email];
+
+        if (isset($response->email)) $user->email_addresses = [$response->email];
 
         return $user;
     }

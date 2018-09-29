@@ -62,6 +62,7 @@ class LinkedIn extends OAuth implements UserProfilesInterface, UserPicturesInter
 
         $user->response = $response;
         $user->name = isset($response->firstName) ? $response->firstName . (isset($response->lastName) ? ' ' . $response->lastName : '') : null;
+        $user->url = $response->siteStandardProfileRequest->url;
 
         if (isset($response->emailAddress)) $user->email_addresses = [$response->emailAddress];
 
