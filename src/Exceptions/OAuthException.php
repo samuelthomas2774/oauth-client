@@ -10,10 +10,10 @@ class OAuthException extends Exception
 {
     static function fromRequest(array $request, Throwable $previous = null)
     {
-        $description = isset($response['error_description']) ? $response['error_description'] : $response['error'];
+        $description = isset($request['error_description']) ? $request['error_description'] : $request['error'];
 
         if (isset($response['error_uri'])) {
-            $description .= ' (' . $response['error_uri'] . ')';
+            $description .= ' (' . $request['error_uri'] . ')';
         }
 
         return new self($description, 0, $previous);

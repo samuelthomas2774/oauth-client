@@ -21,7 +21,7 @@ if ($client_info) {
         echo 'Code: <pre>' . htmlentities($_GET['code']) . '</pre><br />';
         echo 'Access token: <pre>' . htmlentities(print_r($token, true)) . '</pre><br />';
     } catch (Exception $exception) {
-        echo 'Error: ' . $exception->getMessage() . '<br />';
+        echo 'Error: ' . htmlentities($exception->getMessage()) . '<br />';
     }
 }
 

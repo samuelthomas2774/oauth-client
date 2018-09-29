@@ -4,10 +4,11 @@ namespace OAuth2\Providers\Amazon;
 
 use OAuth2\OAuth;
 use OAuth2\UserProfile;
+use OAuth2\UserProfilesInterface;
 
 use OAuth2\Providers\Amazon\UserProfile as AmazonUserProfile;
 
-class Amazon extends OAuth
+class Amazon extends OAuth implements UserProfilesInterface
 {
     /**
      * Session prefix.
@@ -49,8 +50,9 @@ class Amazon extends OAuth
         $user = new AmazonUserProfile(isset($response->user_id) ? $response->user_id : '');
 
         $user->response = $response;
-        $user->name = $response->name;
-        $user->email_addresses = [$response->email];
+
+        if (isset($response->name)) $user->name = $response->name;
+        if (isset($response->email)) $user->email_addresses = [$response->email];
 
         return $user;
     }
