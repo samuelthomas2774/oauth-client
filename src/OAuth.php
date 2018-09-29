@@ -480,7 +480,7 @@ class OAuth
         $state = hash('sha256', time() . uniqid(mt_rand(), true));
         $this->session('state', $state);
 
-        return self::$state[$this->session_prefix];
+        return self::$state[$this->session_prefix] = $state;
     }
 
     /**

@@ -36,9 +36,9 @@ class AccessToken
      *
      * @var array
      */
-    private $scope = array();
+    private $scope = [];
 
-    public function __construct(string $access_token, string $refresh_token = null, int $expires = null, array $scope = null)
+    public function __construct(string $access_token, string $refresh_token = null, int $expires = null, array $scope = [])
     {
         $this->access_token = $access_token;
         $this->refresh_token = $refresh_token;
@@ -47,27 +47,27 @@ class AccessToken
         $this->scope = $scope;
     }
 
-    public function getAccessToken()
+    public function getAccessToken(): string
     {
         return $this->access_token;
     }
 
-    public function getRefreshToken()
+    public function getRefreshToken(): ?string
     {
         return $this->refresh_token;
     }
 
-    public function getExpirationTimestamp()
+    public function getExpirationTimestamp(): int
     {
         return $this->expires;
     }
 
     /**
-     * Get the number of seconds until the access token expires.
+     * Checks if the access token has expired.
      * It is assumed that the access token is still valid if the expiration
      * timestamp is not available.
      *
-     * @return int
+     * @return boolean
      */
     public function hasExpired(): bool
     {
@@ -78,27 +78,28 @@ class AccessToken
 
     /**
      * Get the number of seconds until the access token expires.
-     * It is assumed that the access token will expire in one second if the
-     * expiration timestamp is not available.
      *
-     * @return int
+     * @return integer
      */
-    public function getExpiresIn()
+    public function getExpiresIn(): ?int
     {
-        if (!is_int($this->expires)) return 1;
+        if (!is_int($this->expires)) return null;
 
         return $this->hasExpired() ? 0 : $this->expires - time();
     }
 
-    public function getScope()
+    public function getScope(): array
     {
         return $this->scope;
     }
 
-    public function hasScope($scope_token)
+    public function hasScope(string $scope_token): bool
     {
-        if (!is_array($this->scope)) return null;
-
         return in_array($scope_token, $this->scope);
+    }
+
+    public function __toString(): string
+    {
+        return $this->access_token;
     }
 }
