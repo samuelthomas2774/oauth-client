@@ -24,25 +24,30 @@ if ($client_info) {
 
     if ($token = $client->getAccessToken()) {
         echo 'Access token: <pre>' . htmlentities(print_r($token, true)) . '</pre><br />';
+        echo 'Expires in: ' . htmlentities(print_r($token->getExpiresIn(), true)) . '<br />';
 
-        if (method_exists($client, 'getTokenInfo')) {
-            $token_info = $client->getTokenInfo();
+        if (!$token->hasExpired()) {
+            if (method_exists($client, 'getTokenInfo')) {
+                $token_info = $client->getTokenInfo();
 
-            echo 'Access token info: <pre>' . htmlentities(print_r($token_info, true)) . '</pre><br />';
-        }
+                echo 'Access token info: <pre>' . htmlentities(print_r($token_info, true)) . '</pre><br />';
+            }
 
-        if ($client instanceof UserProfilesInterface) {
-            $user = $client->getUserProfile();
+            if ($client instanceof UserProfilesInterface) {
+                $user = $client->getUserProfile();
 
-            echo 'User profile: <pre>' . htmlentities(print_r($user, true)) . '</pre><br />';
-        }
+                echo 'User profile: <pre>' . htmlentities(print_r($user, true)) . '</pre><br />';
+            }
 
-        if ($client instanceof UserPicturesInterface) {
-            $picture_url = $client->getUserPictureUrl(60);
+            if ($client instanceof UserPicturesInterface) {
+                $picture_url = $client->getUserPictureUrl(60);
 
-            echo 'User picture URL: <pre>' . htmlentities(print_r($picture_url, true)) . '</pre><br />';
+                echo 'User picture URL: <pre>' . htmlentities(print_r($picture_url, true)) . '</pre><br />';
 
-            echo '<img src="' . htmlentities($picture_url) . '" /><br />';
+                echo '<img src="' . htmlentities($picture_url) . '" /><br />';
+            }
+        } else {
+            echo 'Access token expired<br />';
         }
     } else {
         echo 'No access token<br />';

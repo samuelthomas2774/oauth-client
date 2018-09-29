@@ -73,7 +73,7 @@ class AccessToken
     {
         if (!is_int($this->expires)) return false;
 
-        return $this->expires > time();
+        return $this->expires < time();
     }
 
     /**

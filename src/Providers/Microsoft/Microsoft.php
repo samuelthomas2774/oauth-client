@@ -1,9 +1,12 @@
 <?php
 
-namespace OAuth2\Providers;
+namespace OAuth2\Providers\Microsoft;
 
 use OAuth2\OAuth;
 use OAuth2\UserProfilesInterface;
+use OAuth2\UserProfile;
+
+use OAuth2\Providers\Microsoft\UserProfile as MicrosoftUserProfile;
 
 use stdClass;
 
@@ -40,18 +43,18 @@ class Microsoft extends OAuth implements UserProfilesInterface
     /**
      * Returns the current user.
      *
-     * @return \stdClass
+     * @return \OAuth2\Providers\Microsoft\UserProfile
      */
-    public function getUserProfile()
+    public function getUserProfile(): UserProfile
     {
         $response = $this->api('GET', 'me');
 
-        $user = new stdClass();
-        $user->id = isset($response->id) ? $response->id : null;
-        $user->username = is_string($user->id) || is_numeric($user->id) ? (string)$user->id : null;
-        $user->name = isset($response->name) ? $response->name : $user->username;
-        $user->email = isset($user->response->emails->account) ? $user->response->emails->account : null;
+        $user = new MicrosoftUserProfile(isset($response->id) ? $response->id : '');
+
         $user->response = $response;
+        $user->name = $response->name;
+
+        if (isset($response->emails) && isset($response->emails->account)) $user->email_addresses = [$response->emails->account];
 
         return $user;
     }

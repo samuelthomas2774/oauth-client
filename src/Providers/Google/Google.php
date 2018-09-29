@@ -1,8 +1,12 @@
 <?php
 
-namespace OAuth2\Providers;
+namespace OAuth2\Providers\Google;
 
 use OAuth2\OAuth;
+use OAuth2\UserProfile;
+
+use OAuth2\Providers\Google\UserProfile as GoogleUserProfile;
+
 use stdClass;
 
 class Google extends OAuth
@@ -38,18 +42,18 @@ class Google extends OAuth
     /**
      * Returns the current user.
      *
-     * @return \stdClass
+     * @return \OAuth2\Providers\Google\UserProfile
      */
-    public function getUserProfile()
+    public function getUserProfile(): UserProfile
     {
-        $response = $this->api('GET', 'https://www.googleapis.com/oauth2/v2/userinfo');
+        $response = $this->api('GET', '/oauth2/v2/userinfo');
 
-        $user = new stdClass();
-        $user->id = isset($response->id) ? $response->id : null;
-        $user->username = is_string($user->id) || is_numeric($user->id) ? (string)$user->id : null;
-        $user->name = isset($response->name) ? $response->name : $user->username;
-        $user->email = isset($response->email) ? $response->email : null;
+        $user = new GoogleUserProfile(isset($response->id) ? $response->id : '');
+
         $user->response = $response;
+        $user->name = $response->name;
+
+        if (isset($response->email)) $user->email_addresses = [$response->email];
 
         return $user;
     }
@@ -60,11 +64,11 @@ class Google extends OAuth
      * @param integer $size
      * @return string
      */
-    public function getUserPictureUrl(int $size = 50): string
+    public function getUserPictureUrl(int $size = 50): ?string
     {
-        $response = $this->api('GET', 'https://www.googleapis.com/oauth2/v2/userinfo');
+        $response = $this->api('GET', '/oauth2/v2/userinfo');
 
-        if (!isset($response->picture)) return;
+        if (!isset($response->picture)) return null;
 
         return $response->picture . ($size ? '?sz=' . $size : '');
     }

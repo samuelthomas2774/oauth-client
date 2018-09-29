@@ -25,4 +25,4 @@ if ($client_info) {
     }
 }
 
-echo '<a href=".">Home</a>';
+echo '<a href="..">Home</a>';
