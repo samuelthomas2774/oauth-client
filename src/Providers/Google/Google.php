@@ -4,12 +4,14 @@ namespace OAuth2\Providers\Google;
 
 use OAuth2\OAuth;
 use OAuth2\UserProfile;
+use OAuth2\UserProfilesInterface;
+use OAuth2\UserPicturesInterface;
 
 use OAuth2\Providers\Google\UserProfile as GoogleUserProfile;
 
 use stdClass;
 
-class Google extends OAuth
+class Google extends OAuth implements UserProfilesInterface, UserPicturesInterface
 {
     /**
      * Session prefix.
@@ -52,6 +54,7 @@ class Google extends OAuth
 
         $user->response = $response;
         $user->name = $response->name;
+        $user->url = $response->link;
 
         if (isset($response->email)) $user->email_addresses = [$response->email];
 
