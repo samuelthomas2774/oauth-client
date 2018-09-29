@@ -132,6 +132,10 @@ class OAuth
         $this->client_id = $client_id;
         $this->client_secret = $client_secret;
 
+        if ($this instanceof MultipleInstancesInterface && array_key_exists('instance_url', $options)) {
+            $this->setInstanceUrl($options['instance_url']);
+        }
+
         if (array_key_exists('session_handler', $options)) $this->session_handler = $options['session_handler'];
         if (array_key_exists('session_prefix', $options)) $this->session_prefix = $options['session_prefix'];
         if (array_key_exists('base_api_endpoint', $options)) $this->base_api_endpoint = $options['base_api_endpoint'];
@@ -139,10 +143,6 @@ class OAuth
         if (array_key_exists('token_endpoint', $options)) $this->token_endpoint = $options['token_endpoint'];
         if (array_key_exists('scope_separator', $options)) $this->scope_separator = $options['scope_separator'];
         if (array_key_exists('guzzle_options', $options)) $this->guzzle_options = $options['guzzle_options'];
-
-        if ($this instanceof MultipleInstancesInterface && array_key_exists('instance_url', $options)) {
-            $this->setInstanceUrl($options['instance_url']);
-        }
 
         if ($token) $this->setAccessToken($token);
         elseif ($this->session('token') && $token !== false) $this->setAccessToken($this->session('token'));

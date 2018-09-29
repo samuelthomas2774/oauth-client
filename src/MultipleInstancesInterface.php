@@ -9,5 +9,5 @@ interface MultipleInstancesInterface
      *
      * @param string $instance_url
      */
-    public function setInstanceUrl(string $instance_url);
+    public function setInstanceUrl(string $instance_url, bool $update_session_prefix = true);
 }

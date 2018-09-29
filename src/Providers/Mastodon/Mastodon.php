@@ -46,14 +46,17 @@ class Mastodon extends OAuth implements UserProfilesInterface, UserPicturesInter
      *
      * @param string $instance_url
      */
-    public function setInstanceUrl(string $instance_url)
+    public function setInstanceUrl(string $instance_url, bool $update_session_prefix = true)
     {
         $instance_url = rtrim($instance_url, '/');
 
-        $this->session_prefix = 'mastodon_' . preg_replace(['/[^a-z0-9-_.:]/i', '/[-.:]/', '/([^a-zA-Z0-9]{2,})/'], ['', '_', '$1'], $instance_url) . '_';
         $this->base_api_endpoint = $instance_url . '/api/v1/';
         $this->authorise_endpoint = $instance_url . '/oauth/authorize';
         $this->token_endpoint = $instance_url . '/oauth/token';
+
+        if ($update_session_prefix) {
+            $this->session_prefix = 'mastodon_' . preg_replace(['/[^a-z0-9-_.:]/i', '/[-.:]/', '/([^a-zA-Z0-9]{2,})/'], ['', '_', '$1'], $instance_url) . '_';
+        }
     }
 
     /**

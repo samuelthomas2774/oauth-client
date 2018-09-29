@@ -1,22 +1,22 @@
 {
-	"name": "samuelthomas2774/oauth-client",
-	"description": "An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsoft, Yahoo, GitHub, LinkedIn & more.",
-	"keywords": [ "oauth", "client", "oauth-client", "oauth2", "oauth2-client" ],
-	"homepage": "https://samuelthomas2774.github.io/oauth-client/",
-	"license": "MIT",
-	"authors": [
-		{
-			"name": "Samuel Elliott",
-			"email": "samuel@samuelthomas.ml",
-			"homepage": "https://samuelelliott.ml"
-		}
-	],
-	"autoload": {
-		"psr-4": {
+    "name": "samuelthomas2774/oauth-client",
+    "description": "An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsoft, Yahoo, GitHub, LinkedIn & more.",
+    "keywords": ["oauth", "client", "oauth-client", "oauth2", "oauth2-client"],
+    "homepage": "https://samuelthomas2774.github.io/oauth-client/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Samuel Elliott",
+            "email": "samuel@samuelthomas.ml",
+            "homepage": "https://samuelelliott.ml"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
             "OAuth2\\": "src/"
         }
-	},
-	"require": {
-		"guzzlehttp/guzzle": "~6.0"
-	}
+    },
+    "require": {
+        "guzzlehttp/guzzle": "~6.0"
+    }
 }
