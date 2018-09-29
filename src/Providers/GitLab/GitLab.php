@@ -1,6 +1,6 @@
 <?php
 
-namespace OAuth2\Providers\Mastodon;
+namespace OAuth2\Providers\GitLab;
 
 use OAuth2\OAuth;
 use OAuth2\AccessToken;
@@ -8,30 +8,30 @@ use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
 use OAuth2\UserProfile;
 
-use OAuth2\Providers\Mastodon\UserProfile as MastodonUserProfile;
+use OAuth2\Providers\GitLab\UserProfile as GitLabUserProfile;
 
-class Mastodon extends OAuth implements UserProfilesInterface, UserPicturesInterface
+class GitLab extends OAuth implements UserProfilesInterface, UserPicturesInterface
 {
     /**
      * Session prefix.
      *
      * @var string
      */
-    public $session_prefix = 'mastodon_https_mastodon_social_';
+    public $session_prefix = 'gitlab_https_gitlab_com_';
 
     /**
      * Base API URL.
      *
      * @var string
      */
-    public $base_api_endpoint = 'https://mastodon.social';
+    public $base_api_endpoint = 'https://gitlab.com/api/v4/';
 
     /**
      * OAuth 2.0 authorise endpoint.
      *
      * @var string
      */
-    public $authorise_endpoint = 'https://mastodon.social/oauth/authorize';
+    public $authorise_endpoint = 'https://gitlab.com/oauth/authorize';
 
     /**
      * OAuth 2.0 token endpoint.
@@ -61,8 +61,8 @@ class Mastodon extends OAuth implements UserProfilesInterface, UserPicturesInter
     {
         $instance_url = rtrim($instance_url, '/');
 
-        $this->session_prefix = 'mastodon_' . preg_replace(['/[^a-z0-9-_.:]/i', '/[-.:]/', '/(.{2,})/'], ['', '_', '$1'], $instance_url) . '_';
-        $this->base_api_endpoint = $instance_url . '/api/v1/';
+        $this->session_prefix = 'gitlab_' . preg_replace(['/[^a-z0-9-_.:]/i', '/[-.:]/', '/(.{2,})/'], ['', '_', '$1'], $instance_url) . '_';
+        $this->base_api_endpoint = $instance_url . '/api/v4/';
         $this->authorise_endpoint = $instance_url . '/oauth/authorize';
         $this->token_endpoint = $instance_url . '/oauth/token';
     }
@@ -70,29 +70,21 @@ class Mastodon extends OAuth implements UserProfilesInterface, UserPicturesInter
     /**
      * Returns the current user.
      *
-     * @return \OAuth2\Providers\Mastodon\UserProfile
+     * @return \OAuth2\Providers\GitLab\UserProfile
      */
     public function getUserProfile(): UserProfile
     {
-        $response = $this->api('GET', 'account/verify_credentials');
+        $response = $this->api('GET', 'user');
 
-        $user = new MastodonUserProfile(isset($response->id) ? $response->id : '');
+        $user = new GitLabUserProfile(isset($response->id) ? $response->id : '');
 
         $user->response = $response;
         $user->username = $response->username;
-        $user->name = $response->display_name;
+        $user->name = $response->name;
         $user->email_addresses = [$response->email];
+        $user->url = $response->web_url;
 
         return $user;
-        //
-        // $user = new stdClass();
-        // $user->id = isset($response->id) ? $response->id : null;
-        // $user->username = isset($response->username) ? $response->username : $user->id;
-        // $user->name = isset($response->display_name) ? $response->display_name : $user->username;
-        // $user->email = isset($response->email) ? $response->email : null;
-        // $user->response = $response;
-        //
-        // return $user;
     }
 
     /**
@@ -102,10 +94,10 @@ class Mastodon extends OAuth implements UserProfilesInterface, UserPicturesInter
      */
     public function getUserPictureUrl(int $size = 50): ?string
     {
-        $response = $this->api('GET', 'account/verify_credentials');
+        $response = $this->api('GET', 'user');
 
-        if (!isset($response->avatar)) return null;
+        if (!isset($response->avatar_url)) return null;
 
-        return $response->avatar;
+        return $response->avatar_url . ($size ? '&size=' . $size : '');
     }
 }
