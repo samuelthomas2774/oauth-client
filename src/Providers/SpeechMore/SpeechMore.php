@@ -1,10 +1,13 @@
 <?php
 
-namespace OAuth2\Providers;
+namespace OAuth2\Providers\SpeechMore;
 
 use OAuth2\OAuth;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
+use OAuth2\UserProfile;
+
+use OAuth2\Providers\SpeechMore\UserProfile as SpeechMoreUserProfile;
 
 class SpeechMore extends OAuth implements UserProfilesInterface, UserPicturesInterface
 {
@@ -37,7 +40,7 @@ class SpeechMore extends OAuth implements UserProfilesInterface, UserPicturesInt
     public $token_endpoint = '/oauth/token';
 
     /**
-     * Returns the current user.
+     * Returns information about the current access token.
      *
      * @return \stdClass
      */
@@ -49,11 +52,22 @@ class SpeechMore extends OAuth implements UserProfilesInterface, UserPicturesInt
     /**
      * Returns the current user.
      *
-     * @return \stdClass
+     * @return \OAuth2\Providers\SpeechMore\UserProfile
      */
-    public function getUserProfile()
+    public function getUserProfile(): UserProfile
     {
-        return $this->api('GET', 'user');
+        $response = $this->api('GET', 'user');
+
+        $user = new SpeechMoreUserProfile(isset($response->client_relationship_id) ? $response->client_relationship_id : '');
+
+        $user->response = $response;
+        $user->name = $response->name;
+
+        if (isset($response->id)) $user->ids = [$response->id];
+        if (isset($response->username)) $user->username = $response->username;
+        if (isset($response->email)) $user->email_addresses = [$response->email];
+
+        return $user;
     }
 
     /**
@@ -62,10 +76,12 @@ class SpeechMore extends OAuth implements UserProfilesInterface, UserPicturesInt
      * @param integer $size
      * @return string
      */
-    public function getUserPictureUrl(int $size = null): string
+    public function getUserPictureUrl(int $size = null): ?string
     {
-        $user = $this->getUserProfile();
+        $response = $this->api('GET', 'user');
 
-        return $user->avatar_url;
+        if (!isset($response->avatar_url)) return null;
+
+        return $response->avatar_url;
     }
 }

@@ -7,7 +7,7 @@
 return [
     'speechmore' => [
         'name' => 'SpeechMore',
-        'class' => \OAuth2\Providers\SpeechMore::class,
+        'class' => \OAuth2\Providers\SpeechMore\SpeechMore::class,
         'id' => '...',
         'secret' => '...',
         'redirect_url' => 'https://' . $_SERVER['HTTP_HOST'] . '/oauth-client/examples/all-2/code.php/speechmore',
