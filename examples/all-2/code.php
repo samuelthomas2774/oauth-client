@@ -18,8 +18,8 @@ if ($client_info) {
         $token = $client->getAccessTokenFromRequestCode($client_info['redirect_url'], $client_info['scope']);
 
         echo 'Success!<br />';
-        echo 'Code: ' . htmlentities($_GET['code']) . '<br />';
-        echo 'Access token: ' . htmlentities(print_r($token, true)) . '<br />';
+        echo 'Code: <pre>' . htmlentities($_GET['code']) . '</pre><br />';
+        echo 'Access token: <pre>' . htmlentities(print_r($token, true)) . '</pre><br />';
     } catch (Exception $exception) {
         echo 'Error: ' . $exception->getMessage() . '<br />';
     }
