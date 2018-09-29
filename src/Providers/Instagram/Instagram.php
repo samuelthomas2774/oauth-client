@@ -3,6 +3,7 @@
 namespace OAuth2\Providers\Instagram;
 
 use OAuth2\OAuth;
+use OAuth2\AccessToken;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserProfile;
 
@@ -68,8 +69,8 @@ class Instagram extends OAuth implements UserProfilesInterface
         $user = new InstagramUserProfile(isset($response->data->id) ? $response->data->id : '');
 
         $user->response = $response;
-        $user->name = $response->data->name;
-        $user->email_addresses = [$response->data->email];
+        $user->username = $response->data->username;
+        $user->name = $response->data->full_name;
 
         return $user;
     }
