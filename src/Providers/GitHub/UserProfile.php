@@ -1,10 +1,10 @@
 <?php
 
-namespace OAuth2\ProviderUserProfiles;
+namespace OAuth2\Providers\GitHub;
 
-use OAuth2\UserProfile;
+use OAuth2\UserProfile as BaseUserProfile;
 
-class GitHub extends UserProfile
+class UserProfile extends BaseUserProfile
 {
     /**
      * The original response from the provider's API.

@@ -1,6 +1,6 @@
 <?php
 
-namespace OAuth2\Providers;
+namespace OAuth2\Providers\GitHub;
 
 use OAuth2\OAuth;
 use OAuth2\AccessToken;
@@ -8,7 +8,7 @@ use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
 use OAuth2\UserProfile;
 
-use OAuth2\ProviderUserProfiles\GitHub as GitHubUserProfile;
+use OAuth2\Providers\GitHub\UserProfile as GitHubUserProfile;
 
 use Psr\Http\Message\ResponseInterface;
 use stdClass;
@@ -83,7 +83,7 @@ class GitHub extends OAuth implements UserProfilesInterface, UserPicturesInterfa
     /**
      * Returns the current user.
      *
-     * @return \OAuth2\ProviderUserProfiles\GitHub
+     * @return \OAuth2\Providers\GitHub\UserProfile
      */
     public function getUserProfile(): UserProfile
     {
@@ -110,7 +110,7 @@ class GitHub extends OAuth implements UserProfilesInterface, UserPicturesInterfa
     {
         $response = $this->api('GET', 'user');
 
-        if (!isset($response->avatar_url)) return;
+        if (!isset($response->avatar_url)) return null;
 
         return $response->avatar_url;
     }

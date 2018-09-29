@@ -1,6 +1,6 @@
 <?php
 
-namespace OAuth2\Providers;
+namespace OAuth2\Providers\Facebook;
 
 use OAuth2\OAuth;
 use OAuth2\AccessToken;
@@ -8,7 +8,7 @@ use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
 use OAuth2\UserProfile;
 
-use OAuth2\ProviderUserProfiles\Facebook as FacebookUserProfile;
+use OAuth2\Providers\Facebook\UserProfile as FacebookUserProfile;
 
 use Psr\Http\Message\ResponseInterface;
 use stdClass;
@@ -113,7 +113,7 @@ class Facebook extends OAuth implements UserProfilesInterface, UserPicturesInter
      * Returns the current user.
      *
      * @param array $fields
-     * @return \stdClass
+     * @return \OAuth2\Providers\Facebook\UserProfile
      */
     public function getUserProfile(array $fields = []): UserProfile
     {
@@ -145,7 +145,7 @@ class Facebook extends OAuth implements UserProfilesInterface, UserPicturesInter
             'query' => ['fields' => 'id,picture.width(' . $size . ').height(' . $size . ')'],
         ]);
 
-        if (!isset($response->picture->data) || !isset($response->picture->data->url)) return;
+        if (!isset($response->picture->data) || !isset($response->picture->data->url)) return null;
 
         return $response->picture->data->url;
     }
