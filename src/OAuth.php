@@ -33,14 +33,14 @@ class OAuth
      *
      * @var string
      */
-    private $client_id = null;
+    protected $client_id = null;
 
     /**
      * The client secret.
      *
      * @var string
      */
-    private $client_secret = null;
+    protected $client_secret = null;
 
     /**
      * The current access token.
@@ -522,7 +522,7 @@ class OAuth
         return $this->redirectToAuthoriseEndpoint(null, $redirect_url, $scope, $params);
     }
 
-    public function getAccessToken()
+    public function getAccessToken(): ?AccessToken
     {
         return $this->access_token;
     }

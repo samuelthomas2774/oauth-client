@@ -43,9 +43,9 @@ class Foursquare extends OAuth implements UserProfilesInterface
     {
         $options = parent::getGuzzleDefaultOptions();
 
-        if (!isset($options['query'])) $options['query'] = $options['query'] = [];
+        if (!isset($options['query'])) $options['query'] = [];
 
-        $options['query']['v'] = '20140806';
+        $options['query']['v'] = '20180929';
         $options['query']['m'] = 'foursquare';
 
         return $options;
@@ -65,6 +65,7 @@ class Foursquare extends OAuth implements UserProfilesInterface
         if (!isset($options['query']) || !is_array($options['query'])) $options['query'] = [];
 
         $options['query']['oauth_token'] = $token->getAccessToken();
+        $options['query']['v'] = '20180929';
 
         return $options;
     }
@@ -81,8 +82,9 @@ class Foursquare extends OAuth implements UserProfilesInterface
         $user = new FoursquareUserProfile(isset($response->response->user->id) ? $response->response->user->id : '');
 
         $user->response = $response;
-        $user->name = $response->response->user->name;
-        $user->email_addresses = [$response->response->user->email];
+        $user->name = $response->response->user->firstName . ' ' . $response->response->user->lastName;
+        $user->email_addresses = [$response->response->user->contact->email];
+        $user->url = $response->response->user->canonicalUrl;
 
         return $user;
     }

@@ -27,24 +27,32 @@ if ($client_info) {
         echo 'Expires in: ' . htmlentities(print_r($token->getExpiresIn(), true)) . '<br />';
 
         if (!$token->hasExpired()) {
-            if (method_exists($client, 'getTokenInfo')) {
-                $token_info = $client->getTokenInfo();
 
-                echo 'Access token info: <pre>' . htmlentities(print_r($token_info, true)) . '</pre><br />';
-            }
+            try {
+                if (method_exists($client, 'getTokenInfo')) {
+                    $token_info = $client->getTokenInfo();
 
-            if ($client instanceof UserProfilesInterface) {
-                $user = $client->getUserProfile();
+                    echo 'Access token info: <pre>' . htmlentities(print_r($token_info, true)) . '</pre><br />';
+                }
 
-                echo 'User profile: <pre>' . htmlentities(print_r($user, true)) . '</pre><br />';
-            }
+                if ($client instanceof UserProfilesInterface) {
+                    $user = $client->getUserProfile();
 
-            if ($client instanceof UserPicturesInterface) {
-                $picture_url = $client->getUserPictureUrl(60);
+                    echo 'User profile: <pre>' . htmlentities(print_r($user, true)) . '</pre><br />';
+                }
 
-                echo 'User picture URL: <pre>' . htmlentities(print_r($picture_url, true)) . '</pre><br />';
+                if ($client instanceof UserPicturesInterface) {
+                    $picture_url = $client->getUserPictureUrl(60);
 
-                echo '<img src="' . htmlentities($picture_url) . '" /><br />';
+                    echo 'User picture URL: <pre>' . htmlentities(print_r($picture_url, true)) . '</pre><br />';
+
+                    echo '<img src="' . htmlentities($picture_url) . '" /><br />';
+                }
+            } catch (GuzzleHttp\Exception\ClientException $exception) {
+                echo 'Error: <pre>' . htmlentities(print_r($exception, true)) . '</pre><br />';
+                echo 'Response: <pre>' . htmlentities(print_r($exception->getResponse()->getBody()->__toString(), true)) . '</pre><br />';
+            } catch (Exception $exception) {
+                echo 'Error: <pre>' . htmlentities(print_r($exception, true)) . '</pre><br />';
             }
         } else {
             echo 'Access token expired<br />';

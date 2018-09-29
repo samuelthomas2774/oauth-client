@@ -51,7 +51,10 @@ class Eventbrite extends OAuth implements UserProfilesInterface
 
         $user->response = $response;
         $user->name = $response->name;
-        $user->email_addresses = [$response->email];
+
+        $user->email_addresses = array_map(function ($email_address) {
+            return $email_address->email;
+        }, $response->emails);
 
         return $user;
     }
