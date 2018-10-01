@@ -178,7 +178,7 @@ class OAuth
         return $this->getApiResponse($method, $url, $options, $response);
     }
 
-    protected function getGuzzleDefaultOptions()
+    protected function getGuzzleDefaultOptions(): array
     {
         return array_merge([
             'base_uri' => $this->base_api_endpoint,
@@ -186,7 +186,7 @@ class OAuth
         ], $this->guzzle_options);
     }
 
-    protected function getGuzzleOptionsForRequest(string $method, string $url, array $options = [])
+    protected function getGuzzleOptionsForRequest(string $method, string $url, array $options = []): array
     {
         return $options;
     }

@@ -7,12 +7,16 @@ use OAuth2\AccessToken;
 use OAuth2\UserProfile;
 use OAuth2\UserProfilesInterface;
 
+use OAuth2\UsesAccessTokenQueryParameter;
+
 use OAuth2\Providers\Deezer\UserProfile as DeezerUserProfile;
 
 use Psr\Http\Message\ResponseInterface;
 
 class Deezer extends OAuth implements UserProfilesInterface
 {
+    use UsesAccessTokenQueryParameter;
+
     /**
      * Session prefix.
      *
@@ -49,24 +53,6 @@ class Deezer extends OAuth implements UserProfilesInterface
      * @var string
      */
     public $scope_separator = ',';
-
-    /**
-     * Returns the request options with an Authorization header with the access token.
-     *
-     * @param string $method
-     * @param string $url
-     * @param array $options
-     * @param \OAuth2\AccessToken $token
-     * @return array $options
-     */
-    protected function authenticateAccessTokenToApiRequestOptions(string $method, string $url, array $options, AccessToken $token): array
-    {
-        if (!isset($options['query']) || !is_array($options['query'])) $options['query'] = [];
-
-        $options['query']['access_token'] = $token->getAccessToken();
-
-        return $options;
-    }
 
     protected function getApiResponse(string $method, string $url, array $options, ResponseInterface $response)
     {

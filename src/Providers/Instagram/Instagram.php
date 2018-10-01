@@ -7,10 +7,14 @@ use OAuth2\AccessToken;
 use OAuth2\UserProfile;
 use OAuth2\UserProfilesInterface;
 
+use OAuth2\UsesAccessTokenQueryParameter;
+
 use OAuth2\Providers\Instagram\UserProfile as InstagramUserProfile;
 
 class Instagram extends OAuth implements UserProfilesInterface
 {
+    use UsesAccessTokenQueryParameter;
+
     /**
      * Session prefix.
      *
@@ -38,24 +42,6 @@ class Instagram extends OAuth implements UserProfilesInterface
      * @var string
      */
     public $token_endpoint = '/oauth/access_token';
-
-    /**
-     * Returns the request options with an Authorization header with the access token.
-     *
-     * @param string $method
-     * @param string $url
-     * @param array $options
-     * @param \OAuth2\AccessToken $token
-     * @return array $options
-     */
-    protected function authenticateAccessTokenToApiRequestOptions(string $method, string $url, array $options, AccessToken $token): array
-    {
-        if (!isset($options['query']) || !is_array($options['query'])) $options['query'] = [];
-
-        $options['query']['access_token'] = $token->getAccessToken();
-
-        return $options;
-    }
 
     /**
      * Returns the current user.
