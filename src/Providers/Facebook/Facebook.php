@@ -53,7 +53,8 @@ class Facebook extends OAuth implements UserProfilesInterface, UserPicturesInter
      */
     public $token_debug_endpoint = 'debug_token';
 
-    protected function getApiResponse(string $method, string $url, array $options, ResponseInterface $response) {
+    protected function getApiResponse(string $method, string $url, array $options, ResponseInterface $response)
+    {
         $data = json_decode($response->getBody());
 
         if (isset($data->error)) {

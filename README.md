@@ -144,13 +144,14 @@ Built-in providers
 Any other providers please contact me at https://samuelelliott.ml/#contact and I'll add it as soon as possible.
 
 **Provider**        | **Class**                                     | **Sign-up url**
---------------------|----------------------- -----------------------|-------------------------
-Facebook  `P`       | OAuth2\\Providers\\Facebook\\Facebook         | https://developers.facebook.com/apps/
-Google  `P`         | OAuth2\\Providers\\Google\\Google             | https://console.developers.google.com
+--------------------|-----------------------------------------------|-------------------------
+SpeechMore `P`      | OAuth2\\Providers\\SpeechMore\\SpeechMore     | https://speechmore.ml/settings/api-clients
+Facebook `P`        | OAuth2\\Providers\\Facebook\\Facebook         | https://developers.facebook.com/apps/
+Google `P`          | OAuth2\\Providers\\Google\\Google             | https://console.developers.google.com
 Microsoft           | OAuth2\\Providers\\Microsoft\\Microsoft       | https://account.live.com/developers/applications/create
-Yahoo  `P`          | OAuth2\\Providers\\Yahoo\\Yahoo               | https://developer.apps.yahoo.com/dashboard/createKey.html
-GitHub  `P`         | OAuth2\\Providers\\GitHub\\GitHub             | https://github.com/settings/applications/new
-LinkedIn  `P`       | OAuth2\\Providers\\Linkedin\\Linkedin         | https://www.linkedin.com/developer/apps/new
+Yahoo `P`           | OAuth2\\Providers\\Yahoo\\Yahoo               | https://developer.apps.yahoo.com/dashboard/createKey.html
+GitHub `P`          | OAuth2\\Providers\\GitHub\\GitHub             | https://github.com/settings/applications/new
+LinkedIn `P`        | OAuth2\\Providers\\Linkedin\\Linkedin         | https://www.linkedin.com/developer/apps/new
 Amazon              | OAuth2\\Providers\\Amazon\\Amazon             | https://developer.amazon.com/lwa/sp/overview.html
 Disqus              | OAuth2\\Providers\\Disqus\\Disqus             | https://disqus.com/api/applications/register/
 Instagram           | OAuth2\\Providers\\Instagram\\Instagram       | https://instagram.com/developer/clients/register/
@@ -158,11 +159,11 @@ Spotify             | OAuth2\\Providers\\Spotify\\Spotify           | https://de
 TeamViewer          | OAuth2\\Providers\\TeamViewer\\TeamViewer     | https://login.teamviewer.com/nav/api
 WordPress.com       | OAuth2\\Providers\\WordPress\\WordPress       | https://developer.wordpress.com/apps/new/
 Eventbrite          | OAuth2\\Providers\\Eventbrite\\Eventbrite     | https://www.eventbrite.co.uk/myaccount/apps/new/
-GitLab `I`          | OAuth2\\Providers\\GitLab\\GitLab             | https://gitlab.com/profile/applications *
-Mastodon `I`        | OAuth2\\Providers\\Mastodon\\Mastodon         | https://mastodon.social/settings/applications/new *
-Discord             | OAuth2\\Providers\\Discord\\Discord           | https://discordapp.com/developers/applications/
+GitLab `P` `I`      | OAuth2\\Providers\\GitLab\\GitLab             | https://gitlab.com/profile/applications *
+Mastodon `P` `I`    | OAuth2\\Providers\\Mastodon\\Mastodon         | https://mastodon.social/settings/applications/new *
+Discord `P`         | OAuth2\\Providers\\Discord\\Discord           | https://discordapp.com/developers/applications/
 Pinterest           | OAuth2\\Providers\\Pinterest\\Pinterest       | https://developers.pinterest.com/apps/
-Slack               | OAuth2\\Providers\\Slack\\Slack               | https://api.slack.com/apps
+Slack `P`           | OAuth2\\Providers\\Slack\\Slack               | https://api.slack.com/apps
 DigitalOcean        | OAuth2\\Providers\\DigitalOcean\\DigitalOcean | https://cloud.digitalocean.com/account/api/applications/new
 Gitter              | OAuth2\\Providers\\Gitter\\Gitter             | https://developer.gitter.im/apps/new
 Deezer              | OAuth2\\Providers\\Deezer\\Deezer             | https://developers.deezer.com/myapps/create
