@@ -7,10 +7,36 @@ use OAuth2\UserProfile;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
 
+use OAuth2\AuthoriseEndpoint;
+use OAuth2\TokenEndpoint;
+use OAuth2\AuthoriseEndpointInterface;
+use OAuth2\TokenEndpointInterface;
+
+use OAuth2\Grants\AuthorisationCodeGrant;
+use OAuth2\Grants\RefreshTokenGrant;
+use OAuth2\Grants\ImplicitGrant;
+use OAuth2\Grants\ResourceOwnerCredentialsGrant;
+use OAuth2\Grants\ClientCredentialsGrant;
+
+use OAuth2\Grants\AuthorisationCodeGrantInterface;
+use OAuth2\Grants\RefreshTokenGrantInterface;
+use OAuth2\Grants\ImplicitGrantInterface;
+use OAuth2\Grants\ResourceOwnerCredentialsGrantInterface;
+use OAuth2\Grants\ClientCredentialsGrantInterface;
+
 use OAuth2\Providers\SpeechMore\UserProfile as SpeechMoreUserProfile;
 
-class SpeechMore extends OAuth implements UserProfilesInterface, UserPicturesInterface
+class SpeechMore extends OAuth implements UserProfilesInterface, UserPicturesInterface, AuthoriseEndpointInterface, TokenEndpointInterface, AuthorisationCodeGrantInterface, RefreshTokenGrantInterface, ImplicitGrantInterface, ResourceOwnerCredentialsGrantInterface, ClientCredentialsGrantInterface
 {
+    use AuthoriseEndpoint;
+    use TokenEndpoint;
+
+    use AuthorisationCodeGrant;
+    use RefreshTokenGrant;
+    use ImplicitGrant;
+    use ResourceOwnerCredentialsGrant;
+    use ClientCredentialsGrant;
+
     /**
      * Session prefix.
      *

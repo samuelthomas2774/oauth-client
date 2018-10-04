@@ -8,6 +8,19 @@ use OAuth2\UserProfile;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
 
+use OAuth2\AuthoriseEndpoint;
+use OAuth2\TokenEndpoint;
+use OAuth2\AuthoriseEndpointInterface;
+use OAuth2\TokenEndpointInterface;
+
+use OAuth2\Grants\AuthorisationCodeGrant;
+use OAuth2\Grants\ImplicitGrant;
+use OAuth2\Grants\ClientCredentialsGrant;
+
+use OAuth2\Grants\AuthorisationCodeGrantInterface;
+use OAuth2\Grants\ImplicitGrantInterface;
+use OAuth2\Grants\ClientCredentialsGrantInterface;
+
 use OAuth2\Exceptions\ApiException;
 
 use OAuth2\Providers\Facebook\UserProfile as FacebookUserProfile;
@@ -16,8 +29,12 @@ use Psr\Http\Message\ResponseInterface;
 use stdClass;
 use Exception;
 
-class Facebook extends OAuth implements UserProfilesInterface, UserPicturesInterface
+class Facebook extends OAuth implements UserProfilesInterface, UserPicturesInterface, AuthoriseEndpointInterface, TokenEndpointInterface, AuthorisationCodeGrantInterface, ImplicitGrantInterface, ClientCredentialsGrantInterface
 {
+    use AuthorisationCodeGrant;
+    use ImplicitGrant;
+    use ClientCredentialsGrant;
+
     /**
      * Session prefix.
      *

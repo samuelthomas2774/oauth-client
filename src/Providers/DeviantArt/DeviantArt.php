@@ -7,10 +7,23 @@ use OAuth2\AccessToken;
 use OAuth2\UserProfile;
 use OAuth2\UserProfilesInterface;
 
+use OAuth2\AuthoriseEndpoint;
+use OAuth2\TokenEndpoint;
+use OAuth2\AuthoriseEndpointInterface;
+use OAuth2\TokenEndpointInterface;
+
+use OAuth2\Grants\AuthorisationCodeGrant;
+use OAuth2\Grants\AuthorisationCodeGrantInterface;
+
 use OAuth2\Providers\DeviantArt\UserProfile as DeviantArtUserProfile;
 
-class DeviantArt extends OAuth implements UserProfilesInterface
+class DeviantArt extends OAuth implements UserProfilesInterface, AuthoriseEndpointInterface, TokenEndpointInterface, AuthorisationCodeGrantInterface
 {
+    use AuthoriseEndpoint;
+    use TokenEndpoint;
+
+    use AuthorisationCodeGrant;
+
     /**
      * Session prefix.
      *
