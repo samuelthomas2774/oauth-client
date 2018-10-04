@@ -3,6 +3,7 @@
 namespace OAuth2\Grants;
 
 use OAuth2\AccessToken;
+use OAuth2\State;
 
 use stdClass;
 use Throwable;
@@ -58,12 +59,23 @@ trait AuthorisationCodeGrant
             throw new Exception('Missing code and state.');
         }
 
-        $state = $this->session('state');
-        if (empty($state) || $state !== $_GET['state']) {
+        if (!$state = $this->getRequestState()) {
             throw new Exception('Invalid state.');
         }
 
         return $this->getAccessTokenFromCode($_GET['code'], $redirect_url, $requested_scope, $update_session);
+    }
+
+    /**
+     * Returns the state matching the request query string parameter.
+     *
+     * @return \OAuth2\State
+     */
+    public function getRequestState(): ?State
+    {
+        if (!isset($_GET['state'])) return null;
+
+        return $this->getLastStateById($_GET['state']);
     }
 
     // \OAuth2\AuthoriseEndpoint

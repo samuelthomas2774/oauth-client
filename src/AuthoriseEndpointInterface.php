@@ -13,7 +13,7 @@ interface AuthoriseEndpointInterface
      * @param array $params
      * @return string
      */
-    public function generateAuthoriseUrl(string $state = null, string $redirect_url = null, array $scope = [], array $params = []): string;
+    public function generateAuthoriseUrl($state = null, string $redirect_url = null, array $scope = [], array $params = []): string;
 
     /**
      * Generate a URL to redirect users to to authorise this client with a state.
@@ -26,12 +26,11 @@ interface AuthoriseEndpointInterface
     public function generateAuthoriseUrlAndState(string $redirect_url = null, array $scope = [], array $params = []): string;
 
     /**
-     * Generate a state.
+     * Returns the state matching the request query string parameter.
      *
-     * @param boolean $update_session
-     * @return string
+     * @return \OAuth2\State
      */
-    public function getState(bool $update_session = true): string;
+    public function getRequestState(): ?State;
 
     /**
      * Redirect the user to the URL to authorise this client.

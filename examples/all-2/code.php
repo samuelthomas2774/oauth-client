@@ -17,8 +17,16 @@ if ($client_info) {
         // Validate $_GET['state'], get an access token from $_GET['code'] and save it to the session
         $token = $client->getAccessTokenFromRequestCode($client_info['redirect_url'], $client_info['scope']);
 
+        $state = $client->getRequestState();
+
         echo 'Success!<br />';
+
+        if (isset($state->link)) {
+            echo 'You clicked link #' . htmlentities($state->link) . '<br />';
+        }
+
         echo 'Code: <pre>' . htmlentities($_GET['code']) . '</pre><br />';
+        echo 'State: <pre>' . htmlentities(print_r($state, true)) . '</pre><br />';
         echo 'Access token: <pre>' . htmlentities(print_r($token, true)) . '</pre><br />';
     } catch (Exception $exception) {
         echo 'Error: ' . htmlentities($exception->getMessage()) . '<br />';

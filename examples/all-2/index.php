@@ -4,9 +4,11 @@ ini_set('display_errors', true);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use OAuth2\Providers\Discord\Discord;
+use OAuth2\State;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
+
+use OAuth2\Providers\Discord\Discord;
 
 // Start a session
 // This must be done after loading the autoloader (so access tokens can be unserialized properly) and before the client is created so the access token can be restored from the session
@@ -22,6 +24,14 @@ if ($client_info) {
 
     // Output a link to the authorise endpoint
     echo '<a href="' . htmlentities($client->generateAuthoriseUrlAndState($client_info['redirect_url'], $client_info['scope'])) . '">Login to ' . htmlentities($client_info['name']) . '</a><br />';
+
+    echo '<a href="' . htmlentities($client->generateAuthoriseUrl(new State([
+        'link' => 1,
+    ]), $client_info['redirect_url'], $client_info['scope'])) . '">Login to ' . htmlentities($client_info['name']) . ' (1)</a><br />';
+
+    echo '<a href="' . htmlentities($client->generateAuthoriseUrl(new State([
+        'link' => 2,
+    ]), $client_info['redirect_url'], $client_info['scope'])) . '">Login to ' . htmlentities($client_info['name']) . ' (2)</a><br />';
 
     echo 'Client: <pre>' . htmlentities(print_r($client, true)) . '</pre><br />';
 

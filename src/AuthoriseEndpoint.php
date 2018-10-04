@@ -16,6 +16,8 @@ use Exception;
 
 trait AuthoriseEndpoint
 {
+    use ManagesState;
+
     /**
      * Generate a URL to redirect users to to authorise this client.
      *
@@ -25,17 +27,21 @@ trait AuthoriseEndpoint
      * @param array $params
      * @return string
      */
-    public function generateAuthoriseUrl(string $state = null, string $redirect_url = null, array $scope = [], array $params = []): string
+    public function generateAuthoriseUrl($state = null, string $redirect_url = null, array $scope = [], array $params = []): string
     {
         // Check if redirect_url is a url - the redirect_url should go to a PHP script on the same domain that runs OAuth2::getAccessTokenFromCode()
         if (!filter_var($redirect_url, FILTER_VALIDATE_URL)) throw new Exception('$redirect_url must be a valid URL.');
+
+        if ($state) {
+            $state = $this->generateOrPushState($state);
+        }
 
         $default_params = [
             'response_type' => 'code',
             'client_id' => $this->client_id,
             'redirect_uri' => $redirect_url,
             'scope' => implode($this->scope_separator, $scope),
-            'state' => $state,
+            'state' => (string)$state,
         ];
 
         return $this->authorise_endpoint . (strpos($this->authorise_endpoint, '?') !== false ? '&' : '?')
@@ -53,30 +59,9 @@ trait AuthoriseEndpoint
     public function generateAuthoriseUrlAndState(string $redirect_url = null, array $scope = [], array $params = []): string
     {
         // Generate a unique state parameter and store it in the session
-        $state = $this->getState();
+        $state = $this->generateState();
 
         return $this->generateAuthoriseUrl($state, $redirect_url, $scope, $params);
-    }
-
-    /**
-     * Generate a state.
-     *
-     * @param boolean $update_session
-     * @return string
-     */
-    public function getState(bool $update_session = true): string
-    {
-        if (array_key_exists($this->session_prefix, self::$state)) {
-            return self::$state[$this->session_prefix];
-        }
-
-        $state = hash('sha256', time() . uniqid(mt_rand(), true));
-
-        if ($update_session) {
-            $this->session('state', $state);
-        }
-
-        return self::$state[$this->session_prefix] = $state;
     }
 
     /**

@@ -105,6 +105,13 @@ class OAuth
     protected static $state = [];
 
     /**
+     * The last generated state for each session prefix.
+     *
+     * @var array
+     */
+    protected static $last_state = [];
+
+    /**
      * Creates a new OAuth client object.
      *
      * @param string $client_id
@@ -131,6 +138,10 @@ class OAuth
 
         if ($token) $this->setAccessToken($token);
         elseif ($this->session('token') && $token !== false) $this->setAccessToken($this->session('token'));
+
+        if (method_exists($this, 'ageState')) {
+            $this->ageState();
+        }
     }
 
     /**
