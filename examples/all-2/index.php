@@ -23,15 +23,18 @@ if ($client_info) {
     if (isset($_GET['del_token'])) $client->setAccessToken(null);
 
     // Output a link to the authorise endpoint
-    echo '<a href="' . htmlentities($client->generateAuthoriseUrlAndState($client_info['redirect_url'], $client_info['scope'])) . '">Login to ' . htmlentities($client_info['name']) . '</a><br />';
+    $authorise_url = $client->generateAuthoriseUrlAndState($client_info['redirect_url'], $client_info['scope']);
+    echo '<a href="' . htmlentities($authorise_url) . '">Login to ' . htmlentities($client_info['name']) . '</a><br />';
+    echo 'Authorise URL: <pre>' . htmlentities(print_r($authorise_url, true)) . '</pre><br />';
 
-    echo '<a href="' . htmlentities($client->generateAuthoriseUrl(new State([
+    // Output some authorise URLs with state data
+    echo '<a href="' . htmlentities($client->generateAuthoriseUrl([
         'link' => 1,
-    ]), $client_info['redirect_url'], $client_info['scope'])) . '">Login to ' . htmlentities($client_info['name']) . ' (1)</a><br />';
+    ], $client_info['redirect_url'], $client_info['scope'])) . '">Login to ' . htmlentities($client_info['name']) . ' (1)</a><br />';
 
-    echo '<a href="' . htmlentities($client->generateAuthoriseUrl(new State([
+    echo '<a href="' . htmlentities($client->generateAuthoriseUrl([
         'link' => 2,
-    ]), $client_info['redirect_url'], $client_info['scope'])) . '">Login to ' . htmlentities($client_info['name']) . ' (2)</a><br />';
+    ], $client_info['redirect_url'], $client_info['scope'])) . '">Login to ' . htmlentities($client_info['name']) . ' (2)</a><br />';
 
     echo 'Client: <pre>' . htmlentities(print_r($client, true)) . '</pre><br />';
 

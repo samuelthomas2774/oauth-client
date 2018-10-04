@@ -27,7 +27,7 @@ trait AuthoriseEndpoint
      * @param array $params
      * @return string
      */
-    public function generateAuthoriseUrl($state = null, string $redirect_url = null, array $scope = [], array $params = []): string
+    public function generateAuthoriseUrl($state = null, string $redirect_url = null, array $scope = [], array $params = []): AuthoriseUrl
     {
         // Check if redirect_url is a url - the redirect_url should go to a PHP script on the same domain that runs OAuth2::getAccessTokenFromCode()
         if (!filter_var($redirect_url, FILTER_VALIDATE_URL)) throw new Exception('$redirect_url must be a valid URL.');
@@ -44,8 +44,7 @@ trait AuthoriseEndpoint
             'state' => (string)$state,
         ];
 
-        return $this->authorise_endpoint . (strpos($this->authorise_endpoint, '?') !== false ? '&' : '?')
-            . http_build_query(array_merge($default_params, $params));
+        return new AuthoriseUrl($this->authorise_endpoint, array_merge($default_params, $params), $state, $scope);
     }
 
     /**
@@ -56,7 +55,7 @@ trait AuthoriseEndpoint
      * @param array $params
      * @return string
      */
-    public function generateAuthoriseUrlAndState(string $redirect_url = null, array $scope = [], array $params = []): string
+    public function generateAuthoriseUrlAndState(string $redirect_url = null, array $scope = [], array $params = []): AuthoriseUrl
     {
         // Generate a unique state parameter and store it in the session
         $state = $this->generateState();
