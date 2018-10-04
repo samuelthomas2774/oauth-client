@@ -4,6 +4,7 @@ ini_set('display_errors', true);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+use OAuth2\Providers\Discord\Discord;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
 
@@ -24,44 +25,57 @@ if ($client_info) {
 
     echo 'Client: <pre>' . htmlentities(print_r($client, true)) . '</pre><br />';
 
-    if ($token = $client->getAccessToken()) {
+    if (!$token = $client->getAccessToken()) {
+        echo 'No access token<br />';
+    } elseif ($token->hasExpired()) {
+        echo 'Access token expired<br />';
+    } else {
         echo 'Access token: <pre>' . htmlentities(print_r($token, true)) . '</pre><br />';
         echo 'Access token: <pre>' . htmlentities(json_encode($token, JSON_PRETTY_PRINT)) . '</pre><br />';
         echo 'Expires in: ' . htmlentities(print_r($token->getExpiresIn(), true)) . '<br />';
 
-        if (!$token->hasExpired()) {
+        try {
+            if (method_exists($client, 'getTokenInfo')) {
+                $token_info = $client->getTokenInfo();
 
-            try {
-                if (method_exists($client, 'getTokenInfo')) {
-                    $token_info = $client->getTokenInfo();
-
-                    echo 'Access token info: <pre>' . htmlentities(print_r($token_info, true)) . '</pre><br />';
-                }
-
-                if ($client instanceof UserProfilesInterface) {
-                    $user = $client->getUserProfile();
-
-                    echo 'User profile: <pre>' . htmlentities(print_r($user, true)) . '</pre><br />';
-                }
-
-                if ($client instanceof UserPicturesInterface) {
-                    $picture_url = $client->getUserPictureUrl(60);
-
-                    echo 'User picture URL: <pre>' . htmlentities(print_r($picture_url, true)) . '</pre><br />';
-
-                    echo '<img src="' . htmlentities($picture_url) . '" /><br />';
-                }
-            } catch (GuzzleHttp\Exception\ClientException $exception) {
-                echo 'Error: <pre>' . htmlentities(print_r($exception, true)) . '</pre><br />';
-                echo 'Response: <pre>' . htmlentities(print_r($exception->getResponse()->getBody()->__toString(), true)) . '</pre><br />';
-            } catch (Exception $exception) {
-                echo 'Error: <pre>' . htmlentities(print_r($exception, true)) . '</pre><br />';
+                echo 'Access token info: <pre>' . htmlentities(print_r($token_info, true)) . '</pre><br />';
             }
-        } else {
-            echo 'Access token expired<br />';
+
+            if ($client instanceof UserProfilesInterface) {
+                $user = $client->getUserProfile();
+
+                echo 'User profile: <pre>' . htmlentities(print_r($user, true)) . '</pre><br />';
+            }
+
+            if ($client instanceof UserPicturesInterface) {
+                $picture_url = $client->getUserPictureUrl(60);
+
+                echo 'User picture URL: <pre>' . htmlentities(print_r($picture_url, true)) . '</pre><br />';
+
+                echo '<img src="' . htmlentities($picture_url) . '" /><br />';
+            }
+        } catch (GuzzleHttp\Exception\ClientException $exception) {
+            echo 'Error: <pre>' . htmlentities(print_r($exception, true)) . '</pre><br />';
+            echo 'Response: <pre>' . htmlentities(print_r($exception->getResponse()->getBody()->__toString(), true)) . '</pre><br />';
+        } catch (Exception $exception) {
+            echo 'Error: <pre>' . htmlentities(print_r($exception, true)) . '</pre><br />';
         }
-    } else {
-        echo 'No access token<br />';
+    }
+
+    if ($client instanceof Discord) {
+        echo 'CREATE_INSTANT_INVITE, KICK_MEMBERS and ADMINISTRATOR permissions integer: <pre>' . htmlentities(print_r($client->permissionsToInteger([
+            'CREATE_INSTANT_INVITE',
+            'KICK_MEMBERS',
+            'ADMINISTRATOR',
+        ]), true)) . '</pre><br />';
+
+        echo 'Permissions integer `11` permissions: <pre>' . htmlentities(print_r($client->integerToPermissions(11), true)) . '</pre><br />';
+
+        echo 'Permissions integer `11` has `ADMINISTRATOR` permission: <pre>' . htmlentities(print_r($client->integerHasPermission(11, 'ADMINISTRATOR'), true)) . '</pre><br />';
+
+        echo '<a href="' . htmlentities($client->inviteBot(['ADMINISTRATOR'], $client_info['redirect_url'], $client_info['scope'])) . '">Invite bot with administrator permissions</a><br />';
+
+        echo '<a href="' . htmlentities($client->inviteWebhook($client_info['redirect_url'], $client_info['scope'])) . '">Invite webhook</a><br />';
     }
 }
 
