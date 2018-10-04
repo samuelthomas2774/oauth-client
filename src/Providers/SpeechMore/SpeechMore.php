@@ -10,7 +10,6 @@ use OAuth2\UserPicturesInterface;
 use OAuth2\AuthoriseEndpoint;
 use OAuth2\TokenEndpoint;
 use OAuth2\AuthoriseEndpointInterface;
-use OAuth2\TokenEndpointInterface;
 
 use OAuth2\Grants\AuthorisationCodeGrant;
 use OAuth2\Grants\RefreshTokenGrant;
@@ -26,7 +25,7 @@ use OAuth2\Grants\ClientCredentialsGrantInterface;
 
 use OAuth2\Providers\SpeechMore\UserProfile as SpeechMoreUserProfile;
 
-class SpeechMore extends OAuth implements UserProfilesInterface, UserPicturesInterface, AuthoriseEndpointInterface, TokenEndpointInterface, AuthorisationCodeGrantInterface, RefreshTokenGrantInterface, ImplicitGrantInterface, ResourceOwnerCredentialsGrantInterface, ClientCredentialsGrantInterface
+class SpeechMore extends OAuth implements UserProfilesInterface, UserPicturesInterface, AuthoriseEndpointInterface, AuthorisationCodeGrantInterface, RefreshTokenGrantInterface, ImplicitGrantInterface, ResourceOwnerCredentialsGrantInterface, ClientCredentialsGrantInterface
 {
     use AuthoriseEndpoint;
     use TokenEndpoint;

@@ -11,14 +11,13 @@ use OAuth2\UserPicturesInterface;
 use OAuth2\AuthoriseEndpoint;
 use OAuth2\TokenEndpoint;
 use OAuth2\AuthoriseEndpointInterface;
-use OAuth2\TokenEndpointInterface;
 
 use OAuth2\Grants\AuthorisationCodeGrant;
 use OAuth2\Grants\AuthorisationCodeGrantInterface;
 
 use OAuth2\Providers\Slack\UserProfile as SlackUserProfile;
 
-class Slack extends OAuth implements UserProfilesInterface, UserPicturesInterface, AuthoriseEndpointInterface, TokenEndpointInterface, AuthorisationCodeGrantInterface
+class Slack extends OAuth implements UserProfilesInterface, UserPicturesInterface, AuthoriseEndpointInterface, AuthorisationCodeGrantInterface
 {
     use AuthoriseEndpoint;
     use TokenEndpoint;
