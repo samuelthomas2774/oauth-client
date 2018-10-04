@@ -4,6 +4,7 @@ namespace OAuth2\Grants;
 
 use OAuth2\AccessToken;
 
+use stdClass;
 use Throwable;
 use Exception;
 use TypeError;
@@ -69,6 +70,6 @@ trait AuthorisationCodeGrant
     abstract function handleErrorFromOAuthAuthoriseRequest(array $request, Throwable $previous = null);
 
     // \OAuth2\TokenEndpoint
-    abstract function createAccessTokenFromSuccessfulResponse($response, array $requested_scope = []): AccessToken;
+    abstract function createAccessTokenFromSuccessfulResponse(stdClass $response, array $requested_scope = []): AccessToken;
     abstract function handleErrorFromOAuthTokenResponse($response, Throwable $previous = null);
 }

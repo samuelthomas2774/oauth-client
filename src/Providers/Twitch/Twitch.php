@@ -15,6 +15,8 @@ use OAuth2\Grants\AuthorisationCodeGrantInterface;
 
 use OAuth2\Providers\Twitch\UserProfile as TwitchUserProfile;
 
+use stdClass;
+
 class Twitch extends OAuth implements UserProfilesInterface, AuthorisationCodeGrantInterface
 {
     use AuthoriseEndpoint;
@@ -57,7 +59,7 @@ class Twitch extends OAuth implements UserProfilesInterface, AuthorisationCodeGr
      * @param array $requested_scope
      * @return \OAuth2\AccessToken
      */
-    protected function createAccessTokenFromSuccessfulResponse($response, array $requested_scope = []): AccessToken
+    protected function createAccessTokenFromSuccessfulResponse(stdClass $response, array $requested_scope = []): AccessToken
     {
         $refresh_token = isset($response->refresh_token) ? $response->refresh_token : null;
         $expires = isset($response->expires_in) ? time() + $response->expires_in : null;

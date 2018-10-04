@@ -18,6 +18,7 @@ use OAuth2\UsesAccessTokenQueryParameter;
 use OAuth2\Providers\Deezer\UserProfile as DeezerUserProfile;
 
 use Psr\Http\Message\ResponseInterface;
+use stdClass;
 
 class Deezer extends OAuth implements UserProfilesInterface, AuthorisationCodeGrantInterface
 {
@@ -82,7 +83,7 @@ class Deezer extends OAuth implements UserProfilesInterface, AuthorisationCodeGr
      * @param array $requested_scope
      * @return \OAuth2\AccessToken
      */
-    protected function createAccessTokenFromSuccessfulResponse($response, array $requested_scope = []): AccessToken
+    protected function createAccessTokenFromSuccessfulResponse(stdClass $response, array $requested_scope = []): AccessToken
     {
         $refresh_token = isset($response->refresh_token) ? $response->refresh_token : null;
         $expires = isset($response->expires) ? time() + $response->expires : null;

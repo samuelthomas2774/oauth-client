@@ -14,6 +14,8 @@ use OAuth2\Grants\AuthorisationCodeGrantInterface;
 
 use OAuth2\Providers\Eventbrite\UserProfile as EventbriteUserProfile;
 
+use stdClass;
+
 class Eventbrite extends OAuth implements UserProfilesInterface, AuthorisationCodeGrantInterface
 {
     use AuthoriseEndpoint;
@@ -63,7 +65,7 @@ class Eventbrite extends OAuth implements UserProfilesInterface, AuthorisationCo
         $user->response = $response;
         $user->name = $response->name;
 
-        $user->email_addresses = array_map(function ($email_address) {
+        $user->email_addresses = array_map(function (stdClass $email_address) {
             return $email_address->email;
         }, $response->emails);
 

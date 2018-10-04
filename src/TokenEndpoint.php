@@ -10,6 +10,7 @@ use OAuth2\Exceptions\InvalidClientException;
 use OAuth2\Exceptions\InvalidGrantException;
 use OAuth2\Exceptions\UnsupportedGrantTypeException;
 
+use stdClass;
 use Throwable;
 
 trait TokenEndpoint
@@ -21,7 +22,7 @@ trait TokenEndpoint
      * @param array $requested_scope
      * @return \OAuth2\AccessToken
      */
-    protected function createAccessTokenFromSuccessfulResponse($response, array $requested_scope = []): AccessToken
+    protected function createAccessTokenFromSuccessfulResponse(stdClass $response, array $requested_scope = []): AccessToken
     {
         $refresh_token = isset($response->refresh_token) ? $response->refresh_token : null;
         $expires = isset($response->expires_in) ? time() + $response->expires_in : null;
@@ -36,7 +37,7 @@ trait TokenEndpoint
     // https://tools.ietf.org/html/rfc6749#section-5.2
     protected function handleErrorFromOAuthTokenResponse($response, Throwable $previous = null)
     {
-        switch ($response->error) {
+        switch (is_object($response) && isset($response->error) ? $response->error : $response) {
             default:
                 throw OAuthException::fromResponse($response, $previous);
             case 'invalid_request':

@@ -14,6 +14,7 @@ use OAuth2\Grants\AuthorisationCodeGrant;
 use OAuth2\Grants\AuthorisationCodeGrantInterface;
 
 use OAuth2\Providers\Pinterest\UserProfile as PinterestUserProfile;
+use stdClass;
 
 class Pinterest extends OAuth implements UserProfilesInterface, AuthorisationCodeGrantInterface
 {
@@ -57,7 +58,7 @@ class Pinterest extends OAuth implements UserProfilesInterface, AuthorisationCod
      * @param array $requested_scope
      * @return \OAuth2\AccessToken
      */
-    protected function createAccessTokenFromSuccessfulResponse($response, array $requested_scope = []): AccessToken
+    protected function createAccessTokenFromSuccessfulResponse(stdClass $response, array $requested_scope = []): AccessToken
     {
         $refresh_token = isset($response->refresh_token) ? $response->refresh_token : null;
         $expires = isset($response->expires_in) ? time() + $response->expires_in : null;

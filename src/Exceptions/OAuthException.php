@@ -8,7 +8,7 @@ use stdClass;
 
 class OAuthException extends Exception
 {
-    static function fromRequest(array $request, Throwable $previous = null)
+    static public function fromRequest(array $request, Throwable $previous = null)
     {
         $description = isset($request['error_description']) ? $request['error_description'] : $request['error'];
 
@@ -19,7 +19,7 @@ class OAuthException extends Exception
         return new self($description, 0, $previous);
     }
 
-    static function fromResponse(stdClass $response, Throwable $previous = null)
+    static public function fromResponse(stdClass $response, Throwable $previous = null)
     {
         return new self(isset($response->error_description) ? $response->error_description : $response->error, isset($response->error_code) ? $response->error_code : 0, $previous);
     }
