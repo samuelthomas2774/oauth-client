@@ -4,33 +4,6 @@ namespace OAuth2;
 
 trait ManagesState
 {
-    /**
-     * Generate a state.
-     *
-     * @param boolean $update_session
-     * @return string
-     */
-    public function generateState(array $state = [], bool $update_session = true): State
-    {
-        if (!$state instanceof State) {
-            $state = new State($state);
-        }
-
-        $this->pushState($state, $update_session);
-
-        return $state;
-    }
-
-    protected function generateOrPushState($state, bool $update_session = true): State
-    {
-        if ($state instanceof State) {
-            $this->pushState($state, $update_session);
-            return $state;
-        } else {
-            return $this->generateState($state);
-        }
-    }
-
     public function getStates(): array
     {
         if (!array_key_exists($this->session_prefix, self::$state)) return [];
@@ -79,7 +52,7 @@ trait ManagesState
     }
 
     /**
-     * Returns all valid states from the last request.
+     * Finds a state from the last request with it's ID.
      *
      * @param boolean $update_session
      * @return string

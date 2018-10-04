@@ -65,4 +65,9 @@ class AuthoriseUrl
     {
         return $this->state;
     }
+
+    public function getStateId(): string
+    {
+        return $this->params['state'];
+    }
 }

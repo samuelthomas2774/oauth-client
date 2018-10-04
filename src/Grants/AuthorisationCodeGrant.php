@@ -49,21 +49,47 @@ trait AuthorisationCodeGrant
         }
     }
 
-    public function getAccessTokenFromRequestCode(string $redirect_url, array $requested_scope = [], bool $update_session = true)
+    /**
+     * Uses the code in $_GET['code'] to get an access token.
+     *
+     * @param string $redirect_url
+     * @param array $requested_scope The requested scope to use in the {@see OAuth2\AccessToken} object if none is available
+     * @param boolean $update_session
+     * @return \OAuth2\AccessToken
+     */
+    public function getAccessTokenFromRequestCode(string $redirect_url, array $requested_scope = [], bool $update_session = true): AccessToken
     {
         if (isset($_GET['error'])) {
             $this->handleErrorFromOAuthAuthoriseRequest($_GET);
         }
 
-        if (!isset($_GET['code']) || !isset($_GET['state'])) {
-            throw new Exception('Missing code and state.');
+        if (!isset($_GET['code'])) {
+            throw new Exception('Missing code.');
+        }
+
+        $requested_scope = isset($state->requested_scope) ? $state->requested_scope : [];
+
+        return $this->getAccessTokenFromCode($_GET['code'], $redirect_url, $requested_scope, $update_session);
+    }
+
+    /**
+     * Validates $_GET['state'] and uses the code in $_GET['code'] to get an access token.
+     * The state's data is used to get the correct redirect_url and requested_scope.
+     *
+     * @param boolean $update_session
+     * @return \OAuth2\AccessToken
+     */
+    public function getAccessTokenFromRequestCodeAndState(bool $update_session = true): AccessToken
+    {
+        if (isset($_GET['error'])) {
+            $this->handleErrorFromOAuthAuthoriseRequest($_GET);
         }
 
         if (!$state = $this->getRequestState()) {
             throw new Exception('Invalid state.');
         }
 
-        return $this->getAccessTokenFromCode($_GET['code'], $redirect_url, $requested_scope, $update_session);
+        return $this->getAccessTokenFromCode($_GET['code'], $state->redirect_url, $state->requested_scope, $update_session);
     }
 
     /**

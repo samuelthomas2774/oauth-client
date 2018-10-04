@@ -21,19 +21,26 @@ trait AuthoriseEndpoint
     /**
      * Generate a URL to redirect users to to authorise this client.
      *
-     * @param string $state
+     * @param \OAuth2\State|array|string $state
      * @param string $redirect_url
      * @param array $scope
      * @param array $params
-     * @return string
+     * @return \OAuth2\AuthoriseUrl
      */
     public function generateAuthoriseUrl($state = null, string $redirect_url = null, array $scope = [], array $params = []): AuthoriseUrl
     {
         // Check if redirect_url is a url - the redirect_url should go to a PHP script on the same domain that runs OAuth2::getAccessTokenFromCode()
         if (!filter_var($redirect_url, FILTER_VALIDATE_URL)) throw new Exception('$redirect_url must be a valid URL.');
 
-        if ($state) {
-            $state = $this->generateOrPushState($state);
+        if (is_array($state)) {
+            $state = new State($state);
+        }
+
+        if ($state instanceof State) {
+            $state->redirect_url = $redirect_url;
+            $state->requested_scope = $scope;
+
+            $this->pushState($state);
         }
 
         $default_params = [
@@ -44,7 +51,7 @@ trait AuthoriseEndpoint
             'state' => (string)$state,
         ];
 
-        return new AuthoriseUrl($this->authorise_endpoint, array_merge($default_params, $params), $state, $scope);
+        return new AuthoriseUrl($this->authorise_endpoint, array_merge($default_params, $params), $state instanceof State ? $state : null, $scope);
     }
 
     /**
@@ -53,14 +60,12 @@ trait AuthoriseEndpoint
      * @param string $redirect_url
      * @param array $scope
      * @param array $params
-     * @return string
+     * @return \OAuth2\AuthoriseUrl
      */
     public function generateAuthoriseUrlAndState(string $redirect_url = null, array $scope = [], array $params = []): AuthoriseUrl
     {
-        // Generate a unique state parameter and store it in the session
-        $state = $this->generateState();
-
-        return $this->generateAuthoriseUrl($state, $redirect_url, $scope, $params);
+        // generateAuthoriseUrl will save \OAuth2\State objects to the session if one (or an array) is passed
+        return $this->generateAuthoriseUrl([], $redirect_url, $scope, $params);
     }
 
     /**

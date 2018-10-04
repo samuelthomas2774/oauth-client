@@ -41,4 +41,9 @@ class State
     {
         return isset($this->data[$name]);
     }
+
+    public function __set($name, $value)
+    {
+        return $this->data[$name] = $value;
+    }
 }
