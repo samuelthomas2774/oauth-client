@@ -80,12 +80,12 @@ Usage
 2. Create a new `OAuth2\\OAuth` object with the parameters `$client_id`, `$client_secret` and `$options`  
     The `$options` array must have at least `base_api_endpoint`, `authorise_endpoint` and `token_endpoint`.
     ```php
-    use OAuth2\OAuth;
+    use OAuth2\GenericOAuthProvider;
     
     $client_id = 'client-id';
     $client_secret = 'client-secret';
 
-    $client = new OAuth($client_id, $client_secret, null, [
+    $client = new GenericOAuthProvider($client_id, $client_secret, null, [
         'session_prefix' => 'facebook_',
         'base_api_endpoint' => 'https://graph.facebook.com',
         'authorise_endpoint' => 'https://facebook.com/dialog/oauth',

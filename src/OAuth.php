@@ -263,15 +263,12 @@ class OAuth
 
         if ((func_num_args() >= 2) && $value === null) {
             // Delete
-            // call_user_func([$this->getSessionHandler(), 'delete'], $this->session_prefix . $name);
             $session_handler->delete($this->session_prefix . $name);
         } elseif (func_num_args() >= 2) {
             // Set
-            // call_user_func([$this->getSessionHandler(), 'set'], $this->session_prefix . $name, $value);
             $session_handler->set($this->session_prefix . $name, $value);
         } else {
             // Get
-            // return call_user_func([$this->getSessionHandler(), 'get'], $this->session_prefix . $name);
             $session_handler->get($this->session_prefix . $name);
         }
     }
