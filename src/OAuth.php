@@ -138,10 +138,6 @@ class OAuth
 
         if ($token) $this->setAccessToken($token);
         elseif ($this->session('token') && $token !== false) $this->setAccessToken($this->session('token'));
-
-        if (method_exists($this, 'ageState')) {
-            $this->ageState();
-        }
     }
 
     /**

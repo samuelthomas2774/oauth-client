@@ -6,7 +6,11 @@ trait ManagesState
 {
     public function getStates(): array
     {
-        if (!array_key_exists($this->session_prefix, self::$state)) return [];
+        if (!array_key_exists($this->session_prefix, self::$state)) {
+            if (!is_array($states = $this->session('state'))) return [];
+
+            self::$state[$this->session_prefix] = $states;
+        }
 
         return self::$state[$this->session_prefix];
     }
@@ -44,8 +48,10 @@ trait ManagesState
         return null;
     }
 
-    public function getLastStates(): array
+    public function getLastStates($age_states = true): array
     {
+        if ($age_states) $this->ageState();
+
         if (!array_key_exists($this->session_prefix, self::$last_state)) return [];
 
         return self::$last_state[$this->session_prefix];
