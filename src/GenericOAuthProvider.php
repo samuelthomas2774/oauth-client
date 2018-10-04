@@ -19,7 +19,7 @@ use TypeError;
 use GuzzleHttp\Client as HttpClient;
 use Psr\Http\Message\ResponseInterface;
 
-class GenericOAuthProvider extends OAuth implements AuthoriseEndpointInterface, AuthorisationCodeGrantInterface, RefreshTokenGrantInterface, ImplicitGrantInterface, ResourceOwnerCredentialsGrantInterface, ClientCredentialsGrantInterface
+class GenericOAuthProvider extends OAuth implements AuthorisationCodeGrantInterface, RefreshTokenGrantInterface, ImplicitGrantInterface, ResourceOwnerCredentialsGrantInterface, ClientCredentialsGrantInterface
 {
     use AuthoriseEndpoint;
     use TokenEndpoint;

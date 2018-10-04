@@ -8,14 +8,13 @@ use OAuth2\UserProfilesInterface;
 
 use OAuth2\AuthoriseEndpoint;
 use OAuth2\TokenEndpoint;
-use OAuth2\AuthoriseEndpointInterface;
 
 use OAuth2\Grants\AuthorisationCodeGrant;
 use OAuth2\Grants\AuthorisationCodeGrantInterface;
 
 use OAuth2\Providers\TeamViewer\UserProfile as TeamViewerUserProfile;
 
-class TeamViewer extends OAuth implements UserProfilesInterface, AuthoriseEndpointInterface, AuthorisationCodeGrantInterface
+class TeamViewer extends OAuth implements UserProfilesInterface, AuthorisationCodeGrantInterface
 {
     use AuthoriseEndpoint;
     use TokenEndpoint;

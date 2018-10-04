@@ -10,7 +10,6 @@ use OAuth2\UserPicturesInterface;
 
 use OAuth2\AuthoriseEndpoint;
 use OAuth2\TokenEndpoint;
-use OAuth2\AuthoriseEndpointInterface;
 
 use OAuth2\Grants\AuthorisationCodeGrant;
 use OAuth2\Grants\ImplicitGrant;
@@ -28,7 +27,7 @@ use Psr\Http\Message\ResponseInterface;
 use stdClass;
 use Exception;
 
-class Facebook extends OAuth implements UserProfilesInterface, UserPicturesInterface, AuthoriseEndpointInterface, AuthorisationCodeGrantInterface, ImplicitGrantInterface, ClientCredentialsGrantInterface
+class Facebook extends OAuth implements UserProfilesInterface, UserPicturesInterface, AuthorisationCodeGrantInterface, ImplicitGrantInterface, ClientCredentialsGrantInterface
 {
     use AuthorisationCodeGrant;
     use ImplicitGrant;

@@ -8,14 +8,13 @@ use OAuth2\UserProfilesInterface;
 
 use OAuth2\AuthoriseEndpoint;
 use OAuth2\TokenEndpoint;
-use OAuth2\AuthoriseEndpointInterface;
 
 use OAuth2\Grants\AuthorisationCodeGrant;
 use OAuth2\Grants\AuthorisationCodeGrantInterface;
 
 use OAuth2\Providers\Microsoft\UserProfile as MicrosoftUserProfile;
 
-class Microsoft extends OAuth implements UserProfilesInterface, AuthoriseEndpointInterface, AuthorisationCodeGrantInterface
+class Microsoft extends OAuth implements UserProfilesInterface, AuthorisationCodeGrantInterface
 {
     use AuthoriseEndpoint;
     use TokenEndpoint;
