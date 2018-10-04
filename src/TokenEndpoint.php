@@ -18,7 +18,7 @@ trait TokenEndpoint
     /**
      * Creates an {@see OAuth2\AccessToken} object from a successful response from the token endpoint.
      *
-     * @param mixed $response
+     * @param object $response
      * @param array $requested_scope
      * @return \OAuth2\AccessToken
      */
@@ -34,7 +34,13 @@ trait TokenEndpoint
         return $token;
     }
 
-    // https://tools.ietf.org/html/rfc6749#section-5.2
+    /**
+     * Handles an error response from the token endpoint.
+     * https://tools.ietf.org/html/rfc6749#section-5.2
+     *
+     * @param object $response
+     * @param \Throwable $previous
+     */
     protected function handleErrorFromOAuthTokenResponse($response, Throwable $previous = null)
     {
         switch (is_object($response) && isset($response->error) ? $response->error : $response) {

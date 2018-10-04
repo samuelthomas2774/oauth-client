@@ -7,11 +7,11 @@ interface AuthoriseEndpointInterface
     /**
      * Generate a URL to redirect users to to authorise this client.
      *
-     * @param string $state
+     * @param \OAuth2\State|array|string $state
      * @param string $redirect_url
      * @param array $scope
      * @param array $params
-     * @return string
+     * @return \OAuth2\AuthoriseUrl
      */
     public function generateAuthoriseUrl($state = null, string $redirect_url = null, array $scope = [], array $params = []): AuthoriseUrl;
 
@@ -21,7 +21,7 @@ interface AuthoriseEndpointInterface
      * @param string $redirect_url
      * @param array $scope
      * @param array $params
-     * @return string
+     * @return \OAuth2\AuthoriseUrl
      */
     public function generateAuthoriseUrlAndState(string $redirect_url = null, array $scope = [], array $params = []): AuthoriseUrl;
 

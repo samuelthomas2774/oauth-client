@@ -4,6 +4,11 @@ namespace OAuth2;
 
 trait ManagesState
 {
+    /**
+     * Returns all states for this session prefix.
+     *
+     * @return array
+     */
     public function getStates(): array
     {
         if (!array_key_exists($this->session_prefix, self::$state)) {
@@ -15,6 +20,12 @@ trait ManagesState
         return self::$state[$this->session_prefix];
     }
 
+    /**
+     * Sets all states for this session prefix.
+     *
+     * @param array $states
+     * @param boolean $update_session
+     */
     public function setStates(array $states, bool $update_session = true)
     {
         self::$state[$this->session_prefix] = $states;
@@ -24,6 +35,12 @@ trait ManagesState
         }
     }
 
+    /**
+     * Adds a state for this session prefix.
+     *
+     * @param \OAuth2\State $state
+     * @param boolean $update_session
+     */
     public function pushState(State $state, bool $update_session = true)
     {
         $states = $this->getStates();
@@ -37,6 +54,12 @@ trait ManagesState
         $this->setStates($states, $update_session);
     }
 
+    /**
+     * Finds a state by it's ID.
+     *
+     * @param string $id
+     * @return \OAuth2\State
+     */
     public function getStateById(string $id): ?State
     {
         $states = $this->getStates();
@@ -48,6 +71,12 @@ trait ManagesState
         return null;
     }
 
+    /**
+     * Returns all the last request's states for this session prefix.
+     *
+     * @param boolean $age_states
+     * @return array
+     */
     public function getLastStates($age_states = true): array
     {
         if ($age_states) $this->ageState();
@@ -60,8 +89,8 @@ trait ManagesState
     /**
      * Finds a state from the last request with it's ID.
      *
-     * @param boolean $update_session
-     * @return string
+     * @param string $id
+     * @return \OAuth2\State
      */
     public function getLastStateById(string $id): ?State
     {
@@ -74,6 +103,11 @@ trait ManagesState
         return null;
     }
 
+    /**
+     * Moves all current states to the last request's states.
+     *
+     * @param boolean $update_session
+     */
     protected function ageState(bool $update_session = true)
     {
         if (!array_key_exists($this->session_prefix, self::$last_state)) {

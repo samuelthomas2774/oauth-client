@@ -86,10 +86,16 @@ trait AuthoriseEndpoint
         header('Location: ' . $url, true, 303);
     }
 
-    // https://tools.ietf.org/html/rfc6749#section-4.1.2.1
+    /**
+     * Handles an error from $_GET['error'].
+     * https://tools.ietf.org/html/rfc6749#section-4.1.2.1
+     *
+     * @param array $request Usually $_GET
+     * @param \Throwable $previous
+     */
     protected function handleErrorFromOAuthAuthoriseRequest(array $request, Throwable $previous = null)
     {
-        switch ($request['error']) {
+        switch (isset($request['error']) ? $request['error'] : $request) {
             default:
                 throw OAuthException::fromRequest($request, $previous);
             case 'invalid_request':

@@ -28,7 +28,7 @@ class AccessToken implements JsonSerializable
     /**
      * The time the access token will expire.
      *
-     * @var int
+     * @var integer
      */
     private $expires = null;
 
@@ -40,6 +40,14 @@ class AccessToken implements JsonSerializable
      */
     private $scope = [];
 
+    /**
+     * Creates a access token object.
+     *
+     * @param string $access_token
+     * @param string $refresh_token
+     * @param integer $expires
+     * @param array $scope
+     */
     public function __construct(string $access_token, string $refresh_token = null, int $expires = null, array $scope = [])
     {
         $this->access_token = $access_token;
@@ -49,16 +57,31 @@ class AccessToken implements JsonSerializable
         $this->scope = $scope;
     }
 
+    /**
+     * Returns the access token.
+     *
+     * @return string
+     */
     public function getAccessToken(): string
     {
         return $this->access_token;
     }
 
+    /**
+     * Returns the refresh token.
+     *
+     * @return string
+     */
     public function getRefreshToken(): ?string
     {
         return $this->refresh_token;
     }
 
+    /**
+     * Returns the expiration timestamp.
+     *
+     * @return integer
+     */
     public function getExpirationTimestamp(): int
     {
         return $this->expires;
@@ -90,11 +113,21 @@ class AccessToken implements JsonSerializable
         return $this->hasExpired() ? 0 : $this->expires - time();
     }
 
+    /**
+     * Returns the access token's scope.
+     *
+     * @return array
+     */
     public function getScope(): array
     {
         return $this->scope;
     }
 
+    /**
+     * Checks if the access token has a scope.
+     *
+     * @return boolean
+     */
     public function hasScope(string $scope_token): bool
     {
         return in_array($scope_token, $this->scope);

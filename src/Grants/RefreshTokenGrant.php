@@ -19,7 +19,7 @@ trait RefreshTokenGrant
     public function getAccessTokenFromRefreshToken($refresh_token): AccessToken
     {
         if ($refresh_token instanceof AccessToken) $refresh_token = $refresh_token->getRefreshToken();
-        if (!is_string($refresh_token)) throw new TypeError('$refresh_token must be an OAuth2\AccessToken object with a refresh token or a string.');
+        if (!is_string($refresh_token)) throw new TypeError('$refresh_token must be an \OAuth2\AccessToken object with a refresh token or a string.');
 
         $response = $this->api('POST', $this->token_endpoint, [
             'form_params' => [

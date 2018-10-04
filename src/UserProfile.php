@@ -53,6 +53,15 @@ class UserProfile
      */
     public $url;
 
+    /**
+     * Creates a user profile object.
+     *
+     * @param string $id
+     * @param string $username
+     * @param string $name
+     * @param array $email_addresses
+     * @param string $url
+     */
     public function __construct(string $id, string $username = null, string $name = null, $email_addresses = [], string $url = null)
     {
         $this->id = $id;
