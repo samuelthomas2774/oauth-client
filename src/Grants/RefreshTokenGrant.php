@@ -13,7 +13,7 @@ trait RefreshTokenGrant
      * Exchanges a refresh token for an access token.
      *
      * @param \OAuth2\AccessToken|string $refresh_token
-     * @return \stdClass
+     * @return \OAuth2\AccessToken
      */
     public function getAccessTokenFromRefreshToken($refresh_token): AccessToken
     {
@@ -34,6 +34,16 @@ trait RefreshTokenGrant
         } else {
             $this->handleErrorFromOAuthTokenResponse($response);
         }
+    }
+
+    /**
+     * Refreshes the current access token.
+     *
+     * @return \OAuth2\AccessToken
+     */
+    public function refreshAccessToken(): AccessToken
+    {
+        return $this->getAccessTokenFromRefreshToken($this->getAccessToken());
     }
 
     // \OAuth2\TokenEndpoint
