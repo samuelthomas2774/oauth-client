@@ -108,7 +108,7 @@ class AccessToken implements JsonSerializable
     static public function __set_state(array $state)
     {
         $refresh_token = isset($state['refresh_token']) ? $state['refresh_token'] : null;
-        $expires = isset($state['expires']) ? $state['expires'] : isset($state['expires_in']) : time() + $state['expires_in'] : null;
+        $expires = isset($state['expires']) ? $state['expires'] : isset($state['expires_in']) ? time() + $state['expires_in'] : null;
         $scope = isset($state['scope']) ? is_array($state['scope']) ? $state['scope'] : explode(' ', $state['scope']) : null;
 
         $token = new self($state['access_token'], $refresh_token, $expires, $scope);

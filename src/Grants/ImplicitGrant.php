@@ -19,5 +19,5 @@ trait ImplicitGrant
     }
 
     // \OAuth2\AuthoriseEndpoint
-    abstract function generateAuthoriseUrl(string $state = null, string $redirect_url = null, array $scope = [], array $params = []): string;
+    abstract protected function generateAuthoriseUrl(string $state = null, string $redirect_url = null, array $scope = [], array $params = []): string;
 }

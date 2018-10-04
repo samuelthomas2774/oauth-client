@@ -32,6 +32,6 @@ trait ClientCredentialsGrant
     }
 
     // \OAuth2\TokenEndpoint
-    abstract function createAccessTokenFromSuccessfulResponse(stdClass $response, array $requested_scope = []): AccessToken;
-    abstract function handleErrorFromOAuthTokenResponse($response, Throwable $previous = null);
+    abstract protected function createAccessTokenFromSuccessfulResponse(stdClass $response, array $requested_scope = []): AccessToken;
+    abstract protected function handleErrorFromOAuthTokenResponse($response, Throwable $previous = null);
 }
