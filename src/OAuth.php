@@ -6,21 +6,12 @@
 
 namespace OAuth2;
 
-use OAuth2\Exceptions\OAuthException;
-use OAuth2\Exceptions\AccessDeniedException;
-use OAuth2\Exceptions\InvalidRequestException;
-use OAuth2\Exceptions\InvalidScopeException;
-use OAuth2\Exceptions\ServerErrorException;
-use OAuth2\Exceptions\TemporarilyUnavailableException;
-use OAuth2\Exceptions\UnauthorisedClientException;
-use OAuth2\Exceptions\UnsupportedResponseTypeException;
-use OAuth2\Exceptions\InvalidClientException;
-use OAuth2\Exceptions\InvalidGrantException;
-use OAuth2\Exceptions\UnsupportedGrantTypeException;
+use OAuth2\Grants\AuthorisationCodeGrant;
+use OAuth2\Grants\RefreshTokenGrant;
+use OAuth2\Grants\ImplicitGrant;
+use OAuth2\Grants\ResourceOwnerCredentialsGrant;
+use OAuth2\Grants\ClientCredentialsGrant;
 
-use stdClass;
-use Throwable;
-use Exception;
 use TypeError;
 
 use GuzzleHttp\Client as HttpClient;
@@ -28,6 +19,14 @@ use Psr\Http\Message\ResponseInterface;
 
 class OAuth
 {
+    use AuthoriseEndpoint;
+    use TokenEndpoint;
+    use AuthorisationCodeGrant;
+    use RefreshTokenGrant;
+    use ImplicitGrant;
+    use ResourceOwnerCredentialsGrant;
+    use ClientCredentialsGrant;
+
     /**
      * The client ID.
      *
@@ -229,297 +228,6 @@ class OAuth
     protected function getApiResponse(string $method, string $url, array $options, ResponseInterface $response)
     {
         return json_decode($response->getBody());
-    }
-
-    /** Authorisation Code Grant */
-
-    /**
-     * Exchanges a code for an access token.
-     *
-     * @param string $code
-     * @param string $redirect_url
-     * @param array $requested_scope The requested scope to use in the {@see OAuth2\AccessToken} object if none is available
-     * @param boolean $update_session
-     * @return \OAuth2\AccessToken
-     */
-    public function getAccessTokenFromCode(string $code, string $redirect_url, array $requested_scope = [], bool $update_session = true): AccessToken
-    {
-        // Check if redirect_url is a url - the redirect_url should be exactly the same as the redirect_url used in the login dialog (so really, this should just be the same as the current url)
-        if (!filter_var($redirect_url, FILTER_VALIDATE_URL)) {
-            throw new TypeError('$redirect_url must be a valid URL.');
-        }
-
-        $response = $this->api('POST', $this->token_endpoint, [
-            'form_params' => [
-                'grant_type' => 'authorization_code',
-                'client_id' => $this->client_id,
-                'client_secret' => $this->client_secret,
-                'redirect_uri' => $redirect_url,
-                'code' => $code,
-            ],
-        ], false);
-
-        if (isset($response->access_token)) {
-            $token = $this->createAccessTokenFromSuccessfulResponse($response, $requested_scope);
-
-            if ($update_session) $this->setAccessToken($token);
-
-            return $token;
-        } else {
-            $this->handleErrorFromOAuthTokenResponse($response);
-        }
-    }
-
-    /**
-     * Creates an {@see OAuth2\AccessToken} object from a successful response from the token endpoint.
-     *
-     * @param mixed $response
-     * @param array $requested_scope
-     * @return \OAuth2\AccessToken
-     */
-    protected function createAccessTokenFromSuccessfulResponse($response, array $requested_scope = []): AccessToken
-    {
-        $refresh_token = isset($response->refresh_token) ? $response->refresh_token : null;
-        $expires = isset($response->expires_in) ? time() + $response->expires_in : null;
-        $scope = isset($response->scope) ? explode($this->scope_separator, $response->scope) : $requested_scope;
-
-        $token = new AccessToken($response->access_token, $refresh_token, $expires, $scope);
-        $token->response = $response;
-        $token->requested_scope = $requested_scope;
-        return $token;
-    }
-
-    // https://tools.ietf.org/html/rfc6749#section-5.2
-    protected function handleErrorFromOAuthTokenResponse($response, Throwable $previous = null)
-    {
-        switch ($response->error) {
-            default:
-                throw OAuthException::fromResponse($response, $previous);
-            case 'invalid_request':
-                throw InvalidRequestException::fromResponse($response, $previous);
-            case 'invalid_client':
-                throw InvalidClientException::fromResponse($response, $previous);
-            case 'invalid_grant':
-                throw InvalidGrantException::fromResponse($response, $previous);
-            case 'unauthorized_client':
-                throw UnauthorisedClientException::fromResponse($response, $previous);
-            case 'unsupported_grant_type':
-                throw UnsupportedGrantTypeException::fromResponse($response, $previous);
-            case 'invalid_scope':
-                throw InvalidScopeException::fromResponse($response, $previous);
-        }
-    }
-
-    public function getAccessTokenFromRequestCode(string $redirect_url, array $requested_scope = [], bool $update_session = true)
-    {
-        if (isset($_GET['error'])) {
-            $this->handleErrorFromOAuthAuthoriseRequest($_GET);
-        }
-
-        if (!isset($_GET['code']) || !isset($_GET['state'])) {
-            throw new Exception('Missing code and state.');
-        }
-
-        $state = $this->session('state');
-        if (empty($state) || $state !== $_GET['state']) {
-            throw new Exception('Invalid state.');
-        }
-
-        return $this->getAccessTokenFromCode($_GET['code'], $redirect_url, $requested_scope, $update_session);
-    }
-
-    // https://tools.ietf.org/html/rfc6749#section-4.1.2.1
-    protected function handleErrorFromOAuthAuthoriseRequest(array $request, Throwable $previous = null)
-    {
-        switch ($request['error']) {
-            default:
-                throw OAuthException::fromRequest($request, $previous);
-            case 'invalid_request':
-                throw InvalidRequestException::fromRequest($request, $previous);
-            case 'unauthorized_client':
-                throw UnauthorisedClientException::fromRequest($request, $previous);
-            case 'access_denied':
-                throw AccessDeniedException::fromRequest($request, $previous);
-            case 'unsupported_response_type':
-                throw UnsupportedResponseTypeException::fromRequest($request, $previous);
-            case 'invalid_scope':
-                throw InvalidScopeException::fromRequest($request, $previous);
-            case 'server_error':
-                throw ServerErrorException::fromRequest($request, $previous);
-            case 'temporarily_unavailable':
-                throw TemporarilyUnavailableException::fromRequest($request, $previous);
-        }
-    }
-
-    /**
-     * Exchanges a refresh token for an access token.
-     *
-     * @param \OAuth2\AccessToken|string $refresh_token
-     * @return \stdClass
-     */
-    public function getAccessTokenFromRefreshToken($refresh_token): AccessToken
-    {
-        if ($refresh_token instanceof AccessToken) $refresh_token = $refresh_token->getRefreshToken();
-        if (!is_string($refresh_token)) throw new TypeError('$refresh_token must be an OAuth2\AccessToken object with a refresh token or a string.');
-
-        $response = $this->api('POST', $this->token_endpoint, [
-            'form_params' => [
-                'grant_type' => 'refresh_token',
-                'client_id' => $this->client_id,
-                'client_secret' => $this->client_secret,
-                'refresh_token' => $refresh_token,
-            ]
-        ], false);
-
-        if (isset($response->access_token)) {
-            return $this->createAccessTokenFromSuccessfulResponse($response);
-        } else {
-            $this->handleErrorFromOAuthTokenResponse($response);
-        }
-    }
-
-    /** Resource Owner Credentials Grant */
-
-    /**
-     * Exchanges a username and password for an access token.
-     *
-     * @param string $username
-     * @param string $password
-     * @return \OAuth2\AccessToken
-     */
-    public function getAccessTokenFromUserCredentials(string $username, string $password): AccessToken
-    {
-        $response = $this->api('POST', $this->token_endpoint, [
-            'form_params' => [
-                'grant_type' => 'password',
-                'client_id' => $this->client_id,
-                'client_secret' => $this->client_secret,
-                'username' => $username,
-                'password' => $password,
-            ]
-        ], false);
-
-        if (isset($response->access_token)) {
-            return $this->createAccessTokenFromSuccessfulResponse($response);
-        } else {
-            $this->handleErrorFromOAuthTokenResponse($response);
-        }
-    }
-
-    /** Client Credentials Grant */
-
-    /**
-     * Exchanges the client credentials for an access token.
-     *
-     * @return \OAuth2\AccessToken
-     */
-    public function getAccessTokenFromClientCredentials(): AccessToken
-    {
-        $response = $this->api('POST', $this->token_endpoint, [
-            'form_params' => [
-                'grant_type' => 'client_credentials',
-                'client_id' => $this->client_id,
-                'client_secret' => $this->client_secret,
-            ],
-        ], false);
-
-        if (isset($response->access_token)) {
-            return $this->createAccessTokenFromSuccessfulResponse($response);
-        } else {
-            $this->handleErrorFromOAuthTokenResponse($response);
-        }
-    }
-
-    /**
-     * Generate a URL to redirect users to to authorise this client.
-     *
-     * @param string $state
-     * @param string $redirect_url
-     * @param array $scope
-     * @param array $params
-     * @return string
-     */
-    public function generateAuthoriseUrl(string $state = null, string $redirect_url = null, array $scope = [], array $params = []): string
-    {
-        // Check if redirect_url is a url - the redirect_url should go to a PHP script on the same domain that runs OAuth2::getAccessTokenFromCode()
-        if (!filter_var($redirect_url, FILTER_VALIDATE_URL)) throw new Exception('$redirect_url must be a valid URL.');
-
-        $default_params = [
-            'response_type' => 'code',
-            'client_id' => $this->client_id,
-            'redirect_uri' => $redirect_url,
-            'scope' => implode($this->scope_separator, $scope),
-            'state' => $state,
-        ];
-
-        return $this->authorise_endpoint . (strpos($this->authorise_endpoint, '?') !== false ? '&' : '?')
-            . http_build_query(array_merge($default_params, $params));
-    }
-
-    /**
-     * Generate a URL to redirect users to to authorise this client with a state.
-     *
-     * @param string $redirect_url
-     * @param array $scope
-     * @param array $params
-     * @return string
-     */
-    public function generateAuthoriseUrlAndState(string $redirect_url = null, array $scope = [], array $params = []): string
-    {
-        // Generate a unique state parameter and store it in the session
-        $state = $this->getState();
-
-        return $this->generateAuthoriseUrl($state, $redirect_url, $scope, $params);
-    }
-
-    /**
-     * Generate a state.
-     *
-     * @param boolean $update_session
-     * @return string
-     */
-    public function getState(bool $update_session = true): string
-    {
-        if (array_key_exists($this->session_prefix, self::$state)) {
-            return self::$state[$this->session_prefix];
-        }
-
-        $state = hash('sha256', time() . uniqid(mt_rand(), true));
-        $this->session('state', $state);
-
-        return self::$state[$this->session_prefix] = $state;
-    }
-
-    /**
-     * Redirect the user to the URL to authorise this client.
-     *
-     * @param string $redirect_url
-     * @param array $scope
-     * @param array $params
-     */
-    public function redirectToAuthoriseEndpoint(string $redirect_url = null, array $scope = [], array $params = [])
-    {
-        $url = $this->generateAuthoriseUrlAndState($redirect_url, $scope, $params);
-
-        // Make sure headers have not been sent
-        if (headers_sent()) throw new Exception('Headers have already been sent.');
-
-        // Redirect to the Login Dialog
-        header('Location: ' . $url, true, 303);
-    }
-
-    public function generateImplicitAuthoriseUrl(string $redirect_url = null, array $scope = [], array $params = []): string
-    {
-        if (!isset($params['response_type'])) $params['response_type'] = 'token';
-
-        return $this->generateAuthoriseUrl(null, $redirect_url, $scope, $params);
-    }
-
-    public function redirectToImplicitAuthoriseEndpoint(string $redirect_url = null, array $scope = [], array $params = []): string
-    {
-        if (!isset($params['response_type'])) $params['response_type'] = 'token';
-
-        return $this->redirectToAuthoriseEndpoint(null, $redirect_url, $scope, $params);
     }
 
     public function getAccessToken(): ?AccessToken
