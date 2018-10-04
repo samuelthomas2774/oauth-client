@@ -272,4 +272,14 @@ class OAuth
             $session_handler->get($this->session_prefix . $name);
         }
     }
+
+    public function __debugInfo()
+    {
+        $debug_info = (array)$this;
+
+        $debug_info["\0*\0client_secret"] = null;
+        $debug_info["\0OAuth2\\OAuth\0access_token"] = null;
+
+        return $debug_info;
+    }
 }

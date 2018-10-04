@@ -22,8 +22,11 @@ if ($client_info) {
     // Output a link to the authorise endpoint
     echo '<a href="' . htmlentities($client->generateAuthoriseUrlAndState($client_info['redirect_url'], $client_info['scope'])) . '">Login to ' . htmlentities($client_info['name']) . '</a><br />';
 
+    echo 'Client: <pre>' . htmlentities(print_r($client, true)) . '</pre><br />';
+
     if ($token = $client->getAccessToken()) {
         echo 'Access token: <pre>' . htmlentities(print_r($token, true)) . '</pre><br />';
+        echo 'Access token: <pre>' . htmlentities(json_encode($token, JSON_PRETTY_PRINT)) . '</pre><br />';
         echo 'Expires in: ' . htmlentities(print_r($token->getExpiresIn(), true)) . '<br />';
 
         if (!$token->hasExpired()) {

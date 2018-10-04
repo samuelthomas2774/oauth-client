@@ -6,7 +6,9 @@
 
 namespace OAuth2;
 
-class AccessToken
+use JsonSerializable;
+
+class AccessToken implements JsonSerializable
 {
     /**
      * The access token.
@@ -101,5 +103,39 @@ class AccessToken
     public function __toString(): string
     {
         return $this->access_token;
+    }
+
+    static public function __set_state(array $state)
+    {
+        $refresh_token = isset($state['refresh_token']) ? $state['refresh_token'] : null;
+        $expires = isset($state['expires']) ? $state['expires'] : isset($state['expires_in']) : time() + $state['expires_in'] : null;
+        $scope = isset($state['scope']) ? is_array($state['scope']) ? $state['scope'] : explode(' ', $state['scope']) : null;
+
+        $token = new self($state['access_token'], $refresh_token, $expires, $scope);
+
+        if (isset($state['response'])) $token->response = $state['response'];
+        if (isset($state['requested_scope'])) $token->response = $state['requested_scope'];
+
+        return $token;
+    }
+
+    public function jsonSerialize()
+    {
+        $token = [
+            'access_token' => $this->access_token,
+            'token_type' => 'Bearer',
+        ];
+
+        if (isset($this->expires)) {
+            $token['expires_in'] = $this->getExpiresIn();
+        }
+
+        if (isset($this->refresh_token)) {
+            $token['refresh_token'] = $this->refresh_token;
+        }
+
+        $token['scope'] = implode(' ', $this->scope);
+
+        return $token;
     }
 }
