@@ -62,7 +62,6 @@ class DigitalOcean extends OAuth implements UserProfilesInterface, Authorisation
         $user = new DigitalOceanUserProfile($response->account->uuid);
 
         $user->response = $response;
-        // $user->name = $response->username;
         $user->email_addresses = [$response->account->email];
 
         return $user;

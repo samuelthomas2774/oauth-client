@@ -71,10 +71,6 @@ class Yahoo extends OAuth implements UserProfilesInterface, UserPicturesInterfac
         $user->response = $response;
         $user->name = $response->profile->nickname;
 
-        // Should this be here?
-        // It uses the hostname profile.yahoo.com, but that doesn't even resolve anymore
-        // $user->url = $response->profile->profileUrl;
-
         return $user;
     }
 

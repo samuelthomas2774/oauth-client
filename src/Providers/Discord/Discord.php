@@ -161,10 +161,6 @@ class Discord extends OAuth implements UserProfilesInterface, UserPicturesInterf
             }
         }
 
-        // if ($left != 0 && func_num_args() < 2) {
-        //     throw new Exception(__METHOD__ . ": \$integer was not a valid permissions integer. {$left} remaining.");
-        // }
-
         return $permissions;
     }
 
