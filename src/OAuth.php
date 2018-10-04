@@ -258,26 +258,13 @@ class OAuth implements AuthoriseEndpointInterface, TokenEndpointInterface, Autho
      *
      * @return \OAuth2\SessionHandlerInterface
      */
-    public function getSessionHandler(): SessionHandlerInterface
+    public function getSessionHandler(): ?SessionHandlerInterface
     {
         if (is_string($this->session_handler)) {
             $this->session_handler = new $this->session_handler();
         }
 
         return $this->session_handler;
-    }
-
-    /**
-     * Check if sessions are enabled.
-     *
-     * @return boolean
-     */
-    public function sessions(): bool
-    {
-        // No session handler
-        if (!$this->session_handler) return false;
-
-        return call_user_func([$this->getSessionHandler(), 'enabled']);
     }
 
     /**
@@ -290,18 +277,23 @@ class OAuth implements AuthoriseEndpointInterface, TokenEndpointInterface, Autho
      */
     public function session(string $name, $value = null)
     {
+        $session_handler = $this->getSessionHandler();
+
         // Check if sessions are enabled
-        if (!$this->sessions()) return;
+        if (!$session_handler || !$session_handler->enabled()) return;
 
         if ((func_num_args() >= 2) && $value === null) {
             // Delete
-            call_user_func([$this->getSessionHandler(), 'delete'], $this->session_prefix . $name);
+            // call_user_func([$this->getSessionHandler(), 'delete'], $this->session_prefix . $name);
+            $session_handler->delete($this->session_prefix . $name);
         } elseif (func_num_args() >= 2) {
             // Set
-            call_user_func([$this->getSessionHandler(), 'set'], $this->session_prefix . $name, $value);
+            // call_user_func([$this->getSessionHandler(), 'set'], $this->session_prefix . $name, $value);
+            $session_handler->set($this->session_prefix . $name, $value);
         } else {
             // Get
-            return call_user_func([$this->getSessionHandler(), 'get'], $this->session_prefix . $name);
+            // return call_user_func([$this->getSessionHandler(), 'get'], $this->session_prefix . $name);
+            $session_handler->get($this->session_prefix . $name);
         }
     }
 }
