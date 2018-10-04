@@ -269,7 +269,7 @@ class OAuth
             $session_handler->set($this->session_prefix . $name, $value);
         } else {
             // Get
-            $session_handler->get($this->session_prefix . $name);
+            return $session_handler->get($this->session_prefix . $name);
         }
     }
 
