@@ -29,6 +29,9 @@ use Exception;
 
 class Facebook extends OAuth implements UserProfilesInterface, UserPicturesInterface, AuthorisationCodeGrantInterface, ImplicitGrantInterface, ClientCredentialsGrantInterface
 {
+    use AuthoriseEndpoint;
+    use TokenEndpoint;
+
     use AuthorisationCodeGrant;
     use ImplicitGrant;
     use ClientCredentialsGrant;
