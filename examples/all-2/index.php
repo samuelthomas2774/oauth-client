@@ -8,6 +8,9 @@ use OAuth2\State;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
 
+use OAuth2\Grants\RefreshTokenGrantInterface;
+use OAuth2\Grants\ResourceOwnerCredentialsGrantInterface;
+
 use OAuth2\Providers\Discord\Discord;
 
 // Start a session
@@ -25,7 +28,8 @@ if ($client_info) {
     // Output a link to the authorise endpoint
     $authorise_url = $client->generateAuthoriseUrlAndState($client_info['redirect_url'], $client_info['scope']);
     echo '<a href="' . htmlentities($authorise_url) . '">Login to ' . htmlentities($client_info['name']) . '</a><br />';
-    echo 'Authorise URL: <pre>' . htmlentities(print_r($authorise_url, true)) . '</pre><br />';
+    echo '<details><summary>Authorise URL:</summary><pre>' . htmlentities(print_r($authorise_url, true)) . '</pre></details>';
+    echo '<details><summary>State:</summary><pre>' . htmlentities(print_r($authorise_url->getState(), true)) . '</pre></details>';
 
     // Output some authorise URLs with state data
     echo '<a href="' . htmlentities($client->generateAuthoriseUrl([
@@ -36,7 +40,26 @@ if ($client_info) {
         'link' => 2,
     ], $client_info['redirect_url'], $client_info['scope'])) . '">Login to ' . htmlentities($client_info['name']) . ' (2)</a><br />';
 
-    echo 'Client: <pre>' . htmlentities(print_r($client, true)) . '</pre><br />';
+    echo '<details><summary>Client:</summary><pre>' . htmlentities(print_r($client, true)) . '</pre></details>';
+
+    echo '<a href="' . htmlentities(dirname($_SERVER['SCRIPT_NAME']) . '/index.php' . $_SERVER['PATH_INFO'] . '?del_token=') . '">Delete token</a><br />';
+
+    if ($client instanceof RefreshTokenGrantInterface) {
+        echo '<a href="' . htmlentities(dirname($_SERVER['SCRIPT_NAME']) . '/refresh.php' . $_SERVER['PATH_INFO']) . '">Refresh current token</a><br />';
+
+        echo '<form action="' . htmlentities(dirname($_SERVER['SCRIPT_NAME']) . '/refresh.php' . $_SERVER['PATH_INFO']) . '">';
+        echo '<input name="refresh_token" type="text" placeholder="Refresh token" />';
+        echo '<button type="submit">Submit</button>';
+        echo '</form>';
+    }
+
+    if ($client instanceof ResourceOwnerCredentialsGrantInterface) {
+        echo '<form action="' . htmlentities(dirname($_SERVER['SCRIPT_NAME']) . '/password.php' . $_SERVER['PATH_INFO']) . '">';
+        echo '<input name="username" type="text" placeholder="Username" />';
+        echo '<input name="password" type="text" placeholder="Password" />';
+        echo '<button type="submit">Submit</button>';
+        echo '</form>';
+    }
 
     if (!$token = $client->getAccessToken()) {
         echo 'No access token<br />';

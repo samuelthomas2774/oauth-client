@@ -25,7 +25,7 @@ trait ResourceOwnerCredentialsGrant
                 'client_secret' => $this->client_secret,
                 'username' => $username,
                 'password' => $password,
-            ]
+            ],
         ], false);
 
         if (isset($response->access_token)) {

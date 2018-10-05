@@ -14,19 +14,15 @@ if ($client_info) {
     $client = new $client_info['class']($client_info['id'], $client_info['secret'], null, $client_info['options']);
 
     try {
-        // Validate $_GET['state'], get an access token from $_GET['code'] and save it to the session
-        $token = $client->getAccessTokenFromRequestCode($client_info['redirect_url'], $client_info['scope']);
+        if (!isset($_POST['username']) || !isset($_POST['password'])) {
+            throw new Exception('Missing username and password.');
+        }
 
-        $state = $client->getRequestState();
+        $token = $client->getAccessTokenFromUserCredentials($_POST['username'], $_POST['password']);
 
         echo 'Success!<br />';
 
-        if (isset($state->link)) {
-            echo 'You clicked link #' . htmlentities($state->link) . '<br />';
-        }
-
-        echo 'Code: <pre>' . htmlentities($_GET['code']) . '</pre><br />';
-        echo 'State: <pre>' . htmlentities(print_r($state, true)) . '</pre><br />';
+        echo 'Username: <pre>' . htmlentities($_POST['username']) . '</pre><br />';
         echo 'Access token: <pre>' . htmlentities(print_r($token, true)) . '</pre><br />';
     } catch (Exception $exception) {
         echo 'Error: ' . htmlentities($exception->getMessage()) . '<br />';

@@ -27,7 +27,7 @@ trait RefreshTokenGrant
                 'client_id' => $this->client_id,
                 'client_secret' => $this->client_secret,
                 'refresh_token' => $refresh_token,
-            ]
+            ],
         ], false);
 
         if (isset($response->access_token)) {

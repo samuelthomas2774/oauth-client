@@ -14,21 +14,25 @@ if ($client_info) {
     $client = new $client_info['class']($client_info['id'], $client_info['secret'], null, $client_info['options']);
 
     try {
-        // Validate $_GET['state'], get an access token from $_GET['code'] and save it to the session
-        $token = $client->getAccessTokenFromRequestCode($client_info['redirect_url'], $client_info['scope']);
+        $old_token = $client->getAccessToken();
 
-        $state = $client->getRequestState();
+        if (isset($_GET['refresh_token'])) {
+            $refresh_token = $_GET['refresh_token'];
+            $token = $client->getAccessTokenFromRefreshToken($_GET['refresh_token']);
+        } else {
+            // Refresh the current access token
+            $refresh_token = $old_token ? $old_token->getRefreshToken() : null;
+            $token = $client->refreshAccessToken();
+        }
 
         echo 'Success!<br />';
 
-        if (isset($state->link)) {
-            echo 'You clicked link #' . htmlentities($state->link) . '<br />';
-        }
-
-        echo 'Code: <pre>' . htmlentities($_GET['code']) . '</pre><br />';
-        echo 'State: <pre>' . htmlentities(print_r($state, true)) . '</pre><br />';
+        echo 'Refresh token: <pre>' . htmlentities($refresh_token) . '</pre><br />';
         echo 'Access token: <pre>' . htmlentities(print_r($token, true)) . '</pre><br />';
+        echo 'Old access token: <pre>' . htmlentities(print_r($old_token, true)) . '</pre><br />';
     } catch (Exception $exception) {
+        echo 'Error: ' . htmlentities($exception->getMessage()) . '<br />';
+    } catch (TypeError $exception) {
         echo 'Error: ' . htmlentities($exception->getMessage()) . '<br />';
     }
 }
