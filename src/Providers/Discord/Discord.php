@@ -3,6 +3,7 @@
 namespace OAuth2\Providers\Discord;
 
 use OAuth2\OAuth;
+use OAuth2\AuthoriseUrl;
 use OAuth2\UserProfile;
 use OAuth2\UserProfilesInterface;
 use OAuth2\UserPicturesInterface;
@@ -169,8 +170,9 @@ class Discord extends OAuth implements UserProfilesInterface, UserPicturesInterf
      *
      * @param integer $integer
      * @param string $permission
+     * @return boolean
      */
-    public function integerHasPermission($integer, $permission)
+    public function integerHasPermission($integer, $permission): bool
     {
         return $integer & self::$permissions[$permission];
     }
@@ -180,9 +182,9 @@ class Discord extends OAuth implements UserProfilesInterface, UserPicturesInterf
      *
      * @param array|integer $permissions
      * @param string $redirect_url
-     * @return string
+     * @return \OAuth2\AuthoriseUrl
      */
-    public function inviteBot($permissions, string $redirect_url = null): string
+    public function inviteBot($permissions, string $redirect_url = null): AuthoriseUrl
     {
         if (is_array($permissions)) $permissions = $this->permissionsToInteger($permissions);
 
@@ -195,9 +197,9 @@ class Discord extends OAuth implements UserProfilesInterface, UserPicturesInterf
      * Generates a URL to add a webhook to a guild.
      *
      * @param string $redirect_url
-     * @return string
+     * @return \OAuth2\AuthoriseUrl
      */
-    public function inviteWebhook(string $redirect_url = null): string
+    public function inviteWebhook(string $redirect_url = null): AuthoriseUrl
     {
         return $this->generateAuthoriseUrlAndState($redirect_url, ['webhook.incoming']);
     }

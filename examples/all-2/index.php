@@ -107,7 +107,7 @@ if ($client_info) {
 
         echo 'Permissions integer `11` permissions: <pre>' . htmlentities(print_r($client->integerToPermissions(11), true)) . '</pre><br />';
 
-        echo 'Permissions integer `11` has `ADMINISTRATOR` permission: <pre>' . htmlentities(print_r($client->integerHasPermission(11, 'ADMINISTRATOR'), true)) . '</pre><br />';
+        echo 'Permissions integer `11` has `ADMINISTRATOR` permission: <pre>' . ($client->integerHasPermission(11, 'ADMINISTRATOR') ? 'true' : 'false') . '</pre><br />';
 
         echo '<a href="' . htmlentities($client->inviteBot(['ADMINISTRATOR'], $client_info['redirect_url'], $client_info['scope'])) . '">Invite bot with administrator permissions</a><br />';
 
