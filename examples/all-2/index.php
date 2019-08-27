@@ -14,7 +14,8 @@ use OAuth2\Grants\ResourceOwnerCredentialsGrantInterface;
 use OAuth2\Providers\Discord\Discord;
 
 // Start a session
-// This must be done after loading the autoloader (so access tokens can be unserialized properly) and before the client is created so the access token can be restored from the session
+// This must be done after loading the autoloader (so access tokens can be unserialized properly) and before the client
+// is created so the access token can be restored from the session
 session_start();
 
 $client_info = require __DIR__ . '/client.php';
@@ -34,18 +35,22 @@ if ($client_info) {
     // Output some authorise URLs with state data
     echo '<a href="' . htmlentities($client->generateAuthoriseUrl([
         'link' => 1,
-    ], $client_info['redirect_url'], $client_info['scope'])) . '">Login to ' . htmlentities($client_info['name']) . ' (1)</a><br />';
+    ], $client_info['redirect_url'], $client_info['scope'])) . '">Login to ' . htmlentities($client_info['name']) .
+        ' (1)</a><br />';
 
     echo '<a href="' . htmlentities($client->generateAuthoriseUrl([
         'link' => 2,
-    ], $client_info['redirect_url'], $client_info['scope'])) . '">Login to ' . htmlentities($client_info['name']) . ' (2)</a><br />';
+    ], $client_info['redirect_url'], $client_info['scope'])) . '">Login to ' . htmlentities($client_info['name']) .
+        ' (2)</a><br />';
 
     echo '<details><summary>Client:</summary><pre>' . htmlentities(print_r($client, true)) . '</pre></details>';
 
-    echo '<a href="' . htmlentities(dirname($_SERVER['SCRIPT_NAME']) . '/index.php' . $_SERVER['PATH_INFO'] . '?del_token=') . '">Delete token</a><br />';
+    echo '<a href="' . htmlentities(dirname($_SERVER['SCRIPT_NAME']) . '/index.php' . $_SERVER['PATH_INFO'] .
+        '?del_token=') . '">Delete token</a><br />';
 
     if ($client instanceof RefreshTokenGrantInterface) {
-        echo '<a href="' . htmlentities(dirname($_SERVER['SCRIPT_NAME']) . '/refresh.php' . $_SERVER['PATH_INFO']) . '">Refresh current token</a><br />';
+        echo '<a href="' . htmlentities(dirname($_SERVER['SCRIPT_NAME']) . '/refresh.php' . $_SERVER['PATH_INFO']) .
+            '">Refresh current token</a><br />';
 
         echo '<form action="' . htmlentities(dirname($_SERVER['SCRIPT_NAME']) . '/refresh.php' . $_SERVER['PATH_INFO']) . '">';
         echo '<input name="refresh_token" type="text" placeholder="Refresh token" />';
@@ -99,19 +104,24 @@ if ($client_info) {
     }
 
     if ($client instanceof Discord) {
-        echo 'CREATE_INSTANT_INVITE, KICK_MEMBERS and ADMINISTRATOR permissions integer: <pre>' . htmlentities(print_r($client->permissionsToInteger([
+        echo 'CREATE_INSTANT_INVITE, KICK_MEMBERS and ADMINISTRATOR permissions integer: ';
+        echo '<pre>' . htmlentities(print_r($client->permissionsToInteger([
             'CREATE_INSTANT_INVITE',
             'KICK_MEMBERS',
             'ADMINISTRATOR',
         ]), true)) . '</pre><br />';
 
-        echo 'Permissions integer `11` permissions: <pre>' . htmlentities(print_r($client->integerToPermissions(11), true)) . '</pre><br />';
+        echo 'Permissions integer `11` permissions: <pre>' .
+            htmlentities(print_r($client->integerToPermissions(11), true)) . '</pre><br />';
 
-        echo 'Permissions integer `11` has `ADMINISTRATOR` permission: <pre>' . ($client->integerHasPermission(11, 'ADMINISTRATOR') ? 'true' : 'false') . '</pre><br />';
+        echo 'Permissions integer `11` has `ADMINISTRATOR` permission: <pre>' .
+            ($client->integerHasPermission(11, 'ADMINISTRATOR') ? 'true' : 'false') . '</pre><br />';
 
-        echo '<a href="' . htmlentities($client->inviteBot(['ADMINISTRATOR'], $client_info['redirect_url'], $client_info['scope'])) . '">Invite bot with administrator permissions</a><br />';
+        echo '<a href="' . htmlentities($client->inviteBot(['ADMINISTRATOR'], $client_info['redirect_url'], $client_info['scope'])) .
+            '">Invite bot with administrator permissions</a><br />';
 
-        echo '<a href="' . htmlentities($client->inviteWebhook($client_info['redirect_url'], $client_info['scope'])) . '">Invite webhook</a><br />';
+        echo '<a href="' . htmlentities($client->inviteWebhook($client_info['redirect_url'], $client_info['scope'])) .
+            '">Invite webhook</a><br />';
     }
 }
 

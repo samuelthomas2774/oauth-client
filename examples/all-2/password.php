@@ -5,7 +5,8 @@ ini_set('display_errors', true);
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 // Start a session
-// This must be done after loading the autoloader (so access tokens can be unserialized properly) and before the client is created so the access token can be restored from the session
+// This must be done after loading the autoloader (so access tokens can be unserialized properly) and before the client
+// is created so the access token can be restored from the session
 session_start();
 
 $client_info = require __DIR__ . '/client.php';
@@ -29,4 +30,5 @@ if ($client_info) {
     }
 }
 
-echo '<a href="' . htmlentities(dirname($_SERVER['SCRIPT_NAME']) . '/index.php' . $_SERVER['PATH_INFO']) . '">Home</a><br />';
+echo '<a href="' . htmlentities((substr_count($_SERVER['SCRIPT_NAME'], '/', 1) >= 1 ? dirname($_SERVER['SCRIPT_NAME']) :
+    '') . '/index.php' . $_SERVER['PATH_INFO']) . '">Home</a><br />';
