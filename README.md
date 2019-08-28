@@ -3,6 +3,9 @@ OAuth Client
 
 An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsoft, Yahoo, GitHub, LinkedIn & more.
 
+> You can see the current source running on Heroku from [examples/all-2](examples/all-2) here:
+> https://oauth-client-test.herokuapp.com
+
 **[Built-in providers](#built-in-providers)**
 
 - [Facebook](https://facebook.com)
@@ -32,7 +35,8 @@ An OAuth 2.0 Client library with built-in support for Facebook, Google, Microsof
 - [Twitch](https://twitch.tv)
 - [Vimeo](https://vimeo.com)
 - [Reddit](https://reddit.com)
-- Other, just create a new OAuth2\\OAuth object and include the base_api_endpoint, authorise_endpoint and token_endpoint options
+- Other, just create a new `OAuth2\\GenericOAuthProvider` object and include the `base_api_endpoint`,
+    `authorise_endpoint` and `token_endpoint` options
 
 Requirements and installation
 ---
@@ -45,6 +49,7 @@ PHP 5.6 | No
 PHP 7.0 | No
 PHP 7.1 | Yes
 PHP 7.2 | Yes
+PHP 7.3 | Yes
 
 ### Composer
 
@@ -59,7 +64,7 @@ PHP 7.2 | Yes
 2. Run Composer  
     This will automatically download the latest patch version.
     ```
-    php composer.phar install
+    composer install
     ```
 
 Usage
@@ -74,7 +79,7 @@ Usage
     The `$options` array must have at least `base_api_endpoint`, `authorise_endpoint` and `token_endpoint`.
     ```php
     use OAuth2\GenericOAuthProvider;
-    
+
     $client_id = 'client-id';
     $client_secret = 'client-secret';
 
@@ -82,7 +87,7 @@ Usage
         'session_prefix' => 'facebook_',
         'base_api_endpoint' => 'https://graph.facebook.com',
         'authorise_endpoint' => 'https://facebook.com/dialog/oauth',
-        'token_endpoint' => 'oauth/access_token',
+        'token_endpoint' => 'oauth/access_token', // Relative to the base API URL
     ]);
     ```
 
@@ -108,7 +113,8 @@ Usage
     ```php
     // Returns an object of data returned from the server
     // This may include a new refresh_token
-    // $token can be a string (a refresh token) or an AccessToken object with a refresh token returned by all getAccessToken* methods
+    // $token can be a string (a refresh token) or an AccessToken object with a refresh token returned by all
+    // getAccessToken* methods
     $new_token = $oauth->getAccessTokenFromRefreshToken($token);
     ```
 - To make API requests with the access token:
@@ -120,7 +126,8 @@ Usage
     }
     ```
 - To get/set the current access token:
-    You do not need to do this at the start of the script to get the access token from the session, this is done automatically. Also, this function updates the access token in the session.
+    You do not need to do this at the start of the script to get the access token from the session, this is done
+    automatically. Also, this function updates the access token in the session.
     ```php
     // Get
     $token = $client->getAccessToken();
@@ -169,7 +176,8 @@ Yahoo `P`           | OAuth2\\Providers\\Yahoo\\Yahoo               | https://de
 
 \* This URL is for the default instance used
 
-All the built-in providers implement `OAuth2\UserProfilesInterface`, which adds an extra method to get a `OAuth2\UserProfile` object.
+All the built-in providers implement `OAuth2\UserProfilesInterface`, which adds an extra method to get a
+`OAuth2\UserProfile` object.
 
 ```php
 try {
@@ -179,7 +187,8 @@ try {
 }
 ```
 
-Some also implement `OAuth2\UserPicturesInterface` (`P`), which adds a method to get the URL of the user's picture/avatar.
+Some also implement `OAuth2\UserPicturesInterface` (`P`), which adds a method to get the URL of the user's
+picture/avatar.
 
 ```php
 try {
@@ -189,7 +198,8 @@ try {
 }
 ```
 
-As GitLab and Mastodon support multiple instances they implement `OAuth2\MultipleInstancesInterface`, which adds an option and method to set the instance's URL.
+As GitLab and Mastodon support multiple instances they implement `OAuth2\MultipleInstancesInterface`, which adds an
+option and method to set the instance's URL.
 
 ```php
 use OAuth2\Providers\GitLab\GitLab;

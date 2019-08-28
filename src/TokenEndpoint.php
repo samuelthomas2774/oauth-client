@@ -26,7 +26,8 @@ trait TokenEndpoint
     {
         $refresh_token = isset($response->refresh_token) ? $response->refresh_token : null;
         $expires = isset($response->expires_in) ? time() + $response->expires_in : null;
-        $scope = isset($response->scope) ? explode($this->scope_separator, $response->scope) : $requested_scope;
+        $scope = !isset($response->scope) ? $requested_scope :
+            strlen($response->scope) === 0 ? [] : explode($this->scope_separator, $response->scope);
 
         $token = new AccessToken($response->access_token, $refresh_token, $expires, $scope);
         $token->response = $response;

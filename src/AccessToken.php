@@ -160,6 +160,7 @@ class AccessToken implements JsonSerializable
         ];
 
         if (isset($this->expires)) {
+            $token['expires'] = $this->getExpirationTimestamp(); // Non-standard
             $token['expires_in'] = $this->getExpiresIn();
         }
 

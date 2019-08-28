@@ -14,11 +14,6 @@ use OAuth2\Grants\ImplicitGrantInterface;
 use OAuth2\Grants\ResourceOwnerCredentialsGrantInterface;
 use OAuth2\Grants\ClientCredentialsGrantInterface;
 
-use TypeError;
-
-use GuzzleHttp\Client as HttpClient;
-use Psr\Http\Message\ResponseInterface;
-
 class GenericOAuthProvider extends OAuth implements AuthorisationCodeGrantInterface, RefreshTokenGrantInterface, ImplicitGrantInterface, ResourceOwnerCredentialsGrantInterface, ClientCredentialsGrantInterface
 {
     use AuthoriseEndpoint;

@@ -2,6 +2,10 @@
 
 /**
  * Base OAuth 2.0 client class.
+ *
+ * On it's own this class doesn't really do anything. It holds some options, an access token and a session handler.
+ * Everything else is in traits and interfaces that should be used by classes for providers that support them.
+ * There's also OAuth2\GenericOAuthProvider which has traits and interfaces for all OAuth 2.0 grants.
  */
 
 namespace OAuth2;
@@ -11,7 +15,7 @@ use TypeError;
 use GuzzleHttp\Client as HttpClient;
 use Psr\Http\Message\ResponseInterface;
 
-class OAuth
+abstract class OAuth
 {
     /**
      * The client ID.
@@ -154,7 +158,8 @@ class OAuth
         $client = new HttpClient($this->getGuzzleDefaultOptions());
 
         if ($auth instanceof AccessToken || is_string($auth)) {
-            $options = $this->authenticateAccessTokenToApiRequestOptions($method, $url, $options, is_string($auth) ? new AccessToken($auth) : $auth);
+            $options = $this->authenticateAccessTokenToApiRequestOptions($method, $url, $options,
+                is_string($auth) ? new AccessToken($auth) : $auth);
         } elseif ($auth === true) {
             $options = $this->authenticateClientToApiRequestOptions($method, $url, $options);
         } elseif ($this->access_token && $auth !== false) {
@@ -232,7 +237,9 @@ class OAuth
     {
         if (is_string($token)) $token = new AccessToken($token);
 
-        if (!$token instanceof AccessToken && $token !== null) throw new TypeError('$token must be an \OAuth2\AccessToken object, a string or null.');
+        if (!$token instanceof AccessToken && $token !== null) {
+            throw new TypeError('$token must be an \OAuth2\AccessToken object, a string or null.');
+        }
 
         $this->access_token = $token;
 
