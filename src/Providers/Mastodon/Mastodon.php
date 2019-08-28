@@ -77,7 +77,7 @@ class Mastodon extends OAuth implements UserProfilesInterface, UserPicturesInter
      */
     public function getUserProfile(): UserProfile
     {
-        $response = $this->api('GET', 'account/verify_credentials');
+        $response = $this->api('GET', 'accounts/verify_credentials');
 
         $user = new MastodonUserProfile(isset($response->id) ? $response->id : '');
 
@@ -96,7 +96,7 @@ class Mastodon extends OAuth implements UserProfilesInterface, UserPicturesInter
      */
     public function getUserPictureUrl(int $size = 50): ?string
     {
-        $response = $this->api('GET', 'account/verify_credentials');
+        $response = $this->api('GET', 'accounts/verify_credentials');
 
         if (!isset($response->avatar)) return null;
 
