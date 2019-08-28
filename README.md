@@ -94,19 +94,40 @@ Usage
 
 - To get a link to the authorise page:
     ```php
-    $redirect_url = 'http://example.com/facebook/code.php';
+    $redirect_url = 'https://example.com/facebook/code.php';
     $scope = ['email', 'user_friends']; // Optional scope array
+
+    // Returns an OAuth2\AuthoriseUrl object
+    // This will be converted to a string automatically if needed
+    // You can use this object to get the OAuth2\State object to store extra state data accessible with
+    // $client->getRequestState() when the user accepts/rejects the authorise request
     $login_url = $client->generateAuthoriseUrlAndState($redirect_url, $scope);
+
+    // Add data to the state object
+    // Every time generateAuthoriseUrlAndState is called a new state object will be created with separate data,
+    // so you can have multiple authorise links on the same page and have the authorise response page react differently
+    // depending on which link was used
+    $login_url->getState()->next_url = '/';
+    ```
+    ```php
+    // You can also set the state parameter yourself (not recommended)
+    // $login_url->getState() will still return a state object, but the attached data won't be saved
+    // Use $login_url->getStateId(), $login_url->getState()->getId() or cast the state object to a string to get the
+    // value of the state parameter
+    $state = '...'; // Generate a random value and store in somewhere the next page can access (or set to null to not set a state parameter)
+    $login_url = $client->generateAuthoriseUrl($state, $redirect_url, $scope);
     ```
 - To get an access token from the code that was returned:
     ```php
-    // Must match the $redirect_url given to generateAuthoriseUrl exactly
-    // The user will not be redirected anywhere
-    $redirect_url = 'http://example.com/facebook/code.php';
+    // Validates the request state and returns an OAuth2\AccessToken object
+    $token = $client->getAccessTokenFromRequestCodeAndState();
+    ```
+    ```php
+    // You can also validate the state and pass the redirect url and an optional requested scope array yourself
+    // Only do this if you set the state parameter when you generated the authorise link
 
-    // Returns an object of data returned from the server
-    // This may include a refresh_token
-    $requested_scope = ['email', 'user_friends']; // Optional requested scope array
+    $redirect_url = 'https://example.com/facebook/code.php'; // Must match the $redirect_url given to generateAuthoriseUrl exactly
+    $requested_scope = ['email', 'user_friends']; // Optional requested scope array to include in the AccessToken object
     $token = $client->getAccessTokenFromRequestCode($redirect_url, $requested_scope);
     ```
 - To get an access token a refresh token:
