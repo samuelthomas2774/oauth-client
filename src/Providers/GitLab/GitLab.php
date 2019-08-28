@@ -101,6 +101,7 @@ class GitLab extends OAuth implements UserProfilesInterface, UserPicturesInterfa
 
         if (!isset($response->avatar_url)) return null;
 
-        return $response->avatar_url . ($size ? '&size=' . $size : '');
+        return $response->avatar_url .
+            ($size ? (strpos($response->avatar_url, '?') !== false ? '&' : '?') . 'size=' . $size : '');
     }
 }

@@ -84,7 +84,7 @@ class Discord extends OAuth implements UserProfilesInterface, UserPicturesInterf
         'MANAGE_NICKNAMES'      => 0x08000000,
         'MANAGE_ROLES'          => 0x10000000,
         'MANAGE_WEBHOOKS'       => 0x20000000,
-        'MANAGE_EMOJIS'         => 0x40000000
+        'MANAGE_EMOJIS'         => 0x40000000,
     ];
 
     /**
@@ -101,7 +101,8 @@ class Discord extends OAuth implements UserProfilesInterface, UserPicturesInterf
         $user->response = $response;
         $user->username = $response->username . '#' . $response->discriminator;
         $user->name = $response->username;
-        $user->email_addresses = [$response->email];
+        $user->email_addresses = [];
+        if (isset($response->email)) array_push($user->email_addresses, $response->email);
 
         return $user;
     }
