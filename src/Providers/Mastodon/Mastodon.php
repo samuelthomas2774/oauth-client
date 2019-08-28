@@ -36,7 +36,7 @@ class Mastodon extends OAuth implements UserProfilesInterface, UserPicturesInter
      *
      * @var string
      */
-    public $base_api_endpoint = 'https://mastodon.social';
+    public $base_api_endpoint = 'https://mastodon.social/api/v1/';
 
     /**
      * OAuth 2.0 authorise endpoint.
